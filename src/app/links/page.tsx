@@ -25,6 +25,23 @@ export default function Links() {
           <div className="flex flex-col gap-2 mb-8">
             <div className="group">
               <Link
+                href="https://resume-ankushhkapoor.vercel.app/pdf/ankush-kapoor-resume.pdf"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center justify-between text-lg hover:translate-x-1 transition-all duration-300 ease-out"
+                onClick={() => track(`cal_link_clicked`)}
+              >
+                <span>My Résumé</span>
+                <ArrowUpRight />
+              </Link>
+            </div>
+          </div>
+        </AnimateIn>
+
+        {/* <AnimateIn variant="fadeUp" delay={0.4}>
+          <div className="flex flex-col gap-2 mb-8">
+            <div className="group">
+              <Link
                 href="https://cal.link/ahmet"
                 target="_blank"
                 rel="noopener noreferrer"
@@ -36,9 +53,26 @@ export default function Links() {
               </Link>
             </div>
           </div>
-        </AnimateIn>
+        </AnimateIn> */}
 
         <AnimateIn variant="fadeUp" delay={0.4}>
+          <div className="flex flex-col gap-2 mb-8">
+            <div className="group">
+              <Link
+                href=" "
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center justify-between text-lg hover:translate-x-1 transition-all duration-300 ease-out"
+                onClick={() => track(`cal_link_clicked`)}
+              >
+                <span>Résumé</span>
+                <ArrowUpRight />
+              </Link>
+            </div>
+          </div>
+        </AnimateIn>
+
+        {/* <AnimateIn variant="fadeUp" delay={0.4}>
           <div className="flex flex-col gap-2">
             {projectLinks.map((link) => (
               <div key={link.name} className="group">
@@ -55,7 +89,7 @@ export default function Links() {
               </div>
             ))}
           </div>
-        </AnimateIn>
+        </AnimateIn> */}
 
         <AnimateIn variant="fadeUp" delay={0.4} className="mt-8">
           <div className="flex flex-col gap-2">
@@ -79,7 +113,7 @@ export default function Links() {
 
       <AnimateIn variant="fadeUp" delay={0.8} className="">
         <footer className="pt-4 text-xs text-zinc-400 dark:text-zinc-500 flex justify-between items-center">
-          <div>ahmet.studio</div>
+          <div>Ankush Kapoor</div>
           <div>Built with Next.js</div>
         </footer>
       </AnimateIn>
@@ -93,41 +127,37 @@ type Link = {
   track?: string;
 };
 
-const projectLinks: Link[] = [
-  {
-    name: "oss.now",
-    url: "https://oss.now",
-  },
-  {
-    name: "Zero/0.email",
-    track: "zero_email_clicked",
-    url: "https://0.email",
-  },
-  {
-    name: "ui.ahmet.studio",
-    url: "https://ui.ahmet.studio",
-  },
-];
+// const projectLinks: Link[] = [
+//   {
+//     name: "oss.now",
+//     url: "https://oss.now",
+//   },
+//   {
+//     name: "Zero/0.email",
+//     track: "zero_email_clicked",
+//     url: "https://0.email",
+//   },
+//   {
+//     name: "ui.ahmet.studio",
+//     url: "https://ui.ahmet.studio",
+//   },
+// ];
 
 const socialLinks: Link[] = [
   {
     name: "Portfolio",
-    url: "https://dub.sh/ahmet",
+    url: " ",
   },
   {
     name: "GitHub",
-    url: "https://dub.sh/ahmetgh",
-  },
-  {
-    name: "X",
-    url: "https://dub.sh/ahmetx",
+    url: "https://github.com/ankushhKapoor",
   },
   {
     name: "LinkedIn",
-    url: "https://dub.sh/ahmetli",
+    url: "https://www.linkedin.com/in/ankushhKapoor",
   },
   {
     name: "Instagram",
-    url: "https://dub.sh/ahmetig",
+    url: "https://www.instagram.com/ankushh.kapoor",
   },
 ];

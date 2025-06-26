@@ -15,13 +15,14 @@ export default function Home() {
         <section className="mb-6">
           <AnimateIn variant="fadeUp" delay={0.2}>
             <h1 className="text-xl font-medium tracking-tight mb-4 flex items-baseline justify-between">
-              <span>Hey, I&apos;m Ahmet</span>
+              <span>Hey, I&apos;m Ankush</span>
               <ThemeToggle />
             </h1>
           </AnimateIn>
           <AnimateIn variant="fadeUp" delay={0.4}>
             <p className="text-sm text-zinc-600 dark:text-zinc-400 max-w-xl mb-8">
-              Software Engineer from London. Open to work. Contact me below. Currently building{" "}
+              Computer Engineer student from India. Open to work. Contact me below.
+              {/* Currently building{" "}
               <a
                 href="https://0.email"
                 target="_blank"
@@ -41,7 +42,7 @@ export default function Home() {
               >
                 oss.now
               </a>
-              .
+              . */}
             </p>
           </AnimateIn>
 
@@ -92,7 +93,7 @@ export default function Home() {
                                   GitHub <ExternalLink className="w-3 h-3" />
                                 </a>
                               ) : null}
-                              {project.link ? (
+                              {/* {project.link ? (
                                 <a
                                   href={project.link}
                                   target="_blank"
@@ -102,7 +103,7 @@ export default function Home() {
                                 >
                                   View <ExternalLink className="w-3 h-3" />
                                 </a>
-                              ) : null}
+                              ) : null} */}
                             </div>
                           </div>
                           <p className="text-sm text-zinc-500 dark:text-zinc-400 mb-2">{project.description}</p>
@@ -139,6 +140,30 @@ export default function Home() {
                               {job.role} {job.role.toLowerCase().includes("freelance") ? "" : "at"} {job.company}
                             </h3>
                             <span className="text-xs text-zinc-400 dark:text-zinc-500">{job.period}</span>
+                          </div>
+                          <div className="flex flex-col sm:flex-row sm:items-baseline justify-between mb-1">
+                          {job.github ? (
+                            <a
+                              href={job.github}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="flex items-center gap-1 text-xs text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors"
+                              onClick={() => track(`${job.role}_github_clicked`)}
+                            >
+                              GitHub <ExternalLink className="w-3 h-3" />
+                            </a>
+                          ) : null}
+                          {job.link ? (
+                            <a
+                              href={job.link}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="flex items-center gap-1 text-xs text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors"
+                              onClick={() => track(`${job.company}_clicked`)}
+                            >
+                              View <ExternalLink className="w-3 h-3" />
+                            </a>
+                          ) : null}
                           </div>
                           <p className="text-sm text-zinc-500 dark:text-zinc-400 mb-2">{job.description}</p>
                           <div className="flex flex-wrap gap-2">
@@ -180,7 +205,7 @@ export default function Home() {
 
       <AnimateIn variant="fadeUp" delay={0.8}>
         <footer className="pt-4 text-xs text-zinc-400 dark:text-zinc-500 flex justify-between items-center">
-          <div>ahmet.studio</div>
+          <div>Ankush Kapoor</div>
           <div>Built with Next.js</div>
         </footer>
       </AnimateIn>
@@ -190,185 +215,112 @@ export default function Home() {
 
 const projects = [
   {
-    title: "oss.now",
-    description: "A place to share your open source projects and find new ones.",
-    link: "https://oss.now",
-    github: "https://github.com/ahmetskilinc/ossdotnow",
-    technologies: ["Next.js", "TypeScript", "Tailwind CSS", "Shadcn UI", "Payload CMS", "Postgres"],
+    title: "KapoorVM",
+    description: "A 16-bit virtual CPU built from scratch in C with custom opcodes and 65 KB of virtual memory.",
+    // link: "https://github.com/ankushhKapoor/KapoorVM",
+    github: "https://github.com/ankushhKapoor/KapoorVM-16bit",
+    technologies: ["C", "Linux", "GCC", "Git"],
   },
   {
-    title: "UI Registry",
-    description: "A simple UI registry for components and blocks using the shadcn api.",
-    link: "https://l.ahmet.studio/ui",
-    github: "https://l.ahmet.studio/gh",
-    technologies: ["Next.js", "TypeScript", "Tailwind CSS", "Shadcn UI"],
+    title: "Alloc",
+    description: "A custom memory allocator mimicking malloc/free with secure deallocation and debugger tools.",
+    // link: "https://github.com/ankushhKapoor/alloc",
+    github: "https://github.com/ankushhKapoor/alloc",
+    technologies: ["C", "Linux", "NASM", "GCC"],
   },
   {
-    title: "E-commerce Platform",
-    description: "A full-featured e-commerce platform with product management, cart functionality, and payment processing.",
-    link: "https://payload-ecommerce-app.vercel.app/",
-    github: "https://github.com/ahmetskilinc/payload-ecommerce",
-    technologies: ["Next.js", "TypeScript", "Tailwind CSS", "Payload CMS", "Stripe"],
+    title: "CodeNexus",
+    description: "A Python-based code editor with syntax highlighting, autocomplete, and integrated CMD runner.",
+    // link: "https://github.com/ankushhKapoor/CodeNexus",
+    github: "https://github.com/ankushhKapoor/CodeNexus-Custom-Python-Editor-IDE",
+    technologies: ["Python", "PyQt5", "QScintilla", "Jedi"],
   },
   {
-    title: "Portfolio Website",
-    description: "A minimalist portfolio website showcasing projects and skills with a clean, responsive design.",
-    link: "https://dub.sh/ahmet/",
-    technologies: ["Next.js", "TypeScript", "Tailwind CSS"],
+    title: "Email Unsubscriber",
+    description: "A tool to automatically unsubscribe from emails by scanning inbox and visiting unsubscribe links.",
+    // link: "https://github.com/ankushhKapoor/email-unsubscriber",
+    github: "https://github.com/ankushhKapoor/Python-Email-Auto-Unsubscriber",
+    technologies: ["Python", "IMAP", "SMTP", "BeautifulSoup", "requests"],
   },
   {
-    title: "Work Hours Tracker - web",
-    description: "A collaborative task management web application with real-time updates and team functionality.",
-    link: "https://work-hours-tracker-chi.vercel.app/",
-    github: "https://github.com/ahmetskilinc/work-hours-web",
-    technologies: ["Next.js", "TypeScript", "Tailwind CSS", "Web Sockets", "Supabase"],
+  title: "AI Flappy Bird",
+  description: "A NEAT-powered Flappy Bird game where AI birds learn to play by evolving neural networks through generations.",
+  // link: "https://github.com/ankushhKapoor/flappy-bird-ai",
+  github: "https://github.com/ankushhKapoor/Flappy-Bird-AI",
+  technologies: ["Python", "Pygame", "NEAT", "OOP"],
   },
   {
-    title: "Work Hours Tracker - mobile",
-    description: "A collaborative task management mobile application with real-time updates and team functionality.",
-    github: "https://github.com/ahmetskilinc/work-hours-app",
-    technologies: ["Expo", "React Native", "TypeScript", "Web Sockets", "Supabase"],
-  },
-  {
-    title: "Payload CMS Appointment Scheduling Plugin",
-    description: "A plugin for Payload CMS that allows users to schedule appointments.",
-    github: "https://github.com/ahmetskilinc/payload-appointments-plugin",
-    technologies: ["Next.js", "TypeScript", "Payload CMS"],
-  },
-  {
-    title: "Payload CMS Media Grid View Plugin",
-    description: "A plugin for Payload CMS that allows users to view media in a grid view.",
-    github: "https://github.com/ahmetskilinc/payload-media-grid-plugin",
-    technologies: ["Next.js", "TypeScript", "Payload CMS"],
+  title: "Chess Game",
+  description: "An offline player-vs-player chess game built with Pygame, featuring move validation, themes, pawn promotion, castling, and en passant.",
+  // link: "https://github.com/ankushhKapoor/python-chess",
+  github: "https://github.com/ankushhKapoor/Chess-Python",
+  technologies: ["Python", "Pygame", "OOP"],
   },
 ];
 
 const experience = [
   {
-    role: "Software Engineer",
-    company: "Zero Email Inc. (US, remote)",
-    period: "Feb 2025 - Present",
-    description:
-      "Software engineer responsible for core features and performance optimisations for an innovative AI-powered email client, focusing on intelligent email processing and real-time collaboration.",
-    technologies: ["Next.js", "TypeScript", "Tailwind CSS", "Postgres", "Google APIs"],
-  },
-  {
-    role: "Freelance Developer",
-    period: "Mar 2024 - May 2025",
-    description:
-      "Delivering custom web solutions for diverse clients, specialising in e-commerce platforms, content management systems, and business automation tools.",
-    technologies: ["Next.js", "TypeScript", "Tailwind CSS", "Postgres", "MongoDB", "PayloadCMS", "Google APIs"],
-  },
-  {
-    role: "Front End Developer",
-    company: "Executives Place",
-    period: "Oct 2023 - Feb 2024",
-    description: "Developed and maintained multiple features for the SaaS product, from performance improvements to new features.",
-    technologies: ["Vue.js", "Node.js", "Laravel", "SQL"],
-  },
-  {
-    role: "Full Stack Developer",
-    company: "XLN Telecom (Daisy Comms)",
-    period: "Nov 2020 - Aug 2023",
-    description: "Developed and maintained the company brochure site to guide and increase sales.",
-    technologies: ["Vue.js", "Nuxt.js", "JavaScript", "SQL", "MongoDB", "C#", "ASP.NET", "WordPress"],
-  },
-  {
-    role: "Junior Web Developer",
-    company: "Absowebly",
-    period: "Jul 2018 - Sep 2018",
-    description: "Developing and maintaining client websites with a proprietary CMS.",
-    technologies: ["PHP", "HTML", "CSS", "JavaScript", "Sass"],
+    role: "Open Source Contributor",
+    company: "Holidays Framework",
+    period: "Jan 2025 – Present",
+    link: "https://pypi.org/project/holidays/",
+    github: "https://github.com/vacanza/holidays/pulls/ankushhKapoor",
+    description: "Contributed to the Open World Holidays Framework — a Python-based library — by adding public holidays for India, Nepal, and Mongolia, including static, lunisolar, optional, and workday-based observances.",
+    technologies: ["Python", "Git", "GitHub", "Data Processing", "Open Source Collaboration"],
   },
 ];
 
 const tools = [
   {
-    logo: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg",
-    title: "React",
+    logo: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/python/python-original.svg",
+    title: "Python",
   },
   {
-    logo: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nextjs/nextjs-original.svg",
-    title: "NextJS",
+    logo: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/c/c-original.svg",
+    title: "C",
   },
   {
-    logo: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/reactrouter/reactrouter-original.svg",
-    title: "React Router",
-  },
-  // {
-  //   logo: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/vuejs/vuejs-original.svg",
-  //   title: "VueJS",
-  // },
-  // {
-  //   logo: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nuxtjs/nuxtjs-original.svg",
-  //   title: "NuxtJS",
-  // },
-  // {
-  //   logo: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/html5/html5-original.svg",
-  //   title: "HTML",
-  // },
-  // {
-  //   logo: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/css3/css3-original.svg",
-  //   title: "CSS",
-  // },
-  // {
-  //   logo: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/javascript/javascript-original.svg",
-  //   title: "Javascript",
-  // },
-  {
-    logo: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/typescript/typescript-original.svg",
-    title: "Typescript",
+    logo: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/html5/html5-original.svg",
+    title: "HTML5",
   },
   {
-    logo: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/trpc/trpc-original.svg",
-    title: "TRPC",
+    logo: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/css3/css3-original.svg",
+    title: "CSS",
   },
-  {
-    logo: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/googlecloud/googlecloud-original.svg",
-    title: "Google Cloud",
-  },
-  // {
-  //   logo: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/amazonwebservices/amazonwebservices-original-wordmark.svg",
-  //   title: "AWS",
-  // },
-  {
-    logo: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nodejs/nodejs-original.svg",
-    title: "NodeJS",
-  },
-  {
-    logo: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/bun/bun-original.svg",
-    title: "Bun",
-  },
-  {
-    logo: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/postgresql/postgresql-original.svg",
-    title: "PostgreSQL",
-  },
-  {
-    logo: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/cloudflare/cloudflare-original.svg",
-    title: "Cloudflare",
-  },
-  {
-    logo: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/vercel/vercel-original.svg",
-    title: "Vercel",
-  },
-  // {
-  //   logo: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/sass/sass-original.svg",
-  //   title: "Sass",
-  // },
   {
     logo: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/tailwindcss/tailwindcss-original.svg",
-    title: "TailwindCSS",
+    title: "Tailwind CSS",
+  },
+  {
+    logo: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/java/java-original.svg",
+    title: "Java",
+  },
+  {
+    logo: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/mysql/mysql-original.svg",
+    title: "MySQL",
   },
   {
     logo: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/git/git-original.svg",
-    title: "GIT",
+    title: "Git",
   },
-  // {
-  //   logo: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/figma/figma-original.svg",
-  //   title: "Figma",
-  // },
-  // {
-  //   logo: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/sketch/sketch-original.svg",
-  //   title: "Sketch",
-  // },
+  {
+    logo: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/github/github-original.svg",
+    title: "GitHub",
+  },
+  {
+    logo: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/neovim/neovim-original.svg",
+    title: "Neovim",
+  },
+  {
+    logo: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/vscode/vscode-original.svg",
+    title: "VS Code",
+  },
+  {
+    logo: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/linux/linux-original.svg",
+    title: "Linux",
+  },
+  {
+    logo: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/windows8/windows8-original.svg",
+    title: "Windows",
+  },
 ];
