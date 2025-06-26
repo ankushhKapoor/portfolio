@@ -3,4 +3,4 @@ Allow: /
 Disallow: /cgi-bin/
 Disallow: /pref/
 Disallow: /pref/*
-Sitemap: https://ahmetk.dev/sitemap.xml
+Sitemap: https://ankushhkapoor.vercel.app/sitemap.xml

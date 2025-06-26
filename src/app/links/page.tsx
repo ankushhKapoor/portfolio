@@ -55,23 +55,6 @@ export default function Links() {
           </div>
         </AnimateIn> */}
 
-        <AnimateIn variant="fadeUp" delay={0.4}>
-          <div className="flex flex-col gap-2 mb-8">
-            <div className="group">
-              <Link
-                href=" "
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center justify-between text-lg hover:translate-x-1 transition-all duration-300 ease-out"
-                onClick={() => track(`cal_link_clicked`)}
-              >
-                <span>Résumé</span>
-                <ArrowUpRight />
-              </Link>
-            </div>
-          </div>
-        </AnimateIn>
-
         {/* <AnimateIn variant="fadeUp" delay={0.4}>
           <div className="flex flex-col gap-2">
             {projectLinks.map((link) => (
@@ -146,7 +129,7 @@ type Link = {
 const socialLinks: Link[] = [
   {
     name: "Portfolio",
-    url: " ",
+    url: "https://ankushhkapoor.vercel.app",
   },
   {
     name: "GitHub",
@@ -156,8 +139,8 @@ const socialLinks: Link[] = [
     name: "LinkedIn",
     url: "https://www.linkedin.com/in/ankushhKapoor",
   },
-  {
-    name: "Instagram",
-    url: "https://www.instagram.com/ankushh.kapoor",
-  },
+  // {
+  //   name: "Instagram",
+  //   url: "https://www.instagram.com/ankushh.kapoor",
+  // },
 ];

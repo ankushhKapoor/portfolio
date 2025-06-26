@@ -36,7 +36,7 @@ const RootLayout: React.FC<Props> = ({ children }) => {
 export default RootLayout;
 
 export const viewport: Viewport = {
-  themeColor: "##ffffff",
+  themeColor: "#ffffff",
   initialScale: 1,
 };
 
@@ -44,7 +44,7 @@ export const metadata: Metadata = {
   metadataBase: new URL(getUrl),
   title: {
     default: "Ankush Kapoor | Computer Engineering Student | Based in India",
-    template: `%s - Ahmet Kilinc | Software Engineer | Based in London`,
+    template: `%s - Ankush Kapoor | Computer Engineering Student | Based in India`,
   },
   description: "Explore my projects and previous work, or contact me.",
 };

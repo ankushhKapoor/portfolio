@@ -15,9 +15,13 @@ const socialMedia = [
     name: "linkedin",
     link: "https://www.linkedin.com/in/ankushhkapoor",
   },
+  // {
+  //   name: "instagram",
+  //   link: "https://www.instagram.com/ankushh.kapoor",
+  // },
   {
-    name: "instagram",
-    link: "https://www.instagram.com/ankushh.kapoor",
+    name: "resume",
+    link: "https://resume-ankushhkapoor.vercel.app/",
   },
   {
     name: "email",

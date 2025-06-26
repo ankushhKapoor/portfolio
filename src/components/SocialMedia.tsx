@@ -5,6 +5,7 @@ import Github from "./icons/Github";
 import X from "./icons/X";
 import Instagram from "./icons/Instagram";
 import LinkedIn from "./icons/LinkedIn";
+import Resume from "./icons/Resume";
 import Calcom from "./icons/Calcom";
 import React, { SVGProps } from "react";
 import socialMedia from "@/utilities/socialMedia";
@@ -20,6 +21,7 @@ const Icon: React.FC<IconProps> = ({ name, ...props }) => {
     email: <Email {...props} />,
     github: <Github {...props} />,
     x: <X {...props} />,
+    resume: <Resume {...props} />,
     calcom: <Calcom {...props} />,
   };
 
