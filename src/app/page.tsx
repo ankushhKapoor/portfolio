@@ -262,7 +262,7 @@ const experience = [
   {
     role: "Open Source Contributor",
     company: "Holidays Framework",
-    period: "Jan 2025 – Present",
+    period: "Jan 2025 – June 2025",
     link: "https://pypi.org/project/holidays/",
     github: "https://github.com/vacanza/holidays/pulls/ankushhKapoor",
     description: "Contributed to the Open World Holidays Framework — a Python-based library — by adding public holidays for India, Nepal, and Mongolia, including static, lunisolar, optional, and workday-based observances.",
