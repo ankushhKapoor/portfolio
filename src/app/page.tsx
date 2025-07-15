@@ -218,7 +218,7 @@ const projects = [
     title: "KapoorVM",
     description: "A 16-bit virtual CPU built from scratch in C with custom opcodes and 65 KB of virtual memory.",
     // link: "https://github.com/ankushhKapoor/KapoorVM",
-    github: "https://github.com/ankushhKapoor/KapoorVM-16bit",
+    github: "https://github.com/ankushhKapoor/KapoorVM",
     technologies: ["C", "Linux", "GCC", "Git"],
   },
   {
