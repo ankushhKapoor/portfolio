@@ -139,6 +139,10 @@ const socialLinks: Link[] = [
     name: "LinkedIn",
     url: "https://www.linkedin.com/in/ankushhKapoor",
   },
+  {
+    name: "X",
+    url: "https://x.com/ankushhKapoor",
+  },
   // {
   //   name: "Instagram",
   //   url: "https://www.instagram.com/ankushh.kapoor",

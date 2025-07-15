@@ -7,13 +7,13 @@ const socialMedia = [
     name: "github",
     link: "https://github.com/ankushhKapoor",
   },
-  // {
-  //   name: "x",
-  //   link: "https://dub.sh/ahmetx",
-  // },
   {
     name: "linkedin",
     link: "https://www.linkedin.com/in/ankushhkapoor",
+  },
+  {
+    name: "x",
+    link: "https://x.com/ankushhKapoor",
   },
   // {
   //   name: "instagram",
