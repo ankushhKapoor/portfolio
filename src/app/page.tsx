@@ -63,6 +63,9 @@ export default function Home() {
             <TabsTrigger value="experience" className="!bg-transparent !border-none !shadow-none">
               Experience
             </TabsTrigger>
+            <TabsTrigger value="extracurricular" className="!bg-transparent !border-none !shadow-none">
+              Extracurricular
+            </TabsTrigger>
             <TabsTrigger value="tools" className="!bg-transparent !border-none !shadow-none">
               Tools
             </TabsTrigger>
@@ -183,6 +186,66 @@ export default function Home() {
             </section>
           </AnimateIn>
         </TabsContent>
+
+        <TabsContent value="extracurricular">
+          <AnimateIn variant="fadeUp" delay={0}>
+            <section className="mb-12">
+              <div className="space-y-8">
+                <ul className="space-y-8">
+                  {extracurricular.map((job, index) => {
+                    const delay = 0.1 + index * 0.1;
+                    return (
+                      <AnimateIn key={index} variant="fadeLeft" delay={delay}>
+                        <li className="group hover:translate-x-1 transition-all duration-300 ease-out">
+                          <div className="flex flex-col sm:flex-row sm:items-baseline justify-between mb-1">
+                            <h3 className="text-md font-medium">
+                              {job.role} {job.role.toLowerCase().includes("freelance") ? "" : "at"} {job.company}
+                            </h3>
+                            <span className="text-xs text-zinc-400 dark:text-zinc-500">{job.period}</span>
+                          </div>
+                          <div className="flex flex-col sm:flex-row sm:items-baseline justify-between mb-1">
+                          {job.link ? (
+                            <a
+                              href={job.link.url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="flex items-center gap-1 text-xs text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors"
+                              onClick={() => track(`${job.company}_clicked`)}
+                            >
+                              View ({job.link.label}) <ExternalLink className="w-3 h-3" />
+                            </a>
+                          ) : null}
+                          {job.extraLink ? (
+                                <a
+                                  href={job.extraLink.url}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="flex items-center gap-1 text-xs text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors"
+                                  onClick={() => track(`${job.extraLink.label}_clicked`)}
+                                >
+                                  View ({job.extraLink.label}) <ExternalLink className="w-3 h-3" />
+                                </a>
+                              ) : null}
+                          </div>
+                          <p className="text-sm text-zinc-500 dark:text-zinc-400 mb-2">{job.description}</p>
+                          <div className="flex flex-wrap gap-2">
+                            {job.technologies.map((tech, techIndex) => (
+                              <span key={techIndex} className="text-xs text-zinc-400 dark:text-zinc-500">
+                                {tech}
+                                {techIndex < job.technologies.length - 1 ? " /" : ""}
+                              </span>
+                            ))}
+                          </div>
+                        </li>
+                      </AnimateIn>
+                    );
+                  })}
+                </ul>
+              </div>
+            </section>
+          </AnimateIn>
+        </TabsContent>
+
         <TabsContent value="tools">
           <AnimateIn variant="fadeUp" delay={0}>
             <section className="mb-12">
@@ -269,6 +332,26 @@ const experience = [
     technologies: ["Python", "Git", "GitHub", "Data Processing", "Open Source Collaboration"],
   },
 ];
+
+const extracurricular = [
+  {
+    role: "Core Team Member",
+    company: "Our Tech Community (OTC)",
+    period: "Jul 2025 – Present",
+    link: {
+      label: "OTC Wesbite",
+      url: "https://ourtech.community",
+    },
+    extraLink: {
+      label: "Catchup",
+      url: "https://catchup.ourtech.community/",
+    },
+    description:
+      "Core organizer for OTC CatchUp — a weekly community-led online event where tech enthusiasts share ideas, showcase projects, and engage in meaningful technical discussions. Also contribute to managing and growing an inclusive, tech-driven community.",
+    technologies: ["Community Building", "Event Organization", "Technical Communication", "Team Collaboration"],
+  },
+];
+
 
 const tools = [
   {
