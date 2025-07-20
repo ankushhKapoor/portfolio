@@ -251,7 +251,7 @@ export default function Home() {
             <section className="mb-12">
               <div className="flex flex-wrap gap-y-6 gap-x-4 justify-center">
                 {tools.map(({ logo, title }, index) => (
-                  <AnimateIn key={index} variant="scale" delay={0.1 + index * 0.03} className="w-[calc(25%-12px)] sm:w-[calc(20%-13px)]">
+                  <AnimateIn key={index} variant="fadeLeft" delay={0.1 + index * 0.03} className="w-[calc(25%-12px)] sm:w-[calc(20%-13px)]">
                     <div className="flex flex-col items-center group">
                       <div className="relative h-7 w-7 sm:h-8 sm:w-8 mb-3 transition-all duration-300 ease-out group-hover:scale-110 group-hover:-translate-y-1">
                         <Image src={logo} alt={`${title} logo`} fill className="object-contain drop-shadow-md" loading="eager" />
