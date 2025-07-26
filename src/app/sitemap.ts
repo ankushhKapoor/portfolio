@@ -1,12 +1,14 @@
 import { MetadataRoute } from "next";
 
-export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  return [
-    {
-      url: "https://ankushhkapoor.vercel.app",
-      lastModified: new Date(),
-      changeFrequency: "yearly",
-      priority: 1,
-    },
-  ];
+export default function sitemap(): MetadataRoute.Sitemap {
+  const baseUrl = "https://ankushhkapoor.vercel.app";
+
+  const routes = ["", "/resume", "/links"];
+
+  return routes.map((route) => ({
+    url: `${baseUrl}${route}`,
+    lastModified: new Date(),
+    changeFrequency: "yearly",
+    priority: route === "" ? 1 : 0.7,
+  }));
 }

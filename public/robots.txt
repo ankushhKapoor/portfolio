@@ -1,6 +1,3 @@
 User-agent: *
 Allow: /
-Disallow: /cgi-bin/
-Disallow: /pref/
-Disallow: /pref/*
 Sitemap: https://ankushhkapoor.vercel.app/sitemap.xml

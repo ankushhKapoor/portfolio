@@ -42,8 +42,30 @@ export const viewport: Viewport = {
 export const metadata: Metadata = {
   metadataBase: new URL(getUrl),
   title: {
-    default: "Ankush Kapoor | Computer Engineering Student | Based in India",
-    template: `%s - Ankush Kapoor | Computer Engineering Student | Based in India`,
+    default: "Ankush Kapoor - Computer Engineering Student",
+    template: `%s - Ankush Kapoor - Computer Engineering Student",`,
   },
-  description: "Explore my projects and previous work, or contact me.",
+  description: "I'm Ankush Kapoor, a Computer Engineering student and systems programmer based in India. I’m passionate about low-level software, operating systems, and developer tooling. I build projects like virtual machines, memory allocators, custom Linux utilities, and contribute to open-source frameworks. I enjoy exploring how computers work under the hood and creating tools that empower developers. Ankush Kapoor portfolio.",
+  keywords: ["Ankush Kapoor", "Portfolio", "Computer Engineering", "India", "Developer"],
+  openGraph: {
+    title: "Ankush Kapoor - Computer Engineering Student",
+    description: "I'm Ankush Kapoor, a Computer Engineering student and systems programmer based in India. I’m passionate about low-level software, operating systems, and developer tooling. I build projects like virtual machines, memory allocators, custom Linux utilities, and contribute to open-source frameworks. I enjoy exploring how computers work under the hood and creating tools that empower developers. Ankush Kapoor portfolio.",
+    url: "https://ankushhkapoor.vercel.app",
+    siteName: "Ankush Kapoor Portfolio",
+    images: [
+      {
+        url: "/opengraph-image.png",
+        width: 1200,
+        height: 600,
+        alt: "Ankush Kapoor Portfolio",
+      },
+    ],
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Ankush Kapoor - Computer Engineering Student",
+    description: "I'm Ankush Kapoor, a Computer Engineering student and systems programmer based in India. I’m passionate about low-level software, operating systems, and developer tooling. I build projects like virtual machines, memory allocators, custom Linux utilities, and contribute to open-source frameworks. I enjoy exploring how computers work under the hood and creating tools that empower developers. Ankush Kapoor portfolio.",
+    images: ["/opengraph-image.png"],
+  },
 };
