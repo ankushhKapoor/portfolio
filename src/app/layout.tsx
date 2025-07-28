@@ -4,6 +4,7 @@ import { Geist_Mono, Geist } from "next/font/google";
 import { Metadata, Viewport } from "next";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { Analytics } from "@vercel/analytics/react";
+import { SpeedInsights } from "@vercel/speed-insights/next"
 
 type Props = {
   children: React.ReactNode;
@@ -28,6 +29,7 @@ const RootLayout: React.FC<Props> = ({ children }) => {
         </ThemeProvider>
       </body>
       <Analytics />
+      <SpeedInsights />
     </html>
   );
 };

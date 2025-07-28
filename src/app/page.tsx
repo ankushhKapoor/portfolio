@@ -6,7 +6,6 @@ import { AnimateIn } from "@/components/animations/AnimateIn";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { track } from "@vercel/analytics";
 import { ExternalLink } from "lucide-react";
-import Image from "next/image";
 
 export default function Home() {
   return (
