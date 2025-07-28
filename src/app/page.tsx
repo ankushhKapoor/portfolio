@@ -66,9 +66,6 @@ export default function Home() {
             <TabsTrigger value="extracurricular" className="!bg-transparent !border-none !shadow-none">
               Extracurricular
             </TabsTrigger>
-            <TabsTrigger value="tools" className="!bg-transparent !border-none !shadow-none">
-              Tools
-            </TabsTrigger>
           </TabsList>
         </AnimateIn>
 
@@ -245,25 +242,6 @@ export default function Home() {
             </section>
           </AnimateIn>
         </TabsContent>
-
-        <TabsContent value="tools">
-          <AnimateIn variant="fadeUp" delay={0}>
-            <section className="mb-12">
-              <div className="flex flex-wrap gap-y-6 gap-x-4 justify-center">
-                {tools.map(({ logo, title }, index) => (
-                  <AnimateIn key={index} variant="fadeLeft" delay={0.1 + index * 0.03} className="w-[calc(25%-12px)] sm:w-[calc(20%-13px)]">
-                    <div className="flex flex-col items-center group">
-                      <div className="relative h-7 w-7 sm:h-8 sm:w-8 mb-3 transition-all duration-300 ease-out group-hover:scale-110 group-hover:-translate-y-1">
-                        <Image src={logo} alt={`${title} logo`} fill className="object-contain drop-shadow-md" loading="eager" />
-                      </div>
-                      <span className="text-xs text-zinc-500 dark:text-zinc-400 text-center whitespace-nowrap">{title}</span>
-                    </div>
-                  </AnimateIn>
-                ))}
-              </div>
-            </section>
-          </AnimateIn>
-        </TabsContent>
       </Tabs>
 
       <AnimateIn variant="fadeUp" delay={0.8}>
@@ -349,61 +327,5 @@ const extracurricular = [
     description:
       "Core organizer for OTC CatchUp — a weekly community-led online event where tech enthusiasts share ideas, showcase projects, and engage in meaningful technical discussions. Also contribute to managing and growing an inclusive, tech-driven community.",
     technologies: ["Community Building", "Event Organization", "Technical Communication", "Team Collaboration"],
-  },
-];
-
-
-const tools = [
-  {
-    logo: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/python/python-original.svg",
-    title: "Python",
-  },
-  {
-    logo: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/c/c-original.svg",
-    title: "C",
-  },
-  {
-    logo: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/html5/html5-original.svg",
-    title: "HTML5",
-  },
-  {
-    logo: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/css3/css3-original.svg",
-    title: "CSS",
-  },
-  {
-    logo: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/tailwindcss/tailwindcss-original.svg",
-    title: "Tailwind CSS",
-  },
-  {
-    logo: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/java/java-original.svg",
-    title: "Java",
-  },
-  {
-    logo: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/mysql/mysql-original.svg",
-    title: "MySQL",
-  },
-  {
-    logo: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/git/git-original.svg",
-    title: "Git",
-  },
-  {
-    logo: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/github/github-original.svg",
-    title: "GitHub",
-  },
-  {
-    logo: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/neovim/neovim-original.svg",
-    title: "Neovim",
-  },
-  {
-    logo: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/vscode/vscode-original.svg",
-    title: "VS Code",
-  },
-  {
-    logo: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/linux/linux-original.svg",
-    title: "Linux",
-  },
-  {
-    logo: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/windows8/windows8-original.svg",
-    title: "Windows",
   },
 ];
