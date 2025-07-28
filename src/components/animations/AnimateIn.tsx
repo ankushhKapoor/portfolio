@@ -25,35 +25,38 @@ export function AnimateIn({ children, delay = 0, className = "", variant = "fade
     }, delay * 1000);
 
     if (!once && typeof window !== "undefined" && "IntersectionObserver" in window) {
+      const node = ref.current; // ✅ snapshot ref.current here
+
+      if (!node) return () => clearTimeout(timeout);
+
       const observer = new IntersectionObserver(
         (entries) => {
           entries.forEach((entry) => {
-            if (entry.isIntersecting) {
-              if (!hasAnimated || !once) {
-                setIsVisible(true);
+            if (entry.target === node) {
+              if (entry.isIntersecting) {
+                if (!hasAnimated || !once) {
+                  setIsVisible(true);
+                }
+              } else if (!once) {
+                setIsVisible(false);
               }
-            } else if (!once) {
-              setIsVisible(false);
             }
           });
         },
         { threshold: 0.1 }
       );
 
-      if (ref.current) {
-        observer.observe(ref.current);
-      }
+      observer.observe(node);
 
       return () => {
-        if (ref.current) {
-          observer.unobserve(ref.current);
-        }
+        observer.unobserve(node); // ✅ uses stable value
         clearTimeout(timeout);
       };
     }
 
     return () => clearTimeout(timeout);
   }, [delay, once, hasAnimated]);
+
 
   const getAnimationStyles = () => {
     if (hasAnimated && once) return {};

@@ -45,7 +45,7 @@ export const metadata: Metadata = {
   metadataBase: new URL(getUrl),
   title: {
     default: "Ankush Kapoor - Computer Engineering Student",
-    template: `%s - Ankush Kapoor - Computer Engineering Student",`,
+    template: "%s - Ankush Kapoor - Computer Engineering Student",
   },
   description: "I'm Ankush Kapoor, a Computer Engineering student and systems programmer based in India. I’m passionate about low-level software, operating systems, and developer tooling. I build projects like virtual machines, memory allocators, custom Linux utilities, and contribute to open-source frameworks. I enjoy exploring how computers work under the hood and creating tools that empower developers. Ankush Kapoor portfolio.",
   keywords: ["Ankush Kapoor", "Portfolio", "Computer Engineering", "India", "Developer"],
@@ -56,7 +56,7 @@ export const metadata: Metadata = {
     siteName: "Ankush Kapoor Portfolio",
     images: [
       {
-        url: "/opengraph-image.png",
+        url: "https://ankushhkapoor.vercel.app/opengraph-image.png",
         width: 1200,
         height: 600,
         alt: "Ankush Kapoor Portfolio",
@@ -68,6 +68,6 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Ankush Kapoor - Computer Engineering Student",
     description: "I'm Ankush Kapoor, a Computer Engineering student and systems programmer based in India. I’m passionate about low-level software, operating systems, and developer tooling. I build projects like virtual machines, memory allocators, custom Linux utilities, and contribute to open-source frameworks. I enjoy exploring how computers work under the hood and creating tools that empower developers. Ankush Kapoor portfolio.",
-    images: ["/opengraph-image.png"],
+    images: ["https://ankushhkapoor.vercel.app/opengraph-image.png"],
   },
 };
