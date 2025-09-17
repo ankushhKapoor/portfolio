@@ -324,7 +324,7 @@ const extracurricular = [
       url: "https://catchup.ourtech.community/",
     },
     description:
-      "Core organizer for OTC CatchUp — a weekly community-led online event where tech enthusiasts share ideas, showcase projects, and engage in meaningful technical discussions. Also contribute to managing and growing an inclusive, tech-driven community.",
+      "As part of the OTC core team, I contribute to overseeing flagship initiatives such as CatchUps, Talks, and organizational operations, driving collaboration within the tech community.",
     technologies: ["Community Building", "Event Organization", "Technical Communication", "Team Collaboration"],
   },
 ];
