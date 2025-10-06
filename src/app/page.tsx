@@ -255,11 +255,18 @@ export default function Home() {
 
 const projects = [
   {
+    title: "BaseKernel",
+    description: "A simple 32-bit custom kernel built in C following the 539Kernel guide, featuring basic memory, interrupt, multitasking, and hardware management with custom GDT/IDT setup.",
+    // link: "https://github.com/ankushhKapoor/BaseKernel",
+    github: "https://github.com/ankushhKapoor/BaseKernel",
+    technologies: ["C", "NASM", "QEMU", "GCC", "Linux"],
+  },
+  {
     title: "KapoorVM",
     description: "A 16-bit virtual CPU built from scratch in C with custom opcodes and 65 KB of virtual memory.",
     // link: "https://github.com/ankushhKapoor/KapoorVM",
     github: "https://github.com/ankushhKapoor/KapoorVM",
-    technologies: ["C", "Linux", "GCC", "Git"],
+    technologies: ["C", "Linux", "GCC"],
   },
   {
     title: "Alloc",
