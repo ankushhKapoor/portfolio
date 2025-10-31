@@ -276,6 +276,13 @@ const projects = [
     technologies: ["C", "Linux", "NASM", "GCC"],
   },
   {
+  title: "Advanced Research AI Agent",
+  description: "An intelligent research assistant that retrieves data from Google, Bing, and Reddit, analyzes it using a local LLM via Ollama, and synthesizes multi-source insights into a cohesive answer.",
+  // link: "https://github.com/ankushhKapoor/Advanced-Research-AI-Agent",
+  github: "https://github.com/ankushhKapoor/Advanced-Research-AI-Agent",
+  technologies: ["Python", "LangGraph", "Ollama", "BrightData API", "LLM"],
+  },
+  {
     title: "CodeNexus",
     description: "A Python-based code editor with syntax highlighting, autocomplete, and integrated CMD runner.",
     // link: "https://github.com/ankushhKapoor/CodeNexus",
@@ -295,14 +302,7 @@ const projects = [
   // link: "https://github.com/ankushhKapoor/flappy-bird-ai",
   github: "https://github.com/ankushhKapoor/Flappy-Bird-AI",
   technologies: ["Python", "Pygame", "NEAT", "OOP"],
-  },
-  {
-  title: "Chess Game",
-  description: "An offline player-vs-player chess game built with Pygame, featuring move validation, themes, pawn promotion, castling, and en passant.",
-  // link: "https://github.com/ankushhKapoor/python-chess",
-  github: "https://github.com/ankushhKapoor/Chess-Python",
-  technologies: ["Python", "Pygame", "OOP"],
-  },
+  }
 ];
 
 const experience = [
