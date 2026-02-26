@@ -8,11 +8,12 @@ interface Props {
     onLock: () => void;
     onRestart: () => void;
     onPowerOff: () => void;
+    onToggleSearch: () => void;
 }
 
 const MONO = "'Ubuntu Mono', monospace";
 
-export default function TopBar({ onLock, onRestart, onPowerOff }: Props) {
+export default function TopBar({ onLock, onRestart, onPowerOff, onToggleSearch }: Props) {
     const [timeStr, setTimeStr] = useState('--:--');
     const [dateStr, setDateStr] = useState('');
     const [showQS, setShowQS] = useState(false);   // Quick settings (tray icons)
@@ -37,7 +38,7 @@ export default function TopBar({ onLock, onRestart, onPowerOff }: Props) {
             >
                 {/* Left — Activities + app name */}
                 <div className="flex items-center gap-1 px-2">
-                    <TBtn>Activities</TBtn>
+                    <TBtn onClick={() => { onToggleSearch(); setShowCal(false); setShowQS(false); }}>Activities</TBtn>
                     <span className="text-[13px] px-2" style={{ color: '#e95420' }}>KapoorOS</span>
                 </div>
 

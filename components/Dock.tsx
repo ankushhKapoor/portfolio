@@ -1,7 +1,7 @@
 'use client';
 import { useState } from 'react';
 import { DOCK_APPS } from '@/lib/portfolio';
-import { TerminalIcon, FolderIcon, UserIcon, FileTextIcon, BriefcaseIcon, CalendarIcon, SettingsIcon } from '@/components/Icons';
+import { TerminalIcon, FolderIcon, UserIcon, FileTextIcon, BriefcaseIcon, CalendarIcon, SettingsIcon, GridIcon, UbuntuIcon } from '@/components/Icons';
 
 const ICONS: Record<string, React.ComponentType<{ size?: number; color?: string }>> = {
     terminal: TerminalIcon,
@@ -11,31 +11,71 @@ const ICONS: Record<string, React.ComponentType<{ size?: number; color?: string 
     projects: BriefcaseIcon,
     calendar: CalendarIcon,
     settings: SettingsIcon,
+    all: UbuntuIcon,
 };
 
-interface Props { onOpen: (id: string) => void; openApps: string[]; minimizedApps: string[]; }
+interface Props {
+    onOpen: (id: string) => void;
+    onToggleSearch: () => void;
+    openApps: string[];
+    minimizedApps: string[];
+    shouldHide?: boolean;
+}
 
-export default function Dock({ onOpen, openApps, minimizedApps }: Props) {
+export default function Dock({ onOpen, onToggleSearch, openApps, minimizedApps, shouldHide }: Props) {
+    const [isDockHovered, setIsDockHovered] = useState(false);
+    const [isBottomHovered, setIsBottomHovered] = useState(false);
+
+    // Dock is visible if: 
+    // 1. It's not supposed to hide (no windows overlap) OR 
+    // 2. The user is hovering over the dock or the bottom trigger area
+    const visible = !shouldHide || isDockHovered || isBottomHovered;
+
     return (
-        <div
-            className="fixed bottom-3 left-1/2 -translate-x-1/2 flex items-end pb-1 px-3 z-[5000] select-none"
-            style={{
-                background: 'rgba(24,24,24,0.88)',
-                backdropFilter: 'blur(28px)',
-                WebkitBackdropFilter: 'blur(28px)',
-                borderRadius: 18,
-                border: '1px solid rgba(255,255,255,0.10)',
-                boxShadow: '0 8px 40px rgba(0,0,0,0.7), 0 1px 0 rgba(255,255,255,0.06) inset',
-                gap: 2,
-            }}
-        >
-            {DOCK_APPS.map(app => {
-                const isOpen = openApps.includes(app.id);
-                const isMinimized = minimizedApps.includes(app.id);
-                const Icon = ICONS[app.id] ?? TerminalIcon;
-                return <DockIcon key={app.id} id={app.id} label={app.label} Icon={Icon} active={isOpen && !isMinimized} onOpen={() => onOpen(app.id)} />;
-            })}
-        </div>
+        <>
+            {/* Hover Trigger Area (Thin strip at bottom) */}
+            <div
+                className="fixed bottom-0 left-0 right-0 h-5 z-[4999]"
+                onMouseEnter={() => setIsBottomHovered(true)}
+                onMouseLeave={() => setIsBottomHovered(false)}
+            />
+
+            <div
+                className="fixed bottom-3 left-1/2 flex items-end pb-1 px-3 z-[5000] select-none transition-all duration-300 ease-in-out"
+                onMouseEnter={() => setIsDockHovered(true)}
+                onMouseLeave={() => setIsDockHovered(false)}
+                style={{
+                    background: 'rgba(24,24,24,0.88)',
+                    backdropFilter: 'blur(28px)',
+                    WebkitBackdropFilter: 'blur(28px)',
+                    borderRadius: 18,
+                    border: '1px solid rgba(255,255,255,0.10)',
+                    boxShadow: '0 8px 40px rgba(0,0,0,0.7), 0 1px 0 rgba(255,255,255,0.06) inset',
+                    gap: 2,
+                    transform: `translateX(-50%) translateY(${visible ? '0' : '150%'})`,
+                    opacity: visible ? 1 : 0,
+                }}
+            >
+                {/* Show Applications at the start */}
+                <DockIcon
+                    id="all"
+                    label="Show Applications"
+                    Icon={UbuntuIcon}
+                    active={false}
+                    onOpen={onToggleSearch}
+                />
+
+                {/* Separator */}
+                <div className="mx-1 h-8 w-[1px] bg-white/10 self-center" />
+
+                {DOCK_APPS.map(app => {
+                    const isOpen = openApps.includes(app.id);
+                    const isMinimized = minimizedApps.includes(app.id);
+                    const Icon = ICONS[app.id] ?? TerminalIcon;
+                    return <DockIcon key={app.id} id={app.id} label={app.label} Icon={Icon} active={isOpen && !isMinimized} onOpen={() => onOpen(app.id)} />;
+                })}
+            </div>
+        </>
     );
 }
 
@@ -51,6 +91,7 @@ function DockIcon({ id, label, Icon, active, onOpen }: { id: string; label: stri
         projects: 'linear-gradient(145deg, #1d2a1a, #2b3d28)',
         calendar: 'linear-gradient(145deg, #2d1a1a, #3d2828)',
         settings: 'linear-gradient(145deg, #252525, #333)',
+        all: 'transparent',
     }[id] ?? 'linear-gradient(145deg, #2a2a2a, #383838)';
 
     return (
@@ -64,7 +105,7 @@ function DockIcon({ id, label, Icon, active, onOpen }: { id: string; label: stri
             )}
             <button
                 onClick={onOpen}
-                className="flex items-center justify-center rounded-[14px] border-0 cursor-pointer"
+                className={`flex items-center justify-center border-0 cursor-pointer transition-all duration-300 ${id === 'all' ? 'rounded-full scale-105' : 'rounded-[14px]'}`}
                 style={{
                     width: 52, height: 52,
                     background: iconBg,

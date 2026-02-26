@@ -8,6 +8,9 @@ interface Props {
     id: string; title: string; icon: ReactNode;
     children: ReactNode;
     onClose: () => void; onMinimize: () => void;
+    onRectChange: (rect: { x: number; y: number; w: number; h: number; maximized: boolean }) => void;
+    onFocus?: () => void;
+    focused?: boolean;
     defaultW: number; defaultH: number;
     startX?: number; startY?: number;
 }
@@ -26,7 +29,7 @@ function WinBtn({ color, Icon, onClick }: { color: string; Icon: React.Component
     );
 }
 
-export default function AppWindow({ id, title, icon, children, onClose, onMinimize, defaultW, defaultH, startX, startY }: Props) {
+export default function AppWindow({ id, title, icon, children, onClose, onMinimize, onRectChange, onFocus, focused, defaultW, defaultH, startX, startY }: Props) {
     const [pos, setPos] = useState({ x: startX ?? Math.round((1280 - defaultW) / 2), y: startY ?? Math.round((800 - defaultH) / 2) });
     const [maximized, setMaximized] = useState(false);
     const [zIndex, setZIndex] = useState(() => zCounter++);
@@ -34,7 +37,23 @@ export default function AppWindow({ id, title, icon, children, onClose, onMinimi
     const offset = useRef({ x: 0, y: 0 });
 
     useEffect(() => {
-        const mm = (e: MouseEvent) => { if (dragging.current) setPos({ x: e.clientX - offset.current.x, y: Math.max(28, e.clientY - offset.current.y) }); };
+        if (focused) {
+            setZIndex(zCounter++);
+        }
+    }, [focused]);
+
+    useEffect(() => {
+        onRectChange({ x: pos.x, y: pos.y, w: defaultW, h: defaultH, maximized });
+    }, [pos, maximized, defaultW, defaultH, onRectChange]);
+
+    useEffect(() => {
+        const mm = (e: MouseEvent) => {
+            if (dragging.current) {
+                const newX = e.clientX - offset.current.x;
+                const newY = Math.max(28, e.clientY - offset.current.y);
+                setPos({ x: newX, y: newY });
+            }
+        };
         const mu = () => { dragging.current = false; };
         window.addEventListener('mousemove', mm);
         window.addEventListener('mouseup', mu);
@@ -62,12 +81,12 @@ export default function AppWindow({ id, title, icon, children, onClose, onMinimi
             <div
                 style={{ height: 38, background: '#3a3a3a', display: 'flex', alignItems: 'center', padding: '0 12px', gap: 8, userSelect: 'none', cursor: 'default', flexShrink: 0, borderBottom: '1px solid rgba(0,0,0,0.3)' }}
                 onMouseDown={onBarDown}
-                onDoubleClick={() => setMaximized(m => !m)}
+                onDoubleClick={() => setMaximized((m: boolean) => !m)}
             >
                 <div className="flex items-center gap-1.5">
                     <WinBtn color="#e74c3c" Icon={CloseIcon} onClick={onClose} />
                     <WinBtn color="#f1c40f" Icon={MinimizeIcon} onClick={onMinimize} />
-                    <WinBtn color="#2ecc71" Icon={MaximizeIcon} onClick={() => setMaximized(m => !m)} />
+                    <WinBtn color="#2ecc71" Icon={MaximizeIcon} onClick={() => setMaximized((m: boolean) => !m)} />
                 </div>
                 <div className="flex items-center gap-2 flex-1 justify-center">
                     <span className="opacity-60 flex-shrink-0">{icon}</span>

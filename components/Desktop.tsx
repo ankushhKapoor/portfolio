@@ -1,5 +1,5 @@
 'use client';
-import { useEffect, useState, ReactNode } from 'react';
+import { useEffect, useState, ReactNode, useCallback } from 'react';
 import { useOS } from '@/hooks/useOS';
 import { WIN_DEFAULTS, DOCK_APPS } from '@/lib/portfolio';
 import { TerminalIcon, FolderIcon, UserIcon, FileTextIcon, BriefcaseIcon, CalendarIcon, SettingsIcon } from '@/components/Icons';
@@ -10,6 +10,7 @@ import AppWindow from '@/components/AppWindow';
 import TopBar from '@/components/TopBar';
 import Dock from '@/components/Dock';
 import DesktopIcons from '@/components/DesktopIcons';
+import SearchOverlay from '@/components/SearchOverlay';
 
 import TerminalApp from '@/components/apps/TerminalApp';
 import AboutApp from '@/components/apps/AboutApp';
@@ -35,7 +36,6 @@ function ShutdownScreen({ mode, onPowerOn }: { mode: 'shutdown' | 'restart'; onP
     useEffect(() => {
         const t = setTimeout(() => {
             if (mode === 'restart') {
-                // For restart: go right back to boot
                 onPowerOn();
             } else {
                 setPhase('off');
@@ -86,16 +86,53 @@ function renderAppContent(id: string, closeApp: (id: string) => void) {
     }
 }
 
+import { WindowRect, WindowState } from '@/hooks/useOS';
+
 export default function Desktop() {
-    const { screen, setScreen, windows, openApp, closeApp, minimizeApp, doUnlock, doLock, doPowerOff, doRestart } = useOS();
+    const { screen, setScreen, windows, openApp, closeApp, minimizeApp, focusApp, focusedAppId, showSearch, toggleSearch, searchMode, windowRects, updateWindowRect, doUnlock, doLock, doPowerOff, doRestart } = useOS();
+
+    const requestToggleSearch = useCallback((mode: 'activities' | 'apps') => {
+        if (showSearch) {
+            window.dispatchEvent(new CustomEvent('request-search-close'));
+        } else {
+            toggleSearch(mode);
+        }
+    }, [showSearch, toggleSearch]);
+
+    const isDockOverlapped = (Object.values(windowRects) as WindowRect[]).some((rect: WindowRect) => {
+        const isMinimized = windows.find((w: WindowState) => w.id === rect.id)?.minimized;
+        if (isMinimized) return false;
+        if (rect.maximized) return true;
+
+        const screenW = typeof window !== 'undefined' ? window.innerWidth : 1280;
+        const screenH = typeof window !== 'undefined' ? window.innerHeight : 800;
+
+        const dockHeight = 84;
+        const dockWidth = Math.min(screenW * 0.8, (windows.length + 2) * 64);
+        const dockLeft = (screenW - dockWidth) / 2;
+        const dockRight = (screenW + dockWidth) / 2;
+        const dockTop = screenH - dockHeight;
+
+        const winBottom = rect.y + rect.h;
+        const winRight = rect.x + rect.w;
+
+        const overlapsVertically = winBottom > dockTop;
+        const overlapsHorizontally = rect.x < dockRight && winRight > dockLeft;
+
+        return overlapsVertically && overlapsHorizontally;
+    });
 
     useEffect(() => {
         const handler = (e: KeyboardEvent) => {
             if (e.ctrlKey && e.altKey && e.key === 't') { e.preventDefault(); openApp('terminal'); }
+            if (e.key === 'Meta' || e.key === 'OS') {
+                e.preventDefault();
+                requestToggleSearch('apps');
+            }
         };
         window.addEventListener('keydown', handler);
         return () => window.removeEventListener('keydown', handler);
-    }, [openApp]);
+    }, [openApp, requestToggleSearch]);
 
     if (screen === 'shutdown') return <ShutdownScreen mode="shutdown" onPowerOn={() => setScreen('boot')} />;
     if (screen === 'restart') return <ShutdownScreen mode="restart" onPowerOn={() => setScreen('boot')} />;
@@ -112,28 +149,42 @@ export default function Desktop() {
         >
             <div className="absolute pointer-events-none" style={{ width: 500, height: 500, borderRadius: '50%', top: '25%', left: '55%', background: 'radial-gradient(circle, rgba(233,84,32,0.10), transparent)' }} />
 
-            <TopBar onLock={doLock} onRestart={doRestart} onPowerOff={doPowerOff} />
+            <TopBar onLock={doLock} onRestart={doRestart} onPowerOff={doPowerOff} onToggleSearch={() => requestToggleSearch('activities')} />
             <DesktopIcons onOpen={openApp} />
 
-            {windows.map((win: { id: string; minimized: boolean }, idx: number) => {
-                if (win.minimized) return null;
-                const def = WIN_DEFAULTS[win.id] ?? { w: 640, h: 480, title: win.id };
+            {windows.map((winState: WindowState, idx: number) => {
+                if (winState.minimized) return null;
+                const def = WIN_DEFAULTS[winState.id] ?? { w: 640, h: 480, title: winState.id };
                 const stagger = idx * 24;
                 return (
                     <AppWindow
-                        key={win.id} id={win.id} title={def.title}
-                        icon={APP_ICONS[win.id] ?? null}
-                        onClose={() => closeApp(win.id)}
-                        onMinimize={() => minimizeApp(win.id)}
+                        key={winState.id} id={winState.id} title={def.title}
+                        icon={APP_ICONS[winState.id] ?? null}
+                        onClose={() => closeApp(winState.id)}
+                        onMinimize={() => minimizeApp(winState.id)}
+                        onRectChange={(r) => updateWindowRect(winState.id, r)}
+                        onFocus={() => focusApp(winState.id)}
+                        focused={focusedAppId === winState.id}
                         defaultW={def.w} defaultH={def.h}
                         startX={80 + stagger} startY={52 + stagger}
                     >
-                        {renderAppContent(win.id, closeApp)}
+                        {renderAppContent(winState.id, closeApp)}
                     </AppWindow>
                 );
             })}
 
-            <Dock onOpen={openApp} openApps={openIds} minimizedApps={minIds} />
+            <Dock onOpen={openApp} onToggleSearch={() => requestToggleSearch('apps')} openApps={openIds} minimizedApps={minIds} shouldHide={isDockOverlapped} />
+
+            {showSearch && (
+                <SearchOverlay
+                    onClose={toggleSearch}
+                    onOpenApp={openApp}
+                    onFocusApp={focusApp}
+                    windows={windows}
+                    windowRects={windowRects}
+                    mode={searchMode}
+                />
+            )}
         </div>
     );
 }

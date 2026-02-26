@@ -35,4 +35,24 @@ export {
     Moon,
     Laptop,
     Clock,
+    Search as SearchIcon,
+    LayoutGrid as GridIcon,
 } from 'lucide-react';
+
+export function UbuntuIcon({ size = 24 }: { size?: number; color?: string }) {
+    return (
+        <svg
+            width={size}
+            height={size}
+            viewBox="0 0 32 32"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+        >
+            <path
+                d="M16 2L4 28H10L16 14L22 28H28L16 2Z"
+                fill="white"
+            />
+            <rect x="11.5" y="19" width="9" height="3.5" fill="white" />
+        </svg>
+    );
+}
