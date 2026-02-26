@@ -1,5 +1,5 @@
 'use client';
-import { useEffect, ReactNode } from 'react';
+import { useEffect, useState, ReactNode } from 'react';
 import { useOS } from '@/hooks/useOS';
 import { WIN_DEFAULTS, DOCK_APPS } from '@/lib/portfolio';
 import { TerminalIcon, FolderIcon, UserIcon, FileTextIcon, BriefcaseIcon, CalendarIcon, SettingsIcon } from '@/components/Icons';
@@ -29,20 +29,53 @@ const APP_ICONS: Record<string, ReactNode> = {
     settings: <SettingsIcon size={14} color="#ccc" />,
 };
 
-function ShutdownScreen({ mode }: { mode: 'shutdown' | 'restart' }) {
+function ShutdownScreen({ mode, onPowerOn }: { mode: 'shutdown' | 'restart'; onPowerOn: () => void }) {
+    const [phase, setPhase] = useState<'spinning' | 'off'>('spinning');
+
+    useEffect(() => {
+        const t = setTimeout(() => {
+            if (mode === 'restart') {
+                // For restart: go right back to boot
+                onPowerOn();
+            } else {
+                setPhase('off');
+            }
+        }, 3000);
+        return () => clearTimeout(t);
+    }, [mode, onPowerOn]);
+
+    if (phase === 'off') {
+        return (
+            <div className="fixed inset-0 flex flex-col items-center justify-center gap-6 z-[9999]" style={{ background: '#000' }}>
+                <div className="w-16 h-16 rounded-full flex items-center justify-center"
+                    style={{ background: 'radial-gradient(circle, #3a1a2e, #1a0010)', border: '2px solid #2a0a1e' }}>
+                    <span style={{ fontSize: 28 }}>💤</span>
+                </div>
+                <div style={{ color: '#444', fontFamily: "'Ubuntu Mono', monospace", fontSize: 13 }}>KapoorOS is powered off</div>
+                <button
+                    onClick={onPowerOn}
+                    className="flex items-center gap-2 px-5 py-2.5 rounded-full border-0 cursor-pointer transition-all hover:scale-105"
+                    style={{ background: 'rgba(233,84,32,0.15)', border: '1px solid rgba(233,84,32,0.4)', color: '#e95420', fontFamily: "'Ubuntu Mono', monospace", fontSize: 13 }}
+                >
+                    <span>⏻</span> Power On
+                </button>
+            </div>
+        );
+    }
+
     return (
         <div className="fixed inset-0 flex flex-col items-center justify-center gap-5 z-[9999]" style={{ background: '#000' }}>
             <div className="w-10 h-10 rounded-full border-[3px] border-gray-800 border-t-[#e95420] animate-spin-orange" />
-            <div style={{ color: '#999', fontFamily: "'Ubuntu Mono', monospace", fontSize: 15 }}>
+            <div style={{ color: '#666', fontFamily: "'Ubuntu Mono', monospace", fontSize: 14 }}>
                 {mode === 'shutdown' ? 'Shutting down…' : 'Restarting…'}
             </div>
         </div>
     );
 }
 
-function renderAppContent(id: string) {
+function renderAppContent(id: string, closeApp: (id: string) => void) {
     switch (id) {
-        case 'terminal': return <TerminalApp />;
+        case 'terminal': return <TerminalApp onClose={() => closeApp('terminal')} />;
         case 'about': return <AboutApp />;
         case 'resume': return <ResumeApp />;
         case 'projects': return <ProjectsApp />;
@@ -64,13 +97,13 @@ export default function Desktop() {
         return () => window.removeEventListener('keydown', handler);
     }, [openApp]);
 
-    if (screen === 'shutdown') return <ShutdownScreen mode="shutdown" />;
-    if (screen === 'restart') return <ShutdownScreen mode="restart" />;
+    if (screen === 'shutdown') return <ShutdownScreen mode="shutdown" onPowerOn={() => setScreen('boot')} />;
+    if (screen === 'restart') return <ShutdownScreen mode="restart" onPowerOn={() => setScreen('boot')} />;
     if (screen === 'boot') return <BootScreen onDone={() => setScreen('lock')} />;
     if (screen === 'lock') return <LockScreen onUnlock={doUnlock} />;
 
-    const openIds = windows.map(w => w.id);
-    const minIds = windows.filter(w => w.minimized).map(w => w.id);
+    const openIds = windows.map((w: { id: string; minimized: boolean }) => w.id);
+    const minIds = windows.filter((w: { id: string; minimized: boolean }) => w.minimized).map((w: { id: string; minimized: boolean }) => w.id);
 
     return (
         <div
@@ -82,7 +115,7 @@ export default function Desktop() {
             <TopBar onLock={doLock} onRestart={doRestart} onPowerOff={doPowerOff} />
             <DesktopIcons onOpen={openApp} />
 
-            {windows.map((win, idx) => {
+            {windows.map((win: { id: string; minimized: boolean }, idx: number) => {
                 if (win.minimized) return null;
                 const def = WIN_DEFAULTS[win.id] ?? { w: 640, h: 480, title: win.id };
                 const stagger = idx * 24;
@@ -95,7 +128,7 @@ export default function Desktop() {
                         defaultW={def.w} defaultH={def.h}
                         startX={80 + stagger} startY={52 + stagger}
                     >
-                        {renderAppContent(win.id)}
+                        {renderAppContent(win.id, closeApp)}
                     </AppWindow>
                 );
             })}

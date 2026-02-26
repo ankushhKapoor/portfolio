@@ -80,8 +80,7 @@ function FileItem({ name, IconComp, iconColor, onOpen }: { name: string; IconCom
         <div onDoubleClick={onOpen} onMouseEnter={() => setHov(true)} onMouseLeave={() => setHov(false)}
             className="flex flex-col items-center gap-1.5 px-2 py-3 rounded-xl cursor-default select-none transition-colors"
             style={{ width: 86, background: hov ? 'rgba(255,255,255,0.07)' : 'transparent' }}>
-            <div className="w-12 h-12 rounded-xl flex items-center justify-center"
-                style={{ background: hov ? 'rgba(255,255,255,0.05)' : 'transparent' }}>
+            <div className="w-12 h-12 rounded-xl flex items-center justify-center">
                 <IconComp size={32} color={iconColor} />
             </div>
             <span className="text-[11px] text-center break-all leading-tight" style={{ color: '#ccc', fontFamily: "'Ubuntu Mono', monospace" }}>{name}</span>

@@ -32,7 +32,7 @@ export default function TopBar({ onLock, onRestart, onPowerOff }: Props) {
     return (
         <>
             <div
-                className="fixed top-0 left-0 right-0 flex items-center z-[5000] select-none"
+                className="fixed top-0 left-0 right-0 flex items-center justify-between z-[5000] select-none"
                 style={{ height: 28, background: 'rgba(0,0,0,0.82)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', fontFamily: MONO }}
             >
                 {/* Left — Activities + app name */}
@@ -41,17 +41,17 @@ export default function TopBar({ onLock, onRestart, onPowerOff }: Props) {
                     <span className="text-[13px] px-2" style={{ color: '#e95420' }}>KapoorOS</span>
                 </div>
 
-                {/* Center — Clock → opens calendar */}
+                {/* Center — Clock → opens calendar (absolute to stay truly centered) */}
                 <button
                     onClick={() => { setShowCal(s => !s); setShowQS(false); }}
-                    className="absolute left-1/2 -translate-x-1/2 flex items-center gap-2 border-0 bg-transparent cursor-pointer rounded px-3 py-0.5 hover:bg-white/10 transition-colors"
+                    className="absolute left-1/2 -translate-x-1/2 flex items-center gap-1.5 border-0 bg-transparent cursor-pointer rounded px-3 py-0.5 hover:bg-white/10 transition-colors"
                 >
-                    <span className="text-[13px] text-white" suppressHydrationWarning style={{ fontFamily: MONO, letterSpacing: 0.5 }}>{dateStr}</span>
+                    <span className="text-[13px] text-gray-300" suppressHydrationWarning style={{ fontFamily: MONO }}>{dateStr}</span>
                     <span className="text-[13px] font-semibold text-white" suppressHydrationWarning style={{ fontFamily: MONO }}>{timeStr}</span>
                 </button>
 
                 {/* Right — system tray → opens quick settings */}
-                <div className="ml-auto flex items-center gap-2 px-2">
+                <div className="flex items-center px-2">
                     <button
                         onClick={() => { setShowQS(s => !s); setShowCal(false); }}
                         className="flex items-center gap-1.5 border-0 bg-transparent cursor-pointer rounded px-2 py-0.5 hover:bg-white/10 transition-colors"

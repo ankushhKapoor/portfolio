@@ -53,13 +53,13 @@ export default function ClockCalendar({ onClose }: { onClose: () => void }) {
                 fontFamily: MONO,
             }}
         >
-            {/* Digital clock */}
+            {/* Digital clock — HH:MM:SS on one line */}
             <div className="text-center mb-4" suppressHydrationWarning>
-                <div className="text-[52px] font-bold text-white leading-none" style={{ fontFamily: MONO, letterSpacing: -2 }}>
-                    {hh}:{mm}
+                <div className="flex items-baseline justify-center gap-0 leading-none" style={{ fontFamily: MONO }}>
+                    <span className="text-[48px] font-bold text-white" style={{ letterSpacing: -2 }}>{hh}:{mm}</span>
+                    <span className="text-[28px] font-bold text-gray-500 ml-0.5" style={{ letterSpacing: -1 }}>:{ss}</span>
                 </div>
-                <div className="text-[20px] text-gray-500 mt-0.5" style={{ fontFamily: MONO }}>{ss}</div>
-                <div className="text-[12px] text-gray-500 mt-1">{dateDisplay}</div>
+                <div className="text-[12px] text-gray-500 mt-2">{dateDisplay}</div>
             </div>
 
             <div style={{ height: 1, background: 'rgba(255,255,255,0.08)', marginBottom: 12 }} />
