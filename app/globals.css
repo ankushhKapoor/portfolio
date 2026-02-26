@@ -1,0 +1,195 @@
+@import url('https://fonts.googleapis.com/css2?family=Ubuntu:wght@300;400;500;700&family=Ubuntu+Mono:wght@400;700&display=swap');
+@import "tailwindcss";
+
+:root {
+  --accent: #e95420;
+  --accent-hover: #f37222;
+  --bg-desktop: #1a0510;
+  --bg-window: #2d2d2d;
+  --bg-titlebar: #3d3d3d;
+  --bg-sidebar: #252525;
+  --bg-input: #1e1e1e;
+  --bg-terminal: #1a1a1a;
+  --topbar: rgba(0, 0, 0, 0.82);
+  --dock: rgba(24, 24, 24, 0.88);
+  --border: #444;
+  --text: #ffffff;
+  --text-dim: #cccccc;
+  --text-muted: #888888;
+  --prompt: #4ec9b0;
+  --btn-close: #e74c3c;
+  --btn-min: #f1c40f;
+  --btn-max: #2ecc71;
+  /* Ubuntu Mono everywhere */
+  font-family: 'Ubuntu Mono', 'Courier New', monospace;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body,
+#__next {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: #000;
+}
+
+body {
+  font-family: 'Ubuntu Mono', 'Courier New', monospace;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #555;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #888;
+}
+
+/* Range slider — Ubuntu Yaru style */
+input[type=range] {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 4px;
+  background: #555;
+  border-radius: 2px;
+  outline: none;
+  cursor: pointer;
+}
+
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #e95420;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
+  transition: transform 0.1s;
+}
+
+input[type=range]::-webkit-slider-thumb:hover {
+  transform: scale(1.2);
+}
+
+input[type=range]::-webkit-slider-runnable-track {
+  border-radius: 2px;
+}
+
+/* Keyframes */
+@keyframes windowOpen {
+  from {
+    opacity: 0;
+    transform: scale(0.92) translateY(4px);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes shake {
+
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+
+  20% {
+    transform: translateX(-10px);
+  }
+
+  40% {
+    transform: translateX(10px);
+  }
+
+  60% {
+    transform: translateX(-6px);
+  }
+
+  80% {
+    transform: translateX(6px);
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes fadeInScale {
+  from {
+    opacity: 0;
+    transform: scale(0.94) translateY(-6px);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes bootFade {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-window-open {
+  animation: windowOpen 0.18s ease-out forwards;
+}
+
+.animate-fade-in-scale {
+  animation: fadeInScale 0.2s ease-out forwards;
+}
+
+.animate-boot-fade {
+  animation: bootFade 0.25s ease forwards;
+}
+
+.animate-spin-orange {
+  animation: spin 1s linear infinite;
+}
+
+.animate-shake {
+  animation: shake 0.4s ease;
+}
+
+.animate-slide-down {
+  animation: slideDown 0.18s ease-out forwards;
+}
