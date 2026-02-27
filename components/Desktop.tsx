@@ -1,8 +1,8 @@
 'use client';
-import { useEffect, useState, ReactNode, useCallback } from 'react';
+import { useEffect, useState, ReactNode, useCallback, useRef } from 'react';
 import { useOS } from '@/hooks/useOS';
 import { WIN_DEFAULTS, DOCK_APPS } from '@/lib/portfolio';
-import { TerminalIcon, FolderIcon, UserIcon, FileTextIcon, BriefcaseIcon, CalendarIcon, SettingsIcon } from '@/components/Icons';
+import { TerminalIcon, FolderIcon, UserIcon, FileTextIcon, BriefcaseIcon, CalendarIcon, SettingsIcon, UbuntuIcon } from '@/components/Icons';
 
 import BootScreen from '@/components/BootScreen';
 import LockScreen from '@/components/LockScreen';
@@ -11,6 +11,13 @@ import TopBar from '@/components/TopBar';
 import Dock from '@/components/Dock';
 import DesktopIcons from '@/components/DesktopIcons';
 import SearchOverlay from '@/components/SearchOverlay';
+
+interface SelectionRect {
+    x: number;
+    y: number;
+    w: number;
+    h: number;
+}
 
 import TerminalApp from '@/components/apps/TerminalApp';
 import AboutApp from '@/components/apps/AboutApp';
@@ -47,9 +54,15 @@ function ShutdownScreen({ mode, onPowerOn }: { mode: 'shutdown' | 'restart'; onP
     if (phase === 'off') {
         return (
             <div className="fixed inset-0 flex flex-col items-center justify-center gap-6 z-[9999]" style={{ background: '#000' }}>
-                <div className="w-16 h-16 rounded-full flex items-center justify-center"
-                    style={{ background: 'radial-gradient(circle, #3a1a2e, #1a0010)', border: '2px solid #2a0a1e' }}>
-                    <span style={{ fontSize: 28 }}>💤</span>
+                <div className="w-20 h-20 rounded-full flex items-center justify-center"
+                    style={{
+                        background: '#000',
+                        border: '1px solid rgba(255,255,255,0.15)',
+                        boxShadow: '0 0 20px rgba(255, 255, 255, 0.08)'
+                    }}>
+                    <div style={{ filter: 'drop-shadow(0 0 6px rgba(255,255,255,0.4))' }}>
+                        <UbuntuIcon size={40} />
+                    </div>
                 </div>
                 <div style={{ color: '#444', fontFamily: "'Ubuntu Mono', monospace", fontSize: 13 }}>KapoorOS is powered off</div>
                 <button
@@ -88,8 +101,41 @@ function renderAppContent(id: string, closeApp: (id: string) => void) {
 
 import { WindowRect, WindowState } from '@/hooks/useOS';
 
+function SelectionRectangle({ rect }: { rect: SelectionRect | null }) {
+    if (!rect || rect.w === 0 || rect.h === 0) return null;
+    return (
+        <div
+            className="fixed pointer-events-none z-[100] overflow-hidden"
+            style={{
+                left: '0',
+                top: '0',
+                right: '0',
+                bottom: '0',
+            }}
+        >
+            <div
+                style={{
+                    position: 'fixed',
+                    left: `${rect.x}px`,
+                    top: `${rect.y}px`,
+                    width: `${rect.w}px`,
+                    height: `${rect.h}px`,
+                    background: 'rgba(233, 84, 32, 0.15)',
+                    border: '2px solid #e95420',
+                    boxSizing: 'border-box',
+                }}
+            />
+        </div>
+    );
+}
+
 export default function Desktop() {
     const { screen, setScreen, windows, openApp, closeApp, minimizeApp, focusApp, focusedAppId, showSearch, toggleSearch, searchMode, windowRects, updateWindowRect, doUnlock, doLock, doPowerOff, doRestart } = useOS();
+    const [selectionRect, setSelectionRect] = useState<SelectionRect | null>(null);
+    const [isSelecting, setIsSelecting] = useState(false);
+    const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set());
+    const startPos = useRef<{ x: number; y: number } | null>(null);
+    const desktopItemsRef = useRef<Map<string, DOMRect>>(new Map());
 
     const requestToggleSearch = useCallback((mode: 'activities' | 'apps') => {
         if (showSearch) {
@@ -122,6 +168,41 @@ export default function Desktop() {
         return overlapsVertically && overlapsHorizontally;
     });
 
+    const handleRegistrationRequest = useCallback((items: Array<{ id: string; rect: DOMRect }>) => {
+        const map = new Map(items.map(item => [item.id, item.rect]));
+        desktopItemsRef.current = map;
+    }, []);
+
+    const checkIntersection = useCallback((selRect: SelectionRect): Set<string> => {
+        const selected = new Set<string>();
+        desktopItemsRef.current.forEach((itemRect, id) => {
+            const intersects = !(
+                selRect.x + selRect.w < itemRect.left ||
+                selRect.x > itemRect.right ||
+                selRect.y + selRect.h < itemRect.top ||
+                selRect.y > itemRect.bottom
+            );
+            if (intersects) selected.add(id);
+        });
+        return selected;
+    }, []);
+
+    const handleMouseDown = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+        if ((e.target as HTMLElement).closest('[data-no-select]')) return;
+        if (e.button !== 0) return;
+
+        setIsSelecting(true);
+        startPos.current = { x: e.clientX, y: e.clientY };
+        setSelectionRect(null);
+        setSelectedItems(new Set());
+    }, []);
+
+    const handleMouseUp = useCallback(() => {
+        setIsSelecting(false);
+        startPos.current = null;
+        setSelectionRect(null);
+    }, []);
+
     useEffect(() => {
         const handler = (e: KeyboardEvent) => {
             if (e.ctrlKey && e.altKey && e.key === 't') { e.preventDefault(); openApp('terminal'); }
@@ -134,9 +215,42 @@ export default function Desktop() {
         return () => window.removeEventListener('keydown', handler);
     }, [openApp, requestToggleSearch]);
 
+    useEffect(() => {
+        if (!isSelecting) return;
+
+        const handleDocumentMouseMove = (e: MouseEvent) => {
+            if (!startPos.current) return;
+
+            const currentX = e.clientX;
+            const currentY = e.clientY;
+            const x = Math.min(startPos.current.x, currentX);
+            const y = Math.min(startPos.current.y, currentY);
+            const w = Math.abs(currentX - startPos.current.x);
+            const h = Math.abs(currentY - startPos.current.y);
+
+            const rect: SelectionRect = { x, y, w, h };
+            setSelectionRect(rect);
+            setSelectedItems(checkIntersection(rect));
+        };
+
+        const handleDocumentMouseUp = () => {
+            setIsSelecting(false);
+            startPos.current = null;
+            setSelectionRect(null);
+        };
+
+        document.addEventListener('mousemove', handleDocumentMouseMove);
+        document.addEventListener('mouseup', handleDocumentMouseUp);
+
+        return () => {
+            document.removeEventListener('mousemove', handleDocumentMouseMove);
+            document.removeEventListener('mouseup', handleDocumentMouseUp);
+        };
+    }, [isSelecting, checkIntersection]);
+
     if (screen === 'shutdown') return <ShutdownScreen mode="shutdown" onPowerOn={() => setScreen('boot')} />;
     if (screen === 'restart') return <ShutdownScreen mode="restart" onPowerOn={() => setScreen('boot')} />;
-    if (screen === 'boot') return <BootScreen onDone={() => setScreen('lock')} />;
+    if (screen === 'boot') return <BootScreen onDone={() => setScreen('desktop')} />;
     if (screen === 'lock') return <LockScreen onUnlock={doUnlock} />;
 
     const openIds = windows.map((w: { id: string; minimized: boolean }) => w.id);
@@ -146,11 +260,28 @@ export default function Desktop() {
         <div
             className="fixed inset-0 overflow-hidden"
             style={{ background: 'radial-gradient(ellipse at 20% 50%, #4a1020 0%, #2d0a1e 45%, #1a0510 100%)' }}
+            onMouseDown={handleMouseDown}
+            onMouseUp={handleMouseUp}
         >
             <div className="absolute pointer-events-none" style={{ width: 500, height: 500, borderRadius: '50%', top: '25%', left: '55%', background: 'radial-gradient(circle, rgba(233,84,32,0.10), transparent)' }} />
 
-            <TopBar onLock={doLock} onRestart={doRestart} onPowerOff={doPowerOff} onToggleSearch={() => requestToggleSearch('activities')} />
-            <DesktopIcons onOpen={openApp} />
+            {/* Global Brightness Overlay — Floor at 0.8 to keep screen readable */}
+            <div
+                className="fixed inset-0 z-[8000] pointer-events-none bg-black"
+                style={{ opacity: 'calc((1 - var(--system-brightness, 1)) * 0.8)' }}
+            />
+
+            <TopBar
+                onLock={doLock}
+                onRestart={doRestart}
+                onPowerOff={doPowerOff}
+                onOpenSettings={() => openApp('settings')}
+                onToggleSearch={() => requestToggleSearch('activities')}
+                isSelecting={isSelecting}
+            />
+            <DesktopIcons onOpen={openApp} selectedItems={selectedItems} onRegister={handleRegistrationRequest} />
+
+            <SelectionRectangle rect={selectionRect} />
 
             {windows.map((winState: WindowState, idx: number) => {
                 if (winState.minimized) return null;
@@ -173,7 +304,7 @@ export default function Desktop() {
                 );
             })}
 
-            <Dock onOpen={openApp} onToggleSearch={() => requestToggleSearch('apps')} openApps={openIds} minimizedApps={minIds} shouldHide={isDockOverlapped} />
+            <Dock onOpen={openApp} onToggleSearch={() => requestToggleSearch('apps')} openApps={openIds} minimizedApps={minIds} shouldHide={isDockOverlapped} isSelecting={isSelecting} />
 
             {showSearch && (
                 <SearchOverlay

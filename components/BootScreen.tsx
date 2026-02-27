@@ -1,6 +1,7 @@
 'use client';
 import { useEffect, useState, useRef } from 'react';
 import { BOOT_LINES } from '@/lib/portfolio';
+import { UbuntuIcon } from '@/components/Icons';
 
 interface Props { onDone: () => void; }
 
@@ -21,15 +22,15 @@ export default function BootScreen({ onDone }: Props) {
                 setProgress(Math.round((count / BOOT_LINES.length) * 100));
             } else {
                 clearInterval(iv);
-                setTimeout(() => { if (active) setPhase('logo'); }, 500);
+                setTimeout(() => { if (active) setPhase('logo'); }, 200);
                 setTimeout(() => {
                     if (active && !called.current) {
                         called.current = true;
                         onDone();
                     }
-                }, 1900);
+                }, 800);
             }
-        }, 300);
+        }, 200);
         return () => { active = false; clearInterval(iv); };
     }, [onDone]);
 
@@ -43,9 +44,17 @@ export default function BootScreen({ onDone }: Props) {
             {phase === 'logo' ? (
                 <div className="flex flex-col items-center gap-4 animate-fade-in-scale">
                     <div
-                        className="w-20 h-20 rounded-full flex items-center justify-center text-4xl"
-                        style={{ background: 'radial-gradient(circle, #f37222, #e95420, #772953)', boxShadow: '0 0 60px rgba(233,84,32,0.5)' }}
-                    >🐧</div>
+                        className="w-20 h-20 rounded-full flex items-center justify-center transition-all duration-500"
+                        style={{
+                            background: '#000',
+                            border: '1px solid rgba(255,255,255,0.15)',
+                            boxShadow: '0 0 20px rgba(255, 255, 255, 0.08)'
+                        }}
+                    >
+                        <div style={{ filter: 'drop-shadow(0 0 6px rgba(255,255,255,0.4))' }}>
+                            <UbuntuIcon size={40} />
+                        </div>
+                    </div>
                     <div className="text-4xl font-bold tracking-widest" style={{ color: '#e95420', fontFamily: "'Ubuntu', sans-serif" }}>
                         KapoorOS 24.04 LTS
                     </div>
@@ -59,9 +68,17 @@ export default function BootScreen({ onDone }: Props) {
                     {/* Logo header */}
                     <div className="flex flex-col items-center gap-3">
                         <div
-                            className="w-14 h-14 rounded-full"
-                            style={{ background: 'radial-gradient(circle, #f37222, #e95420, #772953)', boxShadow: '0 0 32px rgba(233,84,32,0.5)' }}
-                        />
+                            className="w-14 h-14 rounded-full flex items-center justify-center transition-all duration-300"
+                            style={{
+                                background: '#000',
+                                border: '1px solid rgba(255,255,255,0.12)',
+                                boxShadow: '0 0 10px rgba(255, 255, 255, 0.05)'
+                            }}
+                        >
+                            <div style={{ filter: 'drop-shadow(0 0 4px rgba(255,255,255,0.3))' }}>
+                                <UbuntuIcon size={28} />
+                            </div>
+                        </div>
                         <div className="text-3xl font-bold tracking-widest" style={{ color: '#e95420', fontFamily: "'Ubuntu', sans-serif" }}>
                             KapoorOS 24.04 LTS
                         </div>

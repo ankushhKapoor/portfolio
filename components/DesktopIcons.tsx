@@ -1,5 +1,5 @@
 'use client';
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { DESKTOP_ICONS } from '@/lib/portfolio';
 import { TerminalIcon, FolderIcon, UserIcon, FileTextIcon, BriefcaseIcon } from '@/components/Icons';
 
@@ -11,21 +11,35 @@ const ICONS: Record<string, { Icon: React.ComponentType<{ size?: number; color?:
     files: { Icon: FolderIcon, color: '#e95420', bg: 'linear-gradient(145deg,#3d1e10,#5a2d14)' },
 };
 
-interface Props { onOpen: (id: string) => void; }
+interface Props {
+    onOpen: (id: string) => void;
+    selectedItems?: Set<string>;
+    onRegister?: (items: Array<{ id: string; rect: DOMRect }>) => void;
+}
 
-export default function DesktopIcons({ onOpen }: Props) {
-    const [selected, setSelected] = useState<string | null>(null);
+export default function DesktopIcons({ onOpen, selectedItems = new Set(), onRegister }: Props) {
+    const containerRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        if (!onRegister) return;
+        const rects = DESKTOP_ICONS.map(item => {
+            const el = containerRef.current?.querySelector(`[data-icon-id="${item.id}"]`);
+            return { id: item.id, rect: el?.getBoundingClientRect() ?? new DOMRect() };
+        }).filter(item => item.rect.width > 0);
+        onRegister(rects);
+    }, [onRegister]);
+
     return (
-        <div className="fixed top-10 right-4 flex flex-col gap-1 z-10" onClick={() => setSelected(null)}>
+        <div ref={containerRef} className="fixed top-10 right-4 flex flex-col gap-1 z-10" onClick={() => { }}>
             {DESKTOP_ICONS.map(item => (
-                <DIcon key={item.id} item={item} selected={selected === item.id}
-                    onSelect={() => setSelected(item.id)} onOpen={() => onOpen(item.id)} />
+                <DIcon key={item.id} item={item} selected={selectedItems.has(item.id)}
+                    onOpen={() => onOpen(item.id)} />
             ))}
         </div>
     );
 }
 
-function DIcon({ item, selected, onSelect, onOpen }: { item: { id: string; icon: string; label: string }; selected: boolean; onSelect: () => void; onOpen: () => void }) {
+function DIcon({ item, selected, onOpen }: { item: { id: string; icon: string; label: string }; selected: boolean; onOpen: () => void }) {
     const [hov, setHov] = useState(false);
     const last = useRef(0);
     const cfg = ICONS[item.id] ?? { Icon: FolderIcon, color: '#fff', bg: '#333' };
@@ -34,19 +48,20 @@ function DIcon({ item, selected, onSelect, onOpen }: { item: { id: string; icon:
         e.stopPropagation();
         const now = Date.now();
         if (now - last.current < 400) onOpen();
-        else onSelect();
         last.current = now;
     };
 
     return (
         <div
+            data-icon-id={item.id}
+            data-no-select="true"
             onClick={handleClick}
             onMouseEnter={() => setHov(true)} onMouseLeave={() => setHov(false)}
-            className="flex flex-col items-center gap-1.5 px-2 py-2 rounded-xl cursor-default select-none transition-all"
+            className={`flex flex-col items-center gap-1.5 px-2 py-2 cursor-default select-none ${selected ? 'transition-none' : 'rounded-xl transition-all'}`}
             style={{
                 width: 76,
-                background: selected || hov ? 'rgba(255,255,255,0.10)' : 'transparent',
-                outline: selected ? '1px solid rgba(233,84,32,0.4)' : 'none',
+                background: selected ? 'rgba(233, 84, 32, 0.2)' : hov ? 'rgba(255,255,255,0.10)' : 'transparent',
+                outline: selected ? '1px solid #e95420' : 'none',
             }}
         >
             <div className="w-14 h-14 rounded-2xl flex items-center justify-center"
