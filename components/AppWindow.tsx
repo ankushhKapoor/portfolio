@@ -76,6 +76,7 @@ export default function AppWindow({ id, title, icon, children, onClose, onMinimi
             style={{ ...winStyle, background: '#2d2d2d', display: 'flex', flexDirection: 'column', border: '1px solid rgba(255,255,255,0.10)', overflow: 'hidden', boxShadow: '0 24px 80px rgba(0,0,0,0.85)' }}
             className="animate-window-open"
             onMouseDown={() => setZIndex(zCounter++)}
+            onContextMenu={(e) => { e.preventDefault(); e.stopPropagation(); }}
         >
             {/* Title Bar */}
             <div

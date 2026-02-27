@@ -45,6 +45,7 @@ export default function Dock({ onOpen, onToggleSearch, openApps, minimizedApps, 
                 className="fixed bottom-3 left-1/2 flex items-end pb-1 px-3 z-[5000] select-none transition-all duration-300 ease-in-out"
                 onMouseEnter={() => !isSelecting && setIsDockHovered(true)}
                 onMouseLeave={() => setIsDockHovered(false)}
+                onContextMenu={(e) => { e.preventDefault(); e.stopPropagation(); }}
                 style={{
                     background: 'rgba(24,24,24,0.88)',
                     backdropFilter: 'blur(28px)',

@@ -102,6 +102,7 @@ export default function QuickSettings({
                 fontFamily: MONO,
                 overflow: 'hidden'
             }}
+            onContextMenu={(e) => { e.preventDefault(); e.stopPropagation(); }}
             onMouseDown={(e) => e.stopPropagation()} // Prevent closing when interacting with sliders/buttons
         >
             {showPower ? (

@@ -1,7 +1,7 @@
 'use client';
-import { useEffect, useState, ReactNode, useCallback, useRef } from 'react';
+import { useEffect, useState, ReactNode, useCallback, useRef, useMemo } from 'react';
 import { useOS } from '@/hooks/useOS';
-import { WIN_DEFAULTS, DOCK_APPS } from '@/lib/portfolio';
+import { DESKTOP_ICONS, WIN_DEFAULTS, FILES } from '@/lib/portfolio';
 import { TerminalIcon, FolderIcon, UserIcon, FileTextIcon, BriefcaseIcon, CalendarIcon, SettingsIcon, UbuntuIcon } from '@/components/Icons';
 
 import BootScreen from '@/components/BootScreen';
@@ -11,6 +11,7 @@ import TopBar from '@/components/TopBar';
 import Dock from '@/components/Dock';
 import DesktopIcons from '@/components/DesktopIcons';
 import SearchOverlay from '@/components/SearchOverlay';
+import PropertiesWindow, { PropertiesData } from '@/components/PropertiesWindow';
 
 interface SelectionRect {
     x: number;
@@ -18,6 +19,40 @@ interface SelectionRect {
     w: number;
     h: number;
 }
+
+interface MenuEntry {
+    label: string;
+    action?: () => void;
+    danger?: boolean;
+    disabled?: boolean;
+    separator?: boolean;
+    shortcut?: string;
+    checked?: boolean;
+}
+
+interface ContextMenuState {
+    x: number;
+    y: number;
+    type: 'desktop' | 'icon' | 'fileItem' | 'filesEmpty';
+    iconId?: string;
+    fileData?: { name: string; kind: 'file' | 'folder'; path: string };
+    folderPath?: string;
+}
+
+interface DesktopItem {
+    id: string;
+    icon: string;
+    label: string;
+    kind: 'app' | 'folder' | 'file';
+    appId?: string;
+}
+
+interface DesktopClipboard {
+    mode: 'copy' | 'cut';
+    items: DesktopItem[];
+}
+
+// Local PropertiesData interface removed in favor of import from @/components/PropertiesWindow
 
 import TerminalApp from '@/components/apps/TerminalApp';
 import AboutApp from '@/components/apps/AboutApp';
@@ -36,6 +71,79 @@ const APP_ICONS: Record<string, ReactNode> = {
     calendar: <CalendarIcon size={14} color="#f37222" />,
     settings: <SettingsIcon size={14} color="#ccc" />,
 };
+
+const FILE_TYPE_MAP: Array<{ ext: string; typeLabel: string; mime: string; openWith: string; icon: string }> = [
+    // Audio
+    { ext: '.mp3', typeLabel: 'MP3 Audio', mime: 'audio/mpeg', openWith: 'Music Player', icon: '🎵' },
+    { ext: '.wav', typeLabel: 'WAV Audio', mime: 'audio/wav', openWith: 'Music Player', icon: '🎵' },
+    { ext: '.ogg', typeLabel: 'OGG Audio', mime: 'audio/ogg', openWith: 'Music Player', icon: '🎵' },
+
+    // Video
+    { ext: '.mp4', typeLabel: 'MP4 Video', mime: 'video/mp4', openWith: 'Video Player', icon: '🎬' },
+    { ext: '.webm', typeLabel: 'WebM Video', mime: 'video/webm', openWith: 'Video Player', icon: '🎬' },
+
+    // Images
+    { ext: '.png', typeLabel: 'PNG Image', mime: 'image/png', openWith: 'Image Viewer', icon: '🖼️' },
+    { ext: '.jpg', typeLabel: 'JPEG Image', mime: 'image/jpeg', openWith: 'Image Viewer', icon: '🖼️' },
+    { ext: '.jpeg', typeLabel: 'JPEG Image', mime: 'image/jpeg', openWith: 'Image Viewer', icon: '🖼️' },
+    { ext: '.gif', typeLabel: 'GIF Image', mime: 'image/gif', openWith: 'Image Viewer', icon: '🖼️' },
+    { ext: '.svg', typeLabel: 'SVG Vector Image', mime: 'image/svg+xml', openWith: 'Image Viewer', icon: '🖼️' },
+
+    // Documents
+    { ext: '.pdf', typeLabel: 'PDF Document', mime: 'application/pdf', openWith: 'Document Viewer', icon: '📋' },
+    { ext: '.docx', typeLabel: 'Microsoft Word Document', mime: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', openWith: 'LibreOffice Writer', icon: '📝' },
+    { ext: '.txt', typeLabel: 'Plain Text Document', mime: 'text/plain', openWith: 'Text Editor', icon: '📄' },
+    { ext: '.md', typeLabel: 'Markdown Document', mime: 'text/markdown', openWith: 'Text Editor', icon: '📄' },
+
+    // Code
+    { ext: '.js', typeLabel: 'JavaScript Source', mime: 'text/javascript', openWith: 'VS Code', icon: '📜' },
+    { ext: '.ts', typeLabel: 'TypeScript Source', mime: 'text/typescript', openWith: 'VS Code', icon: '📜' },
+    { ext: '.tsx', typeLabel: 'React TypeScript Source', mime: 'text/tsx', openWith: 'VS Code', icon: '📜' },
+    { ext: '.py', typeLabel: 'Python Script', mime: 'text/x-python', openWith: 'VS Code', icon: '📜' },
+    { ext: '.go', typeLabel: 'Go Source', mime: 'text/x-go', openWith: 'VS Code', icon: '📜' },
+    { ext: '.json', typeLabel: 'JSON Data', mime: 'application/json', openWith: 'Text Editor', icon: '📄' },
+    { ext: '.bashrc', typeLabel: 'Shell Configuration', mime: 'text/x-shellscript', openWith: 'Text Editor', icon: '📄' },
+
+    // Archives
+    { ext: '.zip', typeLabel: 'ZIP Archive', mime: 'application/zip', openWith: 'Archive Manager', icon: '📦' },
+    { ext: '.tar.gz', typeLabel: 'Compressed Archive', mime: 'application/gzip', openWith: 'Archive Manager', icon: '📦' },
+
+    // System
+    { ext: '.iso', typeLabel: 'Disk Image', mime: 'application/x-iso9660-image', openWith: 'Disk Image Mounter', icon: '💿' },
+];
+
+function getFileTypeInfo(name: string) {
+    const lower = name.toLowerCase();
+    const found = FILE_TYPE_MAP.find((f) => lower.endsWith(f.ext));
+    if (found) return found;
+
+    if (name.startsWith('.')) return { typeLabel: 'Configuration File', mime: 'text/plain', openWith: 'Text Editor', icon: '📄' };
+    return { typeLabel: 'Generic File', mime: 'application/octet-stream', openWith: 'Text Editor', icon: '📄' };
+}
+
+function pseudoSizeFromName(name: string): string {
+    const lower = name.toLowerCase();
+    let baseBytes = 0;
+    if (lower.endsWith('.iso')) baseBytes = 4200000000;
+    else if (lower.endsWith('.tar.gz') || lower.endsWith('.zip')) baseBytes = 18400000;
+    else if (lower.endsWith('.pdf') || lower.endsWith('.docx')) baseBytes = 2100000;
+    else if (lower.endsWith('.mp3')) baseBytes = 9700000;
+    else if (lower.endsWith('.png') || lower.endsWith('.jpg')) baseBytes = 842000;
+    else {
+        let hash = 0;
+        for (let i = 0; i < name.length; i++) hash = (hash * 31 + name.charCodeAt(i)) % 1000000;
+        baseBytes = 5000 + hash;
+    }
+
+    if (baseBytes > 1024 * 1024 * 1024) return `${(baseBytes / (1024 * 1024 * 1024)).toFixed(1)} GB (${baseBytes.toLocaleString()} bytes)`;
+    if (baseBytes > 1024 * 1024) return `${(baseBytes / (1024 * 1024)).toFixed(1)} MB (${baseBytes.toLocaleString()} bytes)`;
+    if (baseBytes > 1024) return `${(baseBytes / 1024).toFixed(1)} KB (${baseBytes.toLocaleString()} bytes)`;
+    return `${baseBytes} bytes`;
+}
+
+// PropertiesDialog removed in favor of standalone PropertiesWindow component
+
+// Helper row components removed
 
 function ShutdownScreen({ mode, onPowerOn }: { mode: 'shutdown' | 'restart'; onPowerOn: () => void }) {
     const [phase, setPhase] = useState<'spinning' | 'off'>('spinning');
@@ -86,18 +194,6 @@ function ShutdownScreen({ mode, onPowerOn }: { mode: 'shutdown' | 'restart'; onP
     );
 }
 
-function renderAppContent(id: string, closeApp: (id: string) => void) {
-    switch (id) {
-        case 'terminal': return <TerminalApp onClose={() => closeApp('terminal')} />;
-        case 'about': return <AboutApp />;
-        case 'resume': return <ResumeApp />;
-        case 'projects': return <ProjectsApp />;
-        case 'calendar': return <CalendarApp />;
-        case 'files': return <FilesApp />;
-        case 'settings': return <SettingsApp />;
-        default: return null;
-    }
-}
 
 import { WindowRect, WindowState } from '@/hooks/useOS';
 
@@ -129,13 +225,243 @@ function SelectionRectangle({ rect }: { rect: SelectionRect | null }) {
     );
 }
 
+function KapoorContextMenu({ x, y, items }: { x: number; y: number; items: MenuEntry[] }) {
+    const estimatedHeight = items.reduce((h, item) => h + (item.separator ? 8 : 30), 14);
+    const vw = typeof window !== 'undefined' ? window.innerWidth : 1280;
+    const vh = typeof window !== 'undefined' ? window.innerHeight : 800;
+    const clampedX = Math.max(8, Math.min(x, vw - 248));
+    const clampedY = Math.max(8, Math.min(y, vh - estimatedHeight - 8));
+
+    return (
+        <div
+            data-kapoor-context-menu="true"
+            className="fixed z-[9100] min-w-[280px] py-1 animate-fade-in-scale"
+            onMouseDown={(e) => e.stopPropagation()}
+            onClick={(e) => e.stopPropagation()}
+            onContextMenu={(e) => e.preventDefault()}
+            style={{
+                left: `${clampedX}px`,
+                top: `${clampedY}px`,
+                background: '#2e2e2e',
+                border: '1px solid rgba(255,255,255,0.14)',
+                borderRadius: 0,
+                boxShadow: '0 10px 26px rgba(0,0,0,0.55)',
+                fontFamily: "'Ubuntu', sans-serif",
+            }}
+        >
+            {items.map((item, idx) => {
+                if (item.separator) {
+                    return <div key={`sep-${idx}`} className="my-1 h-px bg-white/15" />;
+                }
+
+                return (
+                    <button
+                        key={`${item.label}-${idx}`}
+                        disabled={item.disabled}
+                        onClick={item.action}
+                        className="w-full flex items-center justify-between text-left px-3 py-1.5 text-[13px] border-0 bg-transparent transition-colors"
+                        style={{
+                            color: item.disabled ? '#7a7a7a' : item.danger ? '#ff8c8c' : '#ebebeb',
+                            cursor: item.disabled ? 'default' : 'pointer',
+                        }}
+                        onMouseEnter={(e) => {
+                            if (item.disabled) return;
+                            e.currentTarget.style.background = 'rgba(255,255,255,0.08)';
+                        }}
+                        onMouseLeave={(e) => {
+                            e.currentTarget.style.background = 'transparent';
+                        }}
+                    >
+                        <span className="flex items-center gap-2">
+                            {item.checked ? <span style={{ width: 11, color: '#d9d9d9' }}>✓</span> : <span style={{ width: 11 }} />}
+                            <span>{item.label}</span>
+                        </span>
+                        <span style={{ color: item.disabled ? '#6f6f6f' : '#9f9f9f' }}>{item.shortcut ?? ''}</span>
+                    </button>
+                );
+            })}
+        </div>
+    );
+}
+
 export default function Desktop() {
     const { screen, setScreen, windows, openApp, closeApp, minimizeApp, focusApp, focusedAppId, showSearch, toggleSearch, searchMode, windowRects, updateWindowRect, doUnlock, doLock, doPowerOff, doRestart } = useOS();
     const [selectionRect, setSelectionRect] = useState<SelectionRect | null>(null);
     const [isSelecting, setIsSelecting] = useState(false);
     const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set());
+    const [contextMenu, setContextMenu] = useState<ContextMenuState | null>(null);
+    const [desktopItems, setDesktopItems] = useState<DesktopItem[]>(() =>
+        DESKTOP_ICONS.map((item) => ({ ...item, kind: item.id === 'files' ? 'folder' : 'app', appId: item.id }))
+    );
+    const [layoutVersion, setLayoutVersion] = useState(0);
+    const [keepAligned, setKeepAligned] = useState(true);
+    const [propertiesData, setPropertiesData] = useState<PropertiesData | null>(null);
+    const [clipboard, setClipboard] = useState<DesktopClipboard | null>(null);
+    const [cutItemIds, setCutItemIds] = useState<Set<string>>(new Set());
+    const [fsData, setFsData] = useState<Record<string, { n: string; icon: string; dir?: boolean }[]>>(FILES);
+    const [fsClipboard, setFsClipboard] = useState<{ mode: 'copy' | 'cut', item: { n: string; icon: string; dir?: boolean }, sourcePath: string } | null>(null);
+    const [fsPath, setFsPath] = useState<string>('Home');
+    const [fsSelectedName, setFsSelectedName] = useState<string | null>(null);
     const startPos = useRef<{ x: number; y: number } | null>(null);
     const desktopItemsRef = useRef<Map<string, DOMRect>>(new Map());
+
+    const closeContextMenu = useCallback(() => setContextMenu(null), []);
+
+    const openContextMenu = useCallback((menu: ContextMenuState) => {
+        setContextMenu(menu);
+    }, []);
+
+    const openDesktopItem = useCallback((id: string) => {
+        const item = desktopItems.find((it) => it.id === id);
+        if (!item) return;
+        if (item.kind === 'folder') { openApp('files'); return; }
+        if (item.appId) { openApp(item.appId); }
+    }, [desktopItems, openApp]);
+
+    const makeUniqueLabel = useCallback((base: string, items: DesktopItem[]) => {
+        const names = new Set(items.map((i) => i.label));
+        if (!names.has(base)) return base;
+        let idx = 2;
+        while (names.has(`${base} ${idx}`)) idx += 1;
+        return `${base} ${idx}`;
+    }, []);
+
+    const openDesktopProperties = useCallback(() => {
+        const now = new Date().toLocaleString();
+        setPropertiesData({
+            title: 'Desktop Properties',
+            name: 'Desktop',
+            kind: 'desktop',
+            typeLabel: 'System Folder',
+            mime: 'inode/directory',
+            sizeLabel: `${desktopItems.length} items`,
+            parent: '/home/kapoor',
+            accessed: now,
+            modified: now,
+            created: 'Oct 24, 2023',
+            permissions: 'View and modify content',
+            owner: 'kapoor',
+            group: 'kapoor',
+            openWith: 'Files',
+            icon: '🖥️',
+            freeSpace: '142.0 GB Free'
+        });
+    }, [desktopItems.length]);
+
+    const openItemProperties = useCallback((item: DesktopItem | null, selectedCount: number) => {
+        const now = new Date().toLocaleString();
+        if (!item || selectedCount > 1) {
+            setPropertiesData({
+                title: `${selectedCount} Items Properties`,
+                name: `${selectedCount} selected items`,
+                kind: 'multi',
+                typeLabel: 'Multiple items',
+                mime: 'mixed',
+                sizeLabel: `${selectedCount} items`,
+                parent: '/home/kapoor/Desktop',
+                accessed: now,
+                modified: now,
+                created: now,
+                permissions: 'Mixed permissions',
+                owner: 'kapoor',
+                group: 'kapoor',
+                openWith: 'Multiple applications',
+                icon: '📚',
+                freeSpace: '142.0 GB Free'
+            });
+            return;
+        }
+
+        if (item.kind === 'folder') {
+            setPropertiesData({
+                title: `${item.label} Properties`,
+                name: item.label,
+                kind: 'folder',
+                typeLabel: 'Folder',
+                mime: 'inode/directory',
+                sizeLabel: 'Calculating...',
+                parent: '/home/kapoor/Desktop',
+                accessed: now,
+                modified: now,
+                created: 'Nov 12, 2023',
+                permissions: 'Read and write',
+                owner: 'kapoor',
+                group: 'kapoor',
+                openWith: 'Files',
+                icon: '📁',
+                freeSpace: '142.0 GB Free'
+            });
+            return;
+        }
+
+        if (item.kind === 'app') {
+            const isKapoorApp = ['about', 'resume', 'projects', 'terminal', 'files', 'settings'].includes(item.id);
+            setPropertiesData({
+                title: `${item.label} Properties`,
+                name: item.label,
+                kind: 'app',
+                typeLabel: isKapoorApp ? 'System Application' : 'Application',
+                mime: 'application/x-desktop',
+                sizeLabel: 'Executable',
+                parent: '/usr/bin',
+                accessed: now,
+                modified: now,
+                created: 'Feb 15, 2024',
+                permissions: 'Read and execute',
+                owner: 'root',
+                group: 'root',
+                openWith: 'Kapoor Shell',
+                icon: '⚙️'
+            });
+            return;
+        }
+
+        const info = getFileTypeInfo(item.label);
+        setPropertiesData({
+            title: `${item.label} Properties`,
+            name: item.label,
+            kind: 'file',
+            typeLabel: info.typeLabel,
+            mime: info.mime,
+            sizeLabel: pseudoSizeFromName(item.label),
+            parent: '/home/kapoor/Desktop',
+            accessed: now,
+            modified: now,
+            created: 'Dec 05, 2023',
+            permissions: 'Read and write',
+            owner: 'kapoor',
+            group: 'kapoor',
+            openWith: info.openWith,
+            icon: info.icon || '📄'
+        });
+    }, []);
+
+    const handleFileItemContextMenu = useCallback((name: string, kind: 'file' | 'folder', path: string, x: number, y: number) => {
+        openContextMenu({ type: 'fileItem', fileData: { name, kind, path }, x, y });
+    }, [openContextMenu]);
+
+    const handleFilesAppProperties = useCallback((name: string, kind: 'file' | 'folder', path: string) => {
+        const now = new Date().toLocaleString();
+        const info = getFileTypeInfo(name);
+
+        setPropertiesData({
+            title: `${name} Properties`,
+            name: name,
+            kind: kind === 'folder' ? 'folder' : 'file',
+            typeLabel: kind === 'folder' ? 'Folder' : info.typeLabel,
+            mime: kind === 'folder' ? 'inode/directory' : info.mime,
+            sizeLabel: kind === 'folder' ? 'Calculating...' : pseudoSizeFromName(name),
+            parent: path,
+            accessed: now,
+            modified: now,
+            created: 'Jan 10, 2024',
+            permissions: kind === 'folder' ? 'Read and write' : 'Read only',
+            owner: 'kapoor',
+            group: 'kapoor',
+            openWith: kind === 'folder' ? 'Files' : info.openWith,
+            icon: kind === 'folder' ? '📁' : (info.icon || '📄')
+        });
+    }, []);
 
     const requestToggleSearch = useCallback((mode: 'activities' | 'apps') => {
         if (showSearch) {
@@ -188,6 +514,8 @@ export default function Desktop() {
     }, []);
 
     const handleMouseDown = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+        closeContextMenu();
+        if ((e.target as HTMLElement).closest('[data-kapoor-context-menu="true"]')) return;
         if ((e.target as HTMLElement).closest('[data-no-select]')) return;
         if (e.button !== 0) return;
 
@@ -195,7 +523,7 @@ export default function Desktop() {
         startPos.current = { x: e.clientX, y: e.clientY };
         setSelectionRect(null);
         setSelectedItems(new Set());
-    }, []);
+    }, [closeContextMenu]);
 
     const handleMouseUp = useCallback(() => {
         setIsSelecting(false);
@@ -203,17 +531,402 @@ export default function Desktop() {
         setSelectionRect(null);
     }, []);
 
+    const handleDesktopContextMenu = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+        e.preventDefault();
+        if ((e.target as HTMLElement).closest('[data-no-select]')) return;
+        openContextMenu({ type: 'desktop', x: e.clientX, y: e.clientY });
+    }, [openContextMenu]);
+
+    const handleIconContextMenu = useCallback((id: string, x: number, y: number) => {
+        openContextMenu({ type: 'icon', iconId: id, x, y });
+    }, [openContextMenu]);
+
+    useEffect(() => {
+        if (!contextMenu) return;
+
+        const handleDocumentDown = (e: MouseEvent) => {
+            const target = e.target as HTMLElement;
+            if (target.closest('[data-kapoor-context-menu="true"]')) return;
+            closeContextMenu();
+        };
+
+        const handleEsc = (e: KeyboardEvent) => {
+            if (e.key === 'Escape') closeContextMenu();
+        };
+
+        const handleWindowChange = () => closeContextMenu();
+
+        document.addEventListener('mousedown', handleDocumentDown);
+        window.addEventListener('resize', handleWindowChange);
+        window.addEventListener('blur', handleWindowChange);
+        document.addEventListener('keydown', handleEsc);
+
+        return () => {
+            document.removeEventListener('mousedown', handleDocumentDown);
+            window.removeEventListener('resize', handleWindowChange);
+            window.removeEventListener('blur', handleWindowChange);
+            document.removeEventListener('keydown', handleEsc);
+        };
+    }, [closeContextMenu, contextMenu]);
+
+    const pasteFromClipboard = useCallback(() => {
+        if (!clipboard || clipboard.items.length === 0) return;
+
+        if (clipboard.mode === 'copy') {
+            setDesktopItems((prev) => {
+                const next = [...prev];
+                clipboard.items.forEach((item) => {
+                    const label = makeUniqueLabel(`${item.label} (Copy)`, next);
+                    next.push({ ...item, id: `${item.id}-copy-${Date.now()}-${Math.random().toString(16).slice(2, 6)}`, label });
+                });
+                return next;
+            });
+            setLayoutVersion((v) => v + 1);
+            closeContextMenu();
+            return;
+        }
+
+        const moving = new Set(clipboard.items.map((i) => i.id));
+        setDesktopItems((prev) => {
+            const kept = prev.filter((it) => !moving.has(it.id));
+            const moved = prev.filter((it) => moving.has(it.id));
+            return [...kept, ...moved];
+        });
+        setSelectedItems(new Set(Array.from(moving)));
+        setCutItemIds(new Set());
+        setClipboard(null);
+        setLayoutVersion((v) => v + 1);
+        closeContextMenu();
+    }, [clipboard, closeContextMenu, makeUniqueLabel]);
+
+    const handleFilesEmptyContextMenu = (path: string, x: number, y: number) => {
+        setContextMenu({ type: 'filesEmpty', folderPath: path, x, y });
+    };
+
+    const handleFsRename = useCallback((oldName: string, kind: 'file' | 'folder', path: string) => {
+        const next = window.prompt(`Rename ${kind}`, oldName);
+        if (!next || !next.trim() || next === oldName) return;
+        const newName = next.trim();
+        const pathParts = path.split('/');
+        const dirKey = pathParts[pathParts.length - 1];
+
+        setFsData((prev) => {
+            const currentItems = prev[dirKey] || [];
+            if (currentItems.some(i => i.n === newName)) {
+                alert("Name already exists");
+                return prev;
+            }
+            const updatedItems = currentItems.map(i => i.n === oldName ? { ...i, n: newName } : i);
+            return { ...prev, [dirKey]: updatedItems };
+        });
+    }, []);
+
+    const handleFsDelete = useCallback((name: string, path: string) => {
+        const pathParts = path.split('/');
+        const dirKey = pathParts[pathParts.length - 1];
+        setFsData((prev) => {
+            const currentItems = prev[dirKey] || [];
+            return { ...prev, [dirKey]: currentItems.filter(i => i.n !== name) };
+        });
+    }, []);
+
+    const handleFsNewFolder = useCallback((path: string) => {
+        const pathParts = path.split('/');
+        const dirKey = pathParts[pathParts.length - 1];
+        setFsData((prev) => {
+            const currentItems = prev[dirKey] || [];
+            const existing = currentItems.filter(i => i.dir && i.n.startsWith('New Folder')).length;
+            const name = existing === 0 ? 'New Folder' : `New Folder ${existing + 1}`;
+            return { ...prev, [dirKey]: [...currentItems, { n: name, icon: '📁', dir: true }], [name]: [] };
+        });
+    }, []);
+
+    const handleFsPaste = useCallback((targetPath: string) => {
+        if (!fsClipboard) return;
+        const pathParts = targetPath.split('/');
+        const targetDirKey = pathParts[pathParts.length - 1];
+
+        setFsData((prev) => {
+            const targetItems = prev[targetDirKey] || [];
+            if (targetItems.some(i => i.n === fsClipboard.item.n)) {
+                alert("Item already exists in target folder");
+                return prev;
+            }
+            const nextItems = [...targetItems, fsClipboard.item];
+            const nextData = { ...prev, [targetDirKey]: nextItems };
+
+            if (fsClipboard.mode === 'cut') {
+                const sourceDirKey = fsClipboard.sourcePath.split('/').pop() || "";
+                if (nextData[sourceDirKey]) {
+                    nextData[sourceDirKey] = nextData[sourceDirKey].filter(i => i.n !== fsClipboard.item.n);
+                }
+            }
+            return nextData;
+        });
+        if (fsClipboard.mode === 'cut') setFsClipboard(null);
+    }, [fsClipboard]);
+
+    const handleFsOpen = useCallback((name: string, kind: 'file' | 'folder', path: string) => {
+        if (kind === 'file') {
+            if (name.endsWith('.txt') || name.endsWith('.md') || name.startsWith('.')) {
+                openApp('terminal');
+            } else if (name.endsWith('.pdf')) {
+                openApp('resume');
+            }
+        }
+    }, [openApp]);
+
+    const desktopMenuItems: MenuEntry[] = [
+        {
+            label: 'New Folder', shortcut: 'Shift+Ctrl+N', action: () => {
+                const existing = desktopItems.filter((i) => i.kind === 'folder' && i.label.startsWith('New Folder')).length;
+                const name = existing === 0 ? 'New Folder' : `New Folder ${existing + 1}`;
+                const id = `folder-${Date.now()}-${Math.random().toString(16).slice(2, 6)}`;
+                setDesktopItems((prev) => [...prev, { id, icon: '📁', label: name, kind: 'folder' }]);
+                setSelectedItems(new Set([id]));
+                if (keepAligned) setLayoutVersion((v) => v + 1);
+                closeContextMenu();
+            }
+        },
+        { label: 'Paste', shortcut: 'Ctrl+V', disabled: !clipboard || clipboard.items.length === 0, action: pasteFromClipboard },
+        { label: 'Select All', shortcut: 'Ctrl+A', action: () => { setSelectedItems(new Set(desktopItems.map((i) => i.id))); closeContextMenu(); } },
+        { label: 'Properties', shortcut: 'Ctrl+I', action: () => { openDesktopProperties(); closeContextMenu(); } },
+        { separator: true, label: 'sep-2' },
+        {
+            label: 'Organize Desktop by Name', action: () => {
+                setDesktopItems((prev) => [...prev].sort((a, b) => a.label.localeCompare(b.label)));
+                setLayoutVersion((v) => v + 1);
+                closeContextMenu();
+            }
+        },
+        { separator: true, label: 'sep-3' },
+        { label: 'Open Terminal', shortcut: 'Ctrl+Alt+T', action: () => { openApp('terminal'); closeContextMenu(); } },
+    ];
+
+    const filesEmptyMenuItems = useMemo((): MenuEntry[] => {
+        if (contextMenu?.type !== 'filesEmpty') return [];
+        const path = contextMenu.folderPath || "";
+        return [
+            { label: 'New Folder', action: () => { handleFsNewFolder(path); closeContextMenu(); } },
+            { label: 'New Document', action: () => closeContextMenu() },
+            { separator: true, label: 'sep-1' },
+            { label: 'Paste', disabled: !fsClipboard, action: () => { handleFsPaste(path); closeContextMenu(); } },
+            { separator: true, label: 'sep-2' },
+            { label: 'Select All', action: () => closeContextMenu() },
+            { separator: true, label: 'sep-3' },
+            {
+                label: 'Properties', action: () => {
+                    closeContextMenu();
+                }
+            },
+        ];
+    }, [contextMenu?.type, contextMenu?.folderPath, closeContextMenu, fsClipboard, handleFsNewFolder, handleFsPaste]);
+
+    const iconMenuItems = useCallback((iconId: string): MenuEntry[] => {
+        const item = desktopItems.find((it) => it.id === iconId);
+        const selected = selectedItems.has(iconId) ? Array.from(selectedItems) : [iconId];
+        const selectedCount = selected.length;
+        const canRename = selectedCount === 1 && !!item;
+        const targets = new Set(selected);
+        const selectedItemsData = desktopItems.filter((it) => targets.has(it.id));
+        return [
+            { label: selectedCount > 1 ? `Open (${selectedCount} Items)` : 'Open', action: () => { selected.forEach((id) => openDesktopItem(id)); closeContextMenu(); } },
+            ...(item && (item.kind === 'file' || item.kind === 'folder') ? [{ label: 'Open File Location', action: () => { openApp('files'); closeContextMenu(); } }] : []),
+            { separator: true, label: 'sep-2' },
+            {
+                label: 'Cut', action: () => {
+                    setClipboard({ mode: 'cut', items: selectedItemsData });
+                    setCutItemIds(new Set(selected));
+                    closeContextMenu();
+                }
+            },
+            {
+                label: 'Copy', action: () => {
+                    setClipboard({ mode: 'copy', items: selectedItemsData });
+                    setCutItemIds(new Set());
+                    closeContextMenu();
+                }
+            },
+            {
+                label: 'Rename...', disabled: !canRename, action: () => {
+                    if (!item) return;
+                    const next = window.prompt('Rename item', item.label);
+                    if (!next || !next.trim()) return;
+                    setDesktopItems((prev) => prev.map((it) => it.id === item.id ? { ...it, label: next.trim() } : it));
+                    if (keepAligned) setLayoutVersion((v) => v + 1);
+                    closeContextMenu();
+                }
+            },
+            {
+                label: 'Move to Trash', danger: true, action: () => {
+                    const targets = new Set(selected);
+                    setDesktopItems((prev) => prev.filter((it) => !targets.has(it.id)));
+                    setSelectedItems(new Set());
+                    setCutItemIds((prev) => {
+                        const next = new Set(prev);
+                        targets.forEach((id) => next.delete(id));
+                        return next;
+                    });
+                    setClipboard((prev) => {
+                        if (!prev) return null;
+                        const remaining = prev.items.filter((it) => !targets.has(it.id));
+                        return remaining.length ? { ...prev, items: remaining } : null;
+                    });
+                    if (keepAligned) setLayoutVersion((v) => v + 1);
+                    closeContextMenu();
+                }
+            },
+            { separator: true, label: 'sep-3' },
+            {
+                label: 'Properties', action: () => {
+                    openItemProperties(item ?? null, selectedCount);
+                    closeContextMenu();
+                }
+            },
+        ];
+    }, [closeContextMenu, desktopItems, keepAligned, openApp, openDesktopItem, openItemProperties, selectedItems]);
+
+    const fileItemMenuItems = useCallback((fileData: { name: string; kind: 'file' | 'folder'; path: string }): MenuEntry[] => {
+        return [
+            {
+                label: 'Open',
+                action: () => {
+                    handleFsOpen(fileData.name, fileData.kind, fileData.path);
+                    closeContextMenu();
+                }
+            },
+            { label: 'Rename...', action: () => { handleFsRename(fileData.name, fileData.kind, fileData.path); closeContextMenu(); } },
+            { separator: true, label: 'sep-1' },
+            {
+                label: 'Copy',
+                action: () => {
+                    const dirKey = fileData.path.split('/').pop() || "";
+                    const item = fsData[dirKey]?.find(i => i.n === fileData.name);
+                    if (item) setFsClipboard({ mode: 'copy', item, sourcePath: fileData.path });
+                    closeContextMenu();
+                }
+            },
+            {
+                label: 'Cut',
+                action: () => {
+                    const dirKey = fileData.path.split('/').pop() || "";
+                    const item = fsData[dirKey]?.find(i => i.n === fileData.name);
+                    if (item) setFsClipboard({ mode: 'cut', item, sourcePath: fileData.path });
+                    closeContextMenu();
+                }
+            },
+            {
+                label: 'Move to Trash',
+                danger: true,
+                action: () => {
+                    handleFsDelete(fileData.name, fileData.path);
+                    closeContextMenu();
+                }
+            },
+            { separator: true, label: 'sep-2' },
+            {
+                label: 'Properties',
+                action: () => {
+                    handleFilesAppProperties(fileData.name, fileData.kind, fileData.path);
+                    closeContextMenu();
+                }
+            },
+        ];
+    }, [closeContextMenu, handleFsOpen, handleFsRename, handleFsDelete, fsData, handleFilesAppProperties]);
+
+    useEffect(() => {
+        const handleGlobalContextMenu = (e: MouseEvent) => {
+            e.preventDefault();
+        };
+        window.addEventListener('contextmenu', handleGlobalContextMenu);
+        return () => window.removeEventListener('contextmenu', handleGlobalContextMenu);
+    }, []);
+
     useEffect(() => {
         const handler = (e: KeyboardEvent) => {
-            if (e.ctrlKey && e.altKey && e.key === 't') { e.preventDefault(); openApp('terminal'); }
-            if (e.key === 'Meta' || e.key === 'OS') {
+            const key = e.key.toLowerCase();
+
+            // Terminal Shortcut: Ctrl+Alt+T or Ctrl+Alt+C
+            if (e.ctrlKey && e.altKey && (key === 't' || key === 'c')) {
+                e.preventDefault();
+                openApp('terminal');
+                return;
+            }
+
+            // Search/Activities: Meta/OS key
+            if (key === 'meta' || key === 'os') {
                 e.preventDefault();
                 requestToggleSearch('apps');
+                return;
+            }
+
+            // Selection: Select All (Ctrl+A)
+            if (e.ctrlKey && key === 'a') {
+                if (!focusedAppId) {
+                    e.preventDefault();
+                    setSelectedItems(new Set(desktopItems.map(i => i.id)));
+                } else if (focusedAppId === 'files') {
+                    // Logic for select all in files could be added if needed
+                    // For now, let's keep it simple
+                }
+                return;
+            }
+
+            // Copy/Cut/Paste
+            if (e.ctrlKey) {
+                if (key === 'c') {
+                    if (!focusedAppId) {
+                        const selected = Array.from(selectedItems);
+                        const selectedData = desktopItems.filter(it => selected.includes(it.id));
+                        if (selectedData.length > 0) {
+                            setClipboard({ mode: 'copy', items: selectedData });
+                            setCutItemIds(new Set());
+                        }
+                    } else if (focusedAppId === 'files' && fsSelectedName) {
+                        const item = fsData[fsPath]?.find(i => i.n === fsSelectedName);
+                        if (item) setFsClipboard({ mode: 'copy', item, sourcePath: `/home/kapoor/${fsPath}` });
+                    }
+                } else if (key === 'x') {
+                    if (!focusedAppId) {
+                        const selected = Array.from(selectedItems);
+                        const selectedData = desktopItems.filter(it => selected.includes(it.id));
+                        if (selectedData.length > 0) {
+                            setClipboard({ mode: 'cut', items: selectedData });
+                            setCutItemIds(new Set(selected));
+                        }
+                    } else if (focusedAppId === 'files' && fsSelectedName) {
+                        const item = fsData[fsPath]?.find(i => i.n === fsSelectedName);
+                        if (item) setFsClipboard({ mode: 'cut', item, sourcePath: `/home/kapoor/${fsPath}` });
+                    }
+                } else if (key === 'v') {
+                    if (!focusedAppId && clipboard && clipboard.items.length > 0) {
+                        e.preventDefault();
+                        pasteFromClipboard();
+                    } else if (focusedAppId === 'files' && fsClipboard) {
+                        e.preventDefault();
+                        handleFsPaste(`/home/kapoor/${fsPath}`);
+                    }
+                }
+            }
+
+            // New Folder: Ctrl+Shift+N
+            if (e.ctrlKey && e.shiftKey && key === 'n') {
+                if (!focusedAppId) {
+                    e.preventDefault();
+                    const existing = desktopItems.filter((i) => i.kind === 'folder' && i.label.startsWith('New Folder')).length;
+                    const name = existing === 0 ? 'New Folder' : `New Folder ${existing + 1}`;
+                    const id = `folder-${Date.now()}-${Math.random().toString(16).slice(2, 6)}`;
+                    setDesktopItems((prev) => [...prev, { id, icon: '📁', label: name, kind: 'folder' }]);
+                    setSelectedItems(new Set([id]));
+                } else if (focusedAppId === 'files') {
+                    e.preventDefault();
+                    handleFsNewFolder(`/home/kapoor/${fsPath}`);
+                }
             }
         };
         window.addEventListener('keydown', handler);
         return () => window.removeEventListener('keydown', handler);
-    }, [openApp, requestToggleSearch]);
+    }, [openApp, requestToggleSearch, focusedAppId, selectedItems, desktopItems, clipboard, pasteFromClipboard, fsSelectedName, fsData, fsPath, fsClipboard, handleFsPaste, handleFsNewFolder]);
 
     useEffect(() => {
         if (!isSelecting) return;
@@ -248,6 +961,34 @@ export default function Desktop() {
         };
     }, [isSelecting, checkIntersection]);
 
+    const renderAppContent = (id: string, closeApp: (id: string) => void, onOpenProperties?: (name: string, kind: 'file' | 'folder', path: string) => void) => {
+        switch (id) {
+            case 'terminal': return <TerminalApp onClose={() => closeApp('terminal')} />;
+            case 'about': return <AboutApp />;
+            case 'resume': return <ResumeApp />;
+            case 'projects': return <ProjectsApp />;
+            case 'calendar': return <CalendarApp />;
+            case 'files': return (
+                <FilesApp
+                    files={fsData}
+                    path={fsPath}
+                    onPathChange={setFsPath}
+                    selectedName={fsSelectedName}
+                    onSelectionChange={setFsSelectedName}
+                    onContextMenu={(name, kind, path, x, y) => {
+                        handleFileItemContextMenu(name, kind, path, x, y);
+                    }}
+                    onEmptyContextMenu={(path, x, y) => {
+                        handleFilesEmptyContextMenu(path, x, y);
+                    }}
+                    onOpenItem={handleFsOpen}
+                />
+            );
+            case 'settings': return <SettingsApp />;
+            default: return null;
+        }
+    };
+
     if (screen === 'shutdown') return <ShutdownScreen mode="shutdown" onPowerOn={() => setScreen('boot')} />;
     if (screen === 'restart') return <ShutdownScreen mode="restart" onPowerOn={() => setScreen('boot')} />;
     if (screen === 'boot') return <BootScreen onDone={() => setScreen('desktop')} />;
@@ -262,6 +1003,7 @@ export default function Desktop() {
             style={{ background: 'radial-gradient(ellipse at 20% 50%, #4a1020 0%, #2d0a1e 45%, #1a0510 100%)' }}
             onMouseDown={handleMouseDown}
             onMouseUp={handleMouseUp}
+            onContextMenu={handleDesktopContextMenu}
         >
             <div className="absolute pointer-events-none" style={{ width: 500, height: 500, borderRadius: '50%', top: '25%', left: '55%', background: 'radial-gradient(circle, rgba(233,84,32,0.10), transparent)' }} />
 
@@ -279,7 +1021,16 @@ export default function Desktop() {
                 onToggleSearch={() => requestToggleSearch('activities')}
                 isSelecting={isSelecting}
             />
-            <DesktopIcons onOpen={openApp} selectedItems={selectedItems} onRegister={handleRegistrationRequest} />
+            <DesktopIcons
+                items={desktopItems}
+                onOpen={openDesktopItem}
+                selectedItems={selectedItems}
+                onSelectionChange={setSelectedItems}
+                onIconContextMenu={handleIconContextMenu}
+                onRegister={handleRegistrationRequest}
+                layoutVersion={layoutVersion}
+                dimmedItems={cutItemIds}
+            />
 
             <SelectionRectangle rect={selectionRect} />
 
@@ -299,7 +1050,7 @@ export default function Desktop() {
                         defaultW={def.w} defaultH={def.h}
                         startX={80 + stagger} startY={52 + stagger}
                     >
-                        {renderAppContent(winState.id, closeApp)}
+                        {renderAppContent(winState.id, closeApp, handleFilesAppProperties)}
                     </AppWindow>
                 );
             })}
@@ -316,6 +1067,21 @@ export default function Desktop() {
                     mode={searchMode}
                 />
             )}
+
+            {contextMenu && (
+                <KapoorContextMenu
+                    x={contextMenu.x}
+                    y={contextMenu.y}
+                    items={
+                        contextMenu.type === 'desktop' ? desktopMenuItems :
+                            contextMenu.type === 'icon' ? iconMenuItems(contextMenu.iconId ?? 'files') :
+                                contextMenu.type === 'filesEmpty' ? filesEmptyMenuItems :
+                                    contextMenu.fileData ? fileItemMenuItems(contextMenu.fileData) : []
+                    }
+                />
+            )}
+
+            {propertiesData && <PropertiesWindow data={propertiesData} onClose={() => setPropertiesData(null)} />}
         </div>
     );
 }

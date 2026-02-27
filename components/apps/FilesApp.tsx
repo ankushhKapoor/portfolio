@@ -1,4 +1,5 @@
 'use client';
+
 import { useState } from 'react';
 import { FILES } from '@/lib/portfolio';
 import { HomeIcon, FileTextIcon, DownloadIcon, BriefcaseIcon, FolderIcon, FileIcon } from '@/components/Icons';
@@ -11,31 +12,65 @@ const SIDEBAR: { key: PathKey; label: string; Icon: React.ComponentType<{ size?:
     { key: 'Projects', label: 'Projects', Icon: BriefcaseIcon },
 ];
 
-const FILE_ICONS: Record<string, React.ComponentType<{ size?: number; color?: string }>> = {
-    '📁': FolderIcon, '📄': FileIcon, '📋': FileIcon, '💿': FileIcon, '📦': FileIcon, '💼': FolderIcon,
-};
-
 const MONO = "'Ubuntu Mono', monospace";
 
-export default function FilesApp() {
-    const [path, setPath] = useState<PathKey>('Home');
-    const items = FILES[path] ?? [];
+interface FilesAppProps {
+    files: Record<string, { n: string; icon: string; dir?: boolean }[]>;
+    path: string;
+    onPathChange: (path: string) => void;
+    selectedName: string | null;
+    onSelectionChange: (name: string | null) => void;
+    onContextMenu?: (name: string, kind: 'file' | 'folder', path: string, x: number, y: number) => void;
+    onEmptyContextMenu?: (path: string, x: number, y: number) => void;
+    onOpenItem?: (name: string, kind: 'file' | 'folder', path: string) => void;
+}
+
+export default function FilesApp({ files, path, onPathChange, selectedName, onSelectionChange, onContextMenu, onEmptyContextMenu, onOpenItem }: FilesAppProps) {
+    const items = files[path] ?? [];
+
+    const handleItemClick = (e: React.MouseEvent, name: string) => {
+        e.stopPropagation();
+        onSelectionChange(selectedName === name ? null : name);
+    };
+
+    const handleGridClick = () => {
+        onSelectionChange(null);
+    };
+
+    const handleGridContextMenu = (e: React.MouseEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+        onSelectionChange(null);
+        if (onEmptyContextMenu) {
+            onEmptyContextMenu(`/home/kapoor/${path}`, e.clientX, e.clientY);
+        }
+    };
+
+    const handleItemContextMenu = (e: React.MouseEvent, name: string, kind: 'file' | 'folder') => {
+        e.preventDefault();
+        e.stopPropagation();
+        onSelectionChange(name);
+        if (onContextMenu) {
+            onContextMenu(name, kind, `/home/kapoor/${path}`, e.clientX, e.clientY);
+        }
+    };
 
     return (
-        <div className="flex-1 flex overflow-hidden" style={{ fontFamily: MONO }}>
+        <div className="flex-1 flex overflow-hidden" style={{ fontFamily: MONO }} onClick={handleGridClick} onContextMenu={handleGridContextMenu}>
             {/* Sidebar */}
             <div className="flex-shrink-0 overflow-y-auto py-3 flex flex-col gap-0.5"
-                style={{ width: 176, background: '#1e1e1e', borderRight: '1px solid rgba(255,255,255,0.07)' }}>
+                style={{ width: 176, background: '#1e1e1e', borderRight: '1px solid rgba(255,255,255,0.07)' }}
+                onClick={(e) => e.stopPropagation()}
+                onContextMenu={(e) => e.preventDefault()}
+            >
                 <div className="px-4 pb-2 text-[11px] font-bold uppercase tracking-widest" style={{ color: '#555' }}>Places</div>
                 {SIDEBAR.map(({ key, label, Icon }) => (
-                    <button key={key} onClick={() => setPath(key)}
-                        className="flex items-center gap-2.5 px-4 py-2 w-full border-0 cursor-pointer text-left text-[13px] transition-colors"
-                        style={{
-                            background: path === key ? 'rgba(233,84,32,0.18)' : 'transparent',
-                            color: path === key ? '#fff' : '#999',
-                            borderLeft: path === key ? '2px solid #e95420' : '2px solid transparent',
-                            fontFamily: MONO,
-                        }}>
+                    <button
+                        key={key}
+                        onClick={() => { onPathChange(key); onSelectionChange(null); }}
+                        className={`flex items-center gap-2.5 w-full px-3 py-1.5 rounded-lg border-0 cursor-pointer text-left transition-colors ${path === key ? 'bg-[#e954201a] text-[#e95420]' : 'hover:bg-[#ffffff0d] text-[#ffffffbf]'}`}
+                        style={{ fontFamily: MONO, fontSize: 13 }}
+                    >
                         <Icon size={16} color={path === key ? '#e95420' : '#666'} />
                         {label}
                     </button>
@@ -46,11 +81,13 @@ export default function FilesApp() {
             <div className="flex-1 flex flex-col overflow-hidden">
                 {/* Toolbar */}
                 <div className="flex items-center gap-2 px-4 flex-shrink-0"
-                    style={{ height: 40, background: '#2a2a2a', borderBottom: '1px solid rgba(255,255,255,0.07)' }}>
+                    style={{ height: 40, background: '#2a2a2a', borderBottom: '1px solid rgba(255,255,255,0.07)' }}
+                    onContextMenu={(e) => e.preventDefault()}
+                >
                     {path !== 'Home' && (
-                        <button onClick={() => setPath('Home')}
-                            className="text-[13px] px-2 py-0.5 rounded border-0 cursor-pointer transition-colors hover:bg-white/10"
-                            style={{ color: '#e95420', fontFamily: MONO }}>← Back</button>
+                        <button className="p-1.5 rounded-full hover:bg-[#ffffff0d] transition-colors" onClick={() => { onPathChange('Home'); onSelectionChange(null); }} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#fff' }}>
+                            <FolderIcon size={16} />
+                        </button>
                     )}
                     <div className="flex items-center gap-1.5 text-[13px]" style={{ color: '#666' }}>
                         <span style={{ color: path !== 'Home' ? '#888' : '#e95420' }}>Home</span>
@@ -63,9 +100,25 @@ export default function FilesApp() {
                     {items.map((f, i) => {
                         const IconComp = f.dir ? FolderIcon : FileIcon;
                         const iconColor = f.dir ? '#e95420' : '#888';
+                        const isSelected = selectedName === f.n;
                         return (
-                            <FileItem key={i} name={f.n} IconComp={IconComp} iconColor={iconColor}
-                                onOpen={() => { if (f.dir && FILES[f.n as PathKey]) setPath(f.n as PathKey); }} />
+                            <FileItem
+                                key={i}
+                                name={f.n}
+                                IconComp={IconComp}
+                                iconColor={iconColor}
+                                isSelected={isSelected}
+                                onClick={(e) => handleItemClick(e, f.n)}
+                                onContextMenu={(e) => handleItemContextMenu(e, f.n, f.dir ? 'folder' : 'file')}
+                                onOpen={() => {
+                                    if (f.dir && files[f.n]) {
+                                        onPathChange(f.n);
+                                        onSelectionChange(null);
+                                    } else if (onOpenItem) {
+                                        onOpenItem(f.n, f.dir ? 'folder' : 'file', `/home/kapoor/${path}`);
+                                    }
+                                }}
+                            />
                         );
                     })}
                 </div>
@@ -74,16 +127,47 @@ export default function FilesApp() {
     );
 }
 
-function FileItem({ name, IconComp, iconColor, onOpen }: { name: string; IconComp: React.ComponentType<{ size?: number; color?: string }>; iconColor: string; onOpen: () => void }) {
+interface FileItemProps {
+    name: string;
+    IconComp: React.ComponentType<{ size?: number; color?: string }>;
+    iconColor: string;
+    isSelected: boolean;
+    onOpen: () => void;
+    onClick: (e: React.MouseEvent) => void;
+    onContextMenu: (e: React.MouseEvent) => void;
+}
+
+function FileItem({ name, IconComp, iconColor, isSelected, onOpen, onClick, onContextMenu }: FileItemProps) {
     const [hov, setHov] = useState(false);
+
     return (
-        <div onDoubleClick={onOpen} onMouseEnter={() => setHov(true)} onMouseLeave={() => setHov(false)}
-            className="flex flex-col items-center gap-1.5 px-2 py-3 rounded-xl cursor-default select-none transition-colors"
-            style={{ width: 86, background: hov ? 'rgba(255,255,255,0.07)' : 'transparent' }}>
-            <div className="w-12 h-12 rounded-xl flex items-center justify-center">
-                <IconComp size={32} color={iconColor} />
+        <div
+            onDoubleClick={onOpen}
+            onClick={onClick}
+            onContextMenu={onContextMenu}
+            onMouseEnter={() => setHov(true)}
+            onMouseLeave={() => setHov(false)}
+            className="flex flex-col items-center gap-1.5 px-2 py-3 rounded cursor-default select-none transition-all"
+            style={{
+                width: 90,
+                background: isSelected ? 'rgba(233, 84, 32, 0.3)' : hov ? 'rgba(255,255,255,0.07)' : 'transparent',
+                outline: isSelected ? '1px solid rgba(233, 84, 32, 0.5)' : 'none',
+            }}
+        >
+            <div className="w-12 h-12 flex items-center justify-center flex-shrink-0">
+                <IconComp size={38} color={iconColor} />
             </div>
-            <span className="text-[11px] text-center break-all leading-tight" style={{ color: '#ccc', fontFamily: "'Ubuntu Mono', monospace" }}>{name}</span>
+            <span
+                className="text-[11px] text-center w-full break-all leading-tight line-clamp-2 px-1 rounded"
+                style={{
+                    color: isSelected ? '#fff' : '#ccc',
+                    fontFamily: "'Ubuntu', sans-serif",
+                    background: isSelected ? '#e95420' : 'transparent',
+                    boxShadow: isSelected ? '0 0 0 2px #e95420' : 'none'
+                }}
+            >
+                {name}
+            </span>
         </div>
     );
 }

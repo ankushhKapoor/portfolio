@@ -52,6 +52,7 @@ export default function ClockCalendar({ onClose }: { onClose: () => void }) {
                 boxShadow: '0 20px 60px rgba(0,0,0,0.75)',
                 fontFamily: MONO,
             }}
+            onContextMenu={(e) => { e.preventDefault(); e.stopPropagation(); }}
         >
             {/* Digital clock — HH:MM:SS on one line */}
             <div className="text-center mb-4" suppressHydrationWarning>

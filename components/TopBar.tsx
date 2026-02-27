@@ -42,6 +42,7 @@ export default function TopBar({ onLock, onRestart, onPowerOff, onOpenSettings, 
         <>
             <div
                 className="fixed top-0 left-0 right-0 grid grid-cols-3 items-center z-[5000] select-none"
+                onContextMenu={(e) => { e.preventDefault(); e.stopPropagation(); }}
                 style={{
                     height: 28,
                     background: 'rgba(0,0,0,0.82)',

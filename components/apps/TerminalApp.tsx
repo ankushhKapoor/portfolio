@@ -330,7 +330,8 @@ export default function TerminalApp({ onClose }: { onClose?: () => void }) {
 
     return (
         <div className="flex-1 flex flex-col overflow-hidden" style={{ background: BG, fontFamily: MONO }}
-            onClick={regainFocus}>
+            onClick={regainFocus}
+            onContextMenu={(e) => { e.preventDefault(); e.stopPropagation(); }}>
 
             <div className="flex-1 overflow-y-auto cursor-text scrollbar-ubuntu" style={{ background: BG }}>
                 <div className="p-3">

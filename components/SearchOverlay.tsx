@@ -85,6 +85,7 @@ export default function SearchOverlay({ onClose, onOpenApp, onFocusApp, windows,
                 WebkitBackdropFilter: 'blur(45px)',
                 paddingTop: mode === 'apps' ? '10vh' : '15vh'
             }}
+            onContextMenu={(e) => { e.preventDefault(); e.stopPropagation(); }}
             onClick={handleClose}
         >
             {/* Search Bar Container - Only for Apps Mode */}
