@@ -85,13 +85,12 @@ export default function ClockCalendar({ onClose }: { onClose: () => void }) {
                 {slots.map((d, i) =>
                     d ? (
                         <div key={i}
-                            className="flex items-center justify-center text-[12px] rounded-md cursor-default select-none"
+                            className={`flex items-center justify-center text-[12px] rounded-full cursor-pointer select-none transition-colors ${isToday(d) ? 'bg-[#e95420] text-white font-bold' : 'text-gray-400 hover:bg-white/15 hover:text-white'}`}
                             style={{
+                                width: 28,
                                 height: 28,
-                                background: isToday(d) ? '#e95420' : 'transparent',
-                                color: isToday(d) ? '#fff' : '#aaa',
-                                fontWeight: isToday(d) ? 700 : 400,
                                 fontFamily: MONO,
+                                margin: '0 auto'
                             }}>
                             {d}
                         </div>

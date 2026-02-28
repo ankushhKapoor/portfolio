@@ -1,7 +1,7 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { WifiOnIcon, WifiOffIcon, VolumeIcon, BatteryIcon } from '@/components/Icons';
-import QuickSettings from '@/components/QuickSettings';
+import QuickSettings, { FilledBattery } from '@/components/QuickSettings';
 import ClockCalendar from '@/components/ClockCalendar';
 
 interface Props {
@@ -54,7 +54,7 @@ export default function TopBar({ onLock, onRestart, onPowerOff, onOpenSettings, 
                 }}
             >
                 {/* Left — Activities */}
-                <div className={`flex items-center justify-center bg-transparent cursor-pointer rounded-md pl-[10px] w-[80px] h-[17px] transition-colors ${!isSelecting ? 'hover:bg-white/7' : ''}`}>
+                <div className={`flex items-center justify-center bg-transparent cursor-pointer rounded-md pl-[10px] w-[90px] h-[22px] transition-colors ${!isSelecting ? 'hover:bg-white/10' : ''}`}>
                     <TBtn onClick={() => { onToggleSearch(); setShowCal(false); setShowQS(false); }}>Activities</TBtn>
                 </div>
 
@@ -62,7 +62,7 @@ export default function TopBar({ onLock, onRestart, onPowerOff, onOpenSettings, 
                 <div className="flex items-center justify-center">
                     <button
                         onClick={() => { setShowCal(s => !s); setShowQS(false); }}
-                        className={`flex items-center gap-3 border-0 bg-transparent cursor-pointer rounded-md justify-center w-[200px] h-[17px] transition-colors ${!isSelecting ? 'hover:bg-white/7' : ''}`}
+                        className={`flex items-center gap-3 border-0 bg-transparent cursor-pointer rounded-md justify-center w-[220px] h-[22px] transition-colors ${!isSelecting ? 'hover:bg-white/10' : ''}`}
                     >
                         <span className="text-[13px] font-semibold" style={{ color: '#e95420', fontFamily: MONO }}>KapoorOS</span>
                         <span className="text-[13px] text-gray-300" suppressHydrationWarning style={{ fontFamily: MONO }}>{dateStr}</span>
@@ -74,7 +74,7 @@ export default function TopBar({ onLock, onRestart, onPowerOff, onOpenSettings, 
                 <div className="flex items-center justify-end">
                     <button
                         onClick={() => { setShowQS(s => !s); setShowCal(false); }}
-                        className={`flex items-center gap-2.5 border-0 bg-transparent cursor-pointer rounded-md justify-center w-[80px] h-[17px] transition-colors ${!isSelecting ? 'hover:bg-white/7' : ''}`}
+                        className={`flex items-center gap-2 border-0 bg-transparent cursor-pointer rounded-full justify-center w-[100px] h-[24px] transition-colors ${!isSelecting ? 'hover:bg-white/10' : ''}`}
                     >
                         {wifi ? (
                             <WifiOnIcon size={14} color="#ccc" />
@@ -82,7 +82,10 @@ export default function TopBar({ onLock, onRestart, onPowerOff, onOpenSettings, 
                             <WifiOffIcon size={14} color="#ccc" />
                         )}
                         <VolumeIcon size={14} color="#ccc" />
-                        <BatteryIcon size={14} color="#ccc" />
+                        <div className="flex items-center gap-0.5">
+                            <FilledBattery percentage={77} size={17} />
+                            <div className="text-[10px] px-[-10px] font-medium text-white">77%</div>
+                        </div>
                     </button>
                 </div>
             </div>

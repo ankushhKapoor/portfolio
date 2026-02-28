@@ -72,9 +72,7 @@ export default function SearchOverlay({ onClose, onOpenApp, onFocusApp, windows,
         );
     }, [query]);
 
-    const activeWindows = useMemo(() => {
-        return windows.filter(w => !w.minimized);
-    }, [windows]);
+    const activeWindows = useMemo(() => windows, [windows]);
 
     return (
         <div
@@ -136,7 +134,7 @@ export default function SearchOverlay({ onClose, onOpenApp, onFocusApp, windows,
                                 >
                                     {activeWindows.length > 0 ? (
                                         activeWindows.map((win: WindowState) => {
-                                            const Icon = ICONS[win.id] ?? TerminalIcon;
+                                            const Icon = ICONS[win.id] ?? FileTextIcon;
                                             const label = DOCK_APPS.find(a => a.id === win.id)?.label ?? win.id;
                                             return (
                                                 <div key={win.id} className="w-[126px] flex justify-center">
@@ -146,13 +144,24 @@ export default function SearchOverlay({ onClose, onOpenApp, onFocusApp, windows,
                                                     >
                                                         <div
                                                             className="w-16 h-16 rounded-2xl flex items-center justify-center transition-all bg-white/5 group-hover:bg-white/10"
-                                                            style={{ border: '1px solid rgba(255,255,255,0.08)', boxShadow: '0 4px 12px rgba(0,0,0,0.3)' }}
+                                                            style={{
+                                                                border: '1px solid rgba(255,255,255,0.08)',
+                                                                boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
+                                                                opacity: win.minimized ? 0.65 : 1
+                                                            }}
                                                         >
                                                             <Icon size={32} color={win.id === 'terminal' ? '#4ec9b0' : win.id === 'files' ? '#e95420' : '#fff'} />
                                                         </div>
-                                                        <span className="text-white text-sm font-medium opacity-60 group-hover:opacity-100 text-center transition-opacity" style={{ fontFamily: "'Ubuntu Mono', monospace" }}>
-                                                            {label}
-                                                        </span>
+                                                        <div className="flex flex-col items-center leading-tight">
+                                                            <span className="text-white text-sm font-medium opacity-60 group-hover:opacity-100 text-center transition-opacity" style={{ fontFamily: "'Ubuntu Mono', monospace" }}>
+                                                                {label}
+                                                            </span>
+                                                            {win.minimized && (
+                                                                <span className="text-[10px] text-white/45" style={{ fontFamily: "'Ubuntu Mono', monospace" }}>
+                                                                    minimized
+                                                                </span>
+                                                            )}
+                                                        </div>
                                                     </button>
                                                 </div>
                                             );
@@ -197,7 +206,7 @@ export default function SearchOverlay({ onClose, onOpenApp, onFocusApp, windows,
 
                         {filteredApps.length === 0 && (
                             <div className="text-white/40 text-lg mt-10 text-center w-full" style={{ fontFamily: "'Ubuntu Mono', monospace" }}>
-                                No results found for "{query}"
+                                No results found for &quot;{query}&quot;
                             </div>
                         )}
                     </>

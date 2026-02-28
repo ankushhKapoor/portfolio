@@ -64,6 +64,7 @@ export default function Dock({ onOpen, onToggleSearch, openApps, minimizedApps, 
                     label="Show Applications"
                     Icon={UbuntuIcon}
                     active={false}
+                    minimized={false}
                     onOpen={onToggleSearch}
                     isSelecting={isSelecting}
                 />
@@ -75,14 +76,14 @@ export default function Dock({ onOpen, onToggleSearch, openApps, minimizedApps, 
                     const isOpen = openApps.includes(app.id);
                     const isMinimized = minimizedApps.includes(app.id);
                     const Icon = ICONS[app.id] ?? TerminalIcon;
-                    return <DockIcon key={app.id} id={app.id} label={app.label} Icon={Icon} active={isOpen && !isMinimized} onOpen={() => onOpen(app.id)} isSelecting={isSelecting} />;
+                    return <DockIcon key={app.id} id={app.id} label={app.label} Icon={Icon} active={isOpen && !isMinimized} minimized={isOpen && isMinimized} onOpen={() => onOpen(app.id)} isSelecting={isSelecting} />;
                 })}
             </div>
         </>
     );
 }
 
-function DockIcon({ id, label, Icon, active, onOpen, isSelecting }: { id: string; label: string; Icon: React.ComponentType<{ size?: number; color?: string }>; active: boolean; onOpen: () => void; isSelecting?: boolean }) {
+function DockIcon({ id, label, Icon, active, minimized, onOpen, isSelecting }: { id: string; label: string; Icon: React.ComponentType<{ size?: number; color?: string }>; active: boolean; minimized: boolean; onOpen: () => void; isSelecting?: boolean }) {
     const [hov, setHov] = useState(false);
 
     const iconColor = id === 'files' ? '#e95420' : id === 'terminal' ? '#4ec9b0' : '#e0e0e0';
@@ -121,8 +122,17 @@ function DockIcon({ id, label, Icon, active, onOpen, isSelecting }: { id: string
                 <Icon size={26} color={iconColor} />
             </button>
             {/* Active dot */}
-            <div className="mt-1 mb-0.5 w-1 h-1 rounded-full transition-all duration-200"
-                style={{ background: active ? '#e95420' : 'transparent', boxShadow: active ? '0 0 4px #e95420' : 'none' }} />
+            <div
+                className="mt-1 mb-0.5 transition-all duration-200"
+                style={{
+                    width: minimized ? 6 : 4,
+                    height: minimized ? 6 : 4,
+                    borderRadius: minimized ? 1 : 999,
+                    background: active || minimized ? '#e95420' : 'transparent',
+                    boxShadow: active ? '0 0 4px #e95420' : minimized ? 'none' : 'none',
+                    opacity: minimized ? 0.9 : 1,
+                }}
+            />
         </div>
     );
 }

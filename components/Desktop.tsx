@@ -1155,7 +1155,6 @@ export default function Desktop() {
             <SelectionRectangle rect={selectionRect} />
 
             {windows.map((winState: WindowState, idx: number) => {
-                if (winState.minimized) return null;
                 const def = WIN_DEFAULTS[winState.id] ?? { w: 640, h: 480, title: winState.id };
                 const stagger = idx * 24;
                 return (
@@ -1167,6 +1166,7 @@ export default function Desktop() {
                         onRectChange={(r) => updateWindowRect(winState.id, r)}
                         onFocus={() => focusApp(winState.id)}
                         focused={focusedAppId === winState.id}
+                        minimized={winState.minimized}
                         defaultW={def.w} defaultH={def.h}
                         startX={80 + stagger} startY={52 + stagger}
                     >

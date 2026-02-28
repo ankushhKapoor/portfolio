@@ -36,6 +36,7 @@ export {
     Laptop,
     Clock,
     Search as SearchIcon,
+    Camera as CameraIcon,
     LayoutGrid as GridIcon,
 } from 'lucide-react';
 
