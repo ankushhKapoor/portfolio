@@ -143,7 +143,7 @@ export default function QuickSettings({
                     <div className="flex items-center justify-between px-0.5">
                         <div className="flex items-center gap-2">
                             <BatteryIcon size={16} color="#bbb" />
-                            <span className="text-[12px] text-gray-400">82%</span>
+                            <span className="text-[12px] text-gray-400">77%</span>
                         </div>
                         <button onClick={() => setShowPower(true)}
                             className="flex items-center gap-2 border-0 bg-transparent cursor-pointer px-3 py-1.5 rounded-lg hover:bg-white/10 transition-colors">

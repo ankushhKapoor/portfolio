@@ -61,6 +61,8 @@ import ProjectsApp from '@/components/apps/ProjectsApp';
 import CalendarApp from '@/components/apps/CalendarApp';
 import FilesApp from '@/components/apps/FilesApp';
 import SettingsApp from '@/components/apps/SettingsApp';
+import TextViewerApp from '@/components/apps/TextViewerApp';
+import PdfViewerApp from '@/components/apps/PdfViewerApp';
 
 const APP_ICONS: Record<string, ReactNode> = {
     terminal: <TerminalIcon size={14} color="#4ec9b0" />,
@@ -70,6 +72,8 @@ const APP_ICONS: Record<string, ReactNode> = {
     projects: <BriefcaseIcon size={14} color="#a8d98c" />,
     calendar: <CalendarIcon size={14} color="#f37222" />,
     settings: <SettingsIcon size={14} color="#ccc" />,
+    'text-viewer': <FileTextIcon size={14} color="#f2f2f2" />,
+    'pdf-viewer': <FileTextIcon size={14} color="#f37222" />,
 };
 
 const FILE_TYPE_MAP: Array<{ ext: string; typeLabel: string; mime: string; openWith: string; icon: string }> = [
@@ -92,8 +96,8 @@ const FILE_TYPE_MAP: Array<{ ext: string; typeLabel: string; mime: string; openW
     // Documents
     { ext: '.pdf', typeLabel: 'PDF Document', mime: 'application/pdf', openWith: 'Document Viewer', icon: '📋' },
     { ext: '.docx', typeLabel: 'Microsoft Word Document', mime: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', openWith: 'LibreOffice Writer', icon: '📝' },
-    { ext: '.txt', typeLabel: 'Plain Text Document', mime: 'text/plain', openWith: 'Text Editor', icon: '📄' },
-    { ext: '.md', typeLabel: 'Markdown Document', mime: 'text/markdown', openWith: 'Text Editor', icon: '📄' },
+    { ext: '.txt', typeLabel: 'Plain Text Document', mime: 'text/plain', openWith: 'Text Viewer', icon: '📄' },
+    { ext: '.md', typeLabel: 'Markdown Document', mime: 'text/markdown', openWith: 'Text Viewer', icon: '📄' },
 
     // Code
     { ext: '.js', typeLabel: 'JavaScript Source', mime: 'text/javascript', openWith: 'VS Code', icon: '📜' },
@@ -101,8 +105,8 @@ const FILE_TYPE_MAP: Array<{ ext: string; typeLabel: string; mime: string; openW
     { ext: '.tsx', typeLabel: 'React TypeScript Source', mime: 'text/tsx', openWith: 'VS Code', icon: '📜' },
     { ext: '.py', typeLabel: 'Python Script', mime: 'text/x-python', openWith: 'VS Code', icon: '📜' },
     { ext: '.go', typeLabel: 'Go Source', mime: 'text/x-go', openWith: 'VS Code', icon: '📜' },
-    { ext: '.json', typeLabel: 'JSON Data', mime: 'application/json', openWith: 'Text Editor', icon: '📄' },
-    { ext: '.bashrc', typeLabel: 'Shell Configuration', mime: 'text/x-shellscript', openWith: 'Text Editor', icon: '📄' },
+    { ext: '.json', typeLabel: 'JSON Data', mime: 'application/json', openWith: 'Text Viewer', icon: '📄' },
+    { ext: '.bashrc', typeLabel: 'Shell Configuration', mime: 'text/x-shellscript', openWith: 'Text Viewer', icon: '📄' },
 
     // Archives
     { ext: '.zip', typeLabel: 'ZIP Archive', mime: 'application/zip', openWith: 'Archive Manager', icon: '📦' },
@@ -117,8 +121,17 @@ function getFileTypeInfo(name: string) {
     const found = FILE_TYPE_MAP.find((f) => lower.endsWith(f.ext));
     if (found) return found;
 
-    if (name.startsWith('.')) return { typeLabel: 'Configuration File', mime: 'text/plain', openWith: 'Text Editor', icon: '📄' };
-    return { typeLabel: 'Generic File', mime: 'application/octet-stream', openWith: 'Text Editor', icon: '📄' };
+    if (name.startsWith('.')) return { typeLabel: 'Configuration File', mime: 'text/plain', openWith: 'Text Viewer', icon: '📄' };
+    return { typeLabel: 'Generic File', mime: 'application/octet-stream', openWith: 'Text Viewer', icon: '📄' };
+}
+
+function formatBytes(bytes: number, decimals = 2) {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const dm = decimals < 0 ? 0 : decimals;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i] + ` (${bytes.toLocaleString()} bytes)`;
 }
 
 function pseudoSizeFromName(name: string): string {
@@ -294,16 +307,41 @@ export default function Desktop() {
         DESKTOP_ICONS.map((item) => ({ ...item, kind: item.id === 'files' ? 'folder' : 'app', appId: item.id }))
     );
     const [layoutVersion, setLayoutVersion] = useState(0);
-    const [keepAligned, setKeepAligned] = useState(true);
+    const [keepAligned] = useState(true);
     const [propertiesData, setPropertiesData] = useState<PropertiesData | null>(null);
     const [clipboard, setClipboard] = useState<DesktopClipboard | null>(null);
     const [cutItemIds, setCutItemIds] = useState<Set<string>>(new Set());
-    const [fsData, setFsData] = useState<Record<string, { n: string; icon: string; dir?: boolean }[]>>(FILES);
-    const [fsClipboard, setFsClipboard] = useState<{ mode: 'copy' | 'cut', item: { n: string; icon: string; dir?: boolean }, sourcePath: string } | null>(null);
+    const [fsData, setFsData] = useState<Record<string, { n: string; icon: string; dir?: boolean; src?: string; size?: number; mtime?: string }[]>>(FILES);
+    const [fsClipboard, setFsClipboard] = useState<{ mode: 'copy' | 'cut', item: { n: string; icon: string; dir?: boolean; src?: string }, sourcePath: string } | null>(null);
     const [fsPath, setFsPath] = useState<string>('Home');
     const [fsSelectedName, setFsSelectedName] = useState<string | null>(null);
     const startPos = useRef<{ x: number; y: number } | null>(null);
     const desktopItemsRef = useRef<Map<string, DOMRect>>(new Map());
+    const [initialLoadDone, setInitialLoadDone] = useState(false);
+
+    useEffect(() => {
+        if (initialLoadDone) return;
+        fetch('/api/fs')
+            .then(res => res.json())
+            .then(data => {
+                if (data && !data.error) {
+                    setFsData(() => {
+                        // Merge with any existing hardcoded files that aren't in assets
+                        const next = { ...data };
+                        if (!next['Home']) next['Home'] = [];
+                        if (!next['Home'].some((f: { n: string }) => f.n === '.bashrc')) {
+                            next['Home'].push({ n: '.bashrc', icon: '📄' });
+                        }
+                        return next;
+                    });
+                }
+                setInitialLoadDone(true);
+            })
+            .catch(err => {
+                console.error('FS Fetch Error:', err);
+                setInitialLoadDone(true);
+            });
+    }, [initialLoadDone]);
 
     const closeContextMenu = useCallback(() => setContextMenu(null), []);
 
@@ -441,8 +479,26 @@ export default function Desktop() {
     }, [openContextMenu]);
 
     const handleFilesAppProperties = useCallback((name: string, kind: 'file' | 'folder', path: string) => {
-        const now = new Date().toLocaleString();
         const info = getFileTypeInfo(name);
+
+        // Lookup real metadata from fsData if available
+        let sizeLabel = kind === 'folder' ? 'Calculating...' : pseudoSizeFromName(name);
+        let modified = new Date().toLocaleString();
+        let sourceSrc: string | undefined;
+
+        if (fsData) {
+            const dirKey = path.split('/').pop() || 'Home';
+            const item = fsData[dirKey]?.find(i => i.n === name);
+            if (item) {
+                if (item.size !== undefined) {
+                    sizeLabel = formatBytes(item.size);
+                }
+                if (item.mtime) {
+                    modified = new Date(item.mtime).toLocaleString();
+                }
+                sourceSrc = item.src;
+            }
+        }
 
         setPropertiesData({
             title: `${name} Properties`,
@@ -450,18 +506,45 @@ export default function Desktop() {
             kind: kind === 'folder' ? 'folder' : 'file',
             typeLabel: kind === 'folder' ? 'Folder' : info.typeLabel,
             mime: kind === 'folder' ? 'inode/directory' : info.mime,
-            sizeLabel: kind === 'folder' ? 'Calculating...' : pseudoSizeFromName(name),
+            sizeLabel: sizeLabel,
             parent: path,
-            accessed: now,
-            modified: now,
-            created: 'Jan 10, 2024',
+            accessed: modified, // Use same for simplicity
+            modified: modified,
+            created: modified, // Use same for simplicity
             permissions: kind === 'folder' ? 'Read and write' : 'Read only',
             owner: 'kapoor',
             group: 'kapoor',
             openWith: kind === 'folder' ? 'Files' : info.openWith,
             icon: kind === 'folder' ? '📁' : (info.icon || '📄')
         });
-    }, []);
+
+        // Fetch actual file size if not already in fsData
+        if (kind === 'file' && sizeLabel === pseudoSizeFromName(name)) {
+            // Try to use sourceSrc from fsData, or construct from path
+            let fileUrl = sourceSrc;
+            if (!fileUrl && path.includes('Documents')) {
+                // Construct URL for files in Documents folder (assets)
+                fileUrl = `/assets/os/Documents/${name}`;
+            }
+
+            if (fileUrl) {
+                fetch(fileUrl, { method: 'HEAD' })
+                    .then((res) => {
+                        const contentLength = res.headers.get('content-length');
+                        if (!contentLength) return;
+                        const bytes = Number(contentLength);
+                        if (!Number.isFinite(bytes)) return;
+                        setPropertiesData((prev) => {
+                            if (!prev || prev.name !== name || prev.parent !== path) return prev;
+                            return { ...prev, sizeLabel: formatBytes(bytes) };
+                        });
+                    })
+                    .catch(() => {
+                        // keep current label if HEAD fails
+                    });
+            }
+        }
+    }, [fsData]);
 
     const requestToggleSearch = useCallback((mode: 'activities' | 'apps') => {
         if (showSearch) {
@@ -668,13 +751,34 @@ export default function Desktop() {
 
     const handleFsOpen = useCallback((name: string, kind: 'file' | 'folder', path: string) => {
         if (kind === 'file') {
-            if (name.endsWith('.txt') || name.endsWith('.md') || name.startsWith('.')) {
-                openApp('terminal');
+            const dirKey = path.split('/').pop() || "";
+            const item = fsData[dirKey]?.find(i => i.n === name);
+
+            if (name.endsWith('.txt') || name.endsWith('.md') || name.startsWith('.') || name.endsWith('.bashrc')) {
+                const viewerWindow = windows.find(w => w.id === 'text-viewer');
+                if (viewerWindow) {
+                    window.dispatchEvent(new CustomEvent('editor-open-file', {
+                        detail: { src: item?.src, fileName: name, path }
+                    }));
+                } else {
+                    openApp('text-viewer', { src: item?.src, fileName: name, path });
+                }
+                setTimeout(() => focusApp('text-viewer'), 0);
             } else if (name.endsWith('.pdf')) {
-                openApp('resume');
+                const viewerWindow = windows.find(w => w.id === 'pdf-viewer');
+                if (viewerWindow) {
+                    window.dispatchEvent(new CustomEvent('pdf-open-file', {
+                        detail: { src: item?.src, fileName: name, path }
+                    }));
+                } else {
+                    openApp('pdf-viewer', { src: item?.src, fileName: name, path });
+                }
+                setTimeout(() => focusApp('pdf-viewer'), 0);
+            } else if (item?.src) {
+                window.open(item.src, '_blank');
             }
         }
-    }, [openApp]);
+    }, [fsData, openApp, windows, focusApp]);
 
     const desktopMenuItems: MenuEntry[] = [
         {
@@ -961,7 +1065,7 @@ export default function Desktop() {
         };
     }, [isSelecting, checkIntersection]);
 
-    const renderAppContent = (id: string, closeApp: (id: string) => void, onOpenProperties?: (name: string, kind: 'file' | 'folder', path: string) => void) => {
+    const renderAppContent = (id: string, winProps: Record<string, unknown> | undefined, closeApp: (id: string) => void, onOpenProperties?: (name: string, kind: 'file' | 'folder', path: string) => void) => {
         switch (id) {
             case 'terminal': return <TerminalApp onClose={() => closeApp('terminal')} />;
             case 'about': return <AboutApp />;
@@ -985,6 +1089,22 @@ export default function Desktop() {
                 />
             );
             case 'settings': return <SettingsApp />;
+            case 'text-viewer': return (
+                <TextViewerApp
+                    src={winProps?.src as string | undefined}
+                    fileName={winProps?.fileName as string | undefined}
+                    path={winProps?.path as string | undefined}
+                    onOpenProperties={onOpenProperties}
+                />
+            );
+            case 'pdf-viewer': return (
+                <PdfViewerApp
+                    src={winProps?.src as string | undefined}
+                    fileName={winProps?.fileName as string | undefined}
+                    path={winProps?.path as string | undefined}
+                    onOpenProperties={onOpenProperties}
+                />
+            );
             default: return null;
         }
     };
@@ -1050,7 +1170,7 @@ export default function Desktop() {
                         defaultW={def.w} defaultH={def.h}
                         startX={80 + stagger} startY={52 + stagger}
                     >
-                        {renderAppContent(winState.id, closeApp, handleFilesAppProperties)}
+                        {renderAppContent(winState.id, winState.props, closeApp, handleFilesAppProperties)}
                     </AppWindow>
                 );
             })}
@@ -1081,7 +1201,7 @@ export default function Desktop() {
                 />
             )}
 
-            {propertiesData && <PropertiesWindow data={propertiesData} onClose={() => setPropertiesData(null)} />}
+            {propertiesData && <div className="z-[9999] relative"><PropertiesWindow data={propertiesData} onClose={() => setPropertiesData(null)} /></div>}
         </div>
     );
 }

@@ -162,8 +162,6 @@ function FileItem({ name, IconComp, iconColor, isSelected, onOpen, onClick, onCo
                 style={{
                     color: isSelected ? '#fff' : '#ccc',
                     fontFamily: "'Ubuntu', sans-serif",
-                    background: isSelected ? '#e95420' : 'transparent',
-                    boxShadow: isSelected ? '0 0 0 2px #e95420' : 'none'
                 }}
             >
                 {name}

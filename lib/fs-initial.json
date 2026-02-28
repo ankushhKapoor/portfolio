@@ -1,0 +1,49 @@
+{
+  "Documents": [
+    {
+      "n": "notes.txt",
+      "icon": "📄",
+      "src": "/assets/os/Documents/notes.txt"
+    }
+  ],
+  "Downloads": [
+    {
+      "n": "test.txt",
+      "icon": "📄",
+      "src": "/assets/os/Downloads/test.txt"
+    }
+  ],
+  "Projects": [],
+  "Home": [
+    {
+      "n": ".bashrc",
+      "icon": "📄",
+      "src": "/assets/os/.bashrc"
+    },
+    {
+      "n": "Documents",
+      "icon": "📁",
+      "dir": true
+    },
+    {
+      "n": "Downloads",
+      "icon": "📁",
+      "dir": true
+    },
+    {
+      "n": "portfolio.pdf",
+      "icon": "📋",
+      "src": "/assets/os/portfolio.pdf"
+    },
+    {
+      "n": "Projects",
+      "icon": "📁",
+      "dir": true
+    },
+    {
+      "n": "readme.txt",
+      "icon": "📄",
+      "src": "/assets/os/readme.txt"
+    }
+  ]
+}

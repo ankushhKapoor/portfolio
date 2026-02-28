@@ -24,8 +24,8 @@ export default function TopBar({ onLock, onRestart, onPowerOff, onOpenSettings, 
     // Persistent Quick Settings States
     const [wifi, setWifi] = useState(true);
     const [silent, setSilent] = useState(false);
-    const [volume, setVolume] = useState(72);
-    const [brightness, setBrightness] = useState(88);
+    const [volume, setVolume] = useState(100);
+    const [brightness, setBrightness] = useState(100);
 
     useEffect(() => {
         const update = () => {

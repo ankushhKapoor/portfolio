@@ -15,6 +15,7 @@ export interface WindowRect {
 export interface WindowState {
     id: string;
     minimized: boolean;
+    props?: any;
 }
 
 export function useOS() {
@@ -38,14 +39,14 @@ export function useOS() {
         setWindows((w: WindowState[]) => w.map(x => x.id === id ? { ...x, minimized: false } : x));
     }, []);
 
-    const openApp = useCallback((id: string) => {
+    const openApp = useCallback((id: string, props?: any) => {
         setShowSearch(false);
         setWindows((w: WindowState[]) => {
             const existing = w.find(x => x.id === id);
             if (existing) {
-                return w.map(x => x.id === id ? { ...x, minimized: false } : x);
+                return w.map(x => x.id === id ? { ...x, minimized: false, props: props || x.props } : x);
             }
-            return [...w, { id, minimized: false }];
+            return [...w, { id, minimized: false, props }];
         });
         setFocusedAppId(id);
     }, []);

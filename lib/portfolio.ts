@@ -73,32 +73,16 @@ export const WIN_DEFAULTS: Record<string, { w: number; h: number; title: string 
   calendar: { w: 420, h: 460, title: 'Calendar' },
   files: { w: 720, h: 500, title: 'Files' },
   settings: { w: 680, h: 480, title: 'Settings' },
+  'text-viewer': { w: 750, h: 550, title: 'Text Viewer' },
+  'pdf-viewer': { w: 800, h: 650, title: 'Document Viewer' },
 };
 
-export const FILES: Record<string, { n: string; icon: string; dir?: boolean }[]> = {
+export const FILES: Record<string, { n: string; icon: string; dir?: boolean; src?: string }[]> = {
   Home: [
     { n: 'Documents', icon: '📁', dir: true },
     { n: 'Downloads', icon: '📁', dir: true },
-    { n: 'Projects', icon: '📁', dir: true },
-    { n: 'readme.txt', icon: '📄' },
-    { n: '.bashrc', icon: '📄' },
-    { n: 'portfolio.pdf', icon: '📋' },
-  ],
-  Documents: [
-    { n: 'resume_2024.pdf', icon: '📋' },
-    { n: 'cover_letter.docx', icon: '📝' },
-    { n: 'notes.txt', icon: '📄' },
-  ],
-  Downloads: [
-    { n: 'ubuntu-24.04.iso', icon: '💿' },
-    { n: 'node_v20.tar.gz', icon: '📦' },
-    { n: 'design_assets.zip', icon: '📦' },
-  ],
-  Projects: [
-    { n: 'kapoor-os', icon: '📁', dir: true },
-    { n: 'payflow', icon: '📁', dir: true },
-    { n: 'opengrid', icon: '📁', dir: true },
-  ],
+    { n: 'Projects', icon: '📁', dir: true }
+  ]
 };
 
 export const SETTINGS_PANELS: Record<string, [string, string][]> = {
