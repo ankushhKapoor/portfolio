@@ -2,5 +2,9 @@
 import Desktop from '@/components/Desktop';
 
 export default function Page() {
-  return <Desktop />;
+  return (
+    <div id="app-root-container" className="h-full w-full relative overflow-hidden">
+      <Desktop />
+    </div>
+  );
 }

@@ -42,7 +42,7 @@ export default function Dock({ onOpen, onToggleSearch, openApps, minimizedApps, 
             />
 
             <div
-                className="fixed bottom-3 left-1/2 flex items-end pb-1 px-3 z-[5000] select-none transition-all duration-300 ease-in-out"
+                className="fixed bottom-3 left-1/2 flex items-end pb-1.5 px-3.5 z-[5000] select-none transition-all duration-300 ease-in-out"
                 onMouseEnter={() => !isSelecting && setIsDockHovered(true)}
                 onMouseLeave={() => setIsDockHovered(false)}
                 onContextMenu={(e) => { e.preventDefault(); e.stopPropagation(); }}
@@ -111,7 +111,8 @@ function DockIcon({ id, label, Icon, active, minimized, onOpen, isSelecting }: {
                 onClick={onOpen}
                 className={`flex items-center justify-center border-0 cursor-pointer transition-all duration-300 ${id === 'all' ? 'rounded-full scale-105' : 'rounded-[14px]'}`}
                 style={{
-                    width: 52, height: 52,
+                    width: 'var(--dock-icon-size, 52px)',
+                    height: 'var(--dock-icon-size, 52px)',
                     background: iconBg,
                     boxShadow: hov && !isSelecting ? '0 6px 20px rgba(0,0,0,0.6)' : '0 2px 8px rgba(0,0,0,0.4)',
                     transform: hov && !isSelecting ? 'scale(1.18) translateY(-5px)' : 'scale(1)',
@@ -119,7 +120,9 @@ function DockIcon({ id, label, Icon, active, minimized, onOpen, isSelecting }: {
                     border: active ? '1px solid rgba(233,84,32,0.4)' : '1px solid rgba(255,255,255,0.07)',
                 }}
             >
-                <Icon size={26} color={iconColor} />
+                <div className="flex items-center justify-center dock-icon-wrapper">
+                    <Icon size={id === 'all' ? 28 : 26} color={iconColor} />
+                </div>
             </button>
             {/* Active dot */}
             <div

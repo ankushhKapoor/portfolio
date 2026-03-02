@@ -41,11 +41,11 @@ export default function TopBar({ onLock, onRestart, onPowerOff, onOpenSettings, 
     return (
         <>
             <div
-                className="fixed top-0 left-0 right-0 grid grid-cols-3 items-center z-[5000] select-none"
+                className="fixed top-0 left-0 right-0 grid grid-cols-3 items-center z-[5000] select-none top-bar-container"
                 onContextMenu={(e) => { e.preventDefault(); e.stopPropagation(); }}
                 style={{
-                    height: 28,
-                    background: 'rgba(0,0,0,0.82)',
+                    height: 'var(--topbar-height, 28px)',
+                    background: 'var(--topbar)',
                     backdropFilter: 'blur(20px)',
                     WebkitBackdropFilter: 'blur(20px)',
                     fontFamily: MONO,

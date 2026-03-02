@@ -16,15 +16,15 @@ const GRID = {
     left: 16,
     right: 6,
     bottom: 16,
-    cellW: 90,
-    cellH: 104,
+    cellW: 86,
+    cellH: 98,
 };
 
-const ICON_W = 76;
-const ICON_H = 96;
+const ICON_W = 70;
+const ICON_H = 90;
 const DOCK_BOTTOM = 12;
-const DOCK_HEIGHT = 76;
-const DOCK_ICON_W = 52;
+const DOCK_HEIGHT = 82;
+const DOCK_ICON_W = 56;
 const DOCK_GAP = 2;
 const DOCK_PAD_X = 24;
 const DOCK_SEPARATOR_W = 9;
@@ -326,8 +326,21 @@ export default function DesktopIcons({ items, onOpen, selectedItems = new Set(),
         }
 
         const now = Date.now();
-        if (clickRef.current.id === id && now - clickRef.current.ts < 350) {
+        // More lenient double-click timeout (500ms) for mobile/lag
+        if (clickRef.current.id === id && now - clickRef.current.ts < 500) {
             onOpen(id);
+            clickRef.current = { id: '', ts: 0 }; // Reset
+            return;
+        }
+        clickRef.current = { id, ts: now };
+    }, [onOpen]);
+
+    const handleTouchStartIcon = useCallback((id: string) => {
+        const now = Date.now();
+        if (clickRef.current.id === id && now - clickRef.current.ts < 500) {
+            onOpen(id);
+            clickRef.current = { id: '', ts: 0 };
+            return;
         }
         clickRef.current = { id, ts: now };
     }, [onOpen]);
@@ -360,6 +373,7 @@ export default function DesktopIcons({ items, onOpen, selectedItems = new Set(),
                         setRef={(el) => { iconRefs.current[item.id] = el; }}
                         onMouseDown={(e) => handleMouseDownIcon(e, item.id)}
                         onClick={(e) => handleClickIcon(e, item.id)}
+                        onTouchStart={() => handleTouchStartIcon(item.id)}
                         onContextMenu={(e) => handleContextMenuIcon(e, item.id)}
                     />
                 );
@@ -377,6 +391,7 @@ function DIcon({
     setRef,
     onMouseDown,
     onClick,
+    onTouchStart,
     onContextMenu,
 }: {
     item: { id: string; icon: string; label: string };
@@ -387,6 +402,7 @@ function DIcon({
     setRef: (el: HTMLDivElement | null) => void;
     onMouseDown: (e: React.MouseEvent) => void;
     onClick: (e: React.MouseEvent) => void;
+    onTouchStart: () => void;
     onContextMenu: (e: React.MouseEvent) => void;
 }) {
     const [hov, setHov] = useState(false);
@@ -399,6 +415,7 @@ function DIcon({
             data-no-select="true"
             onMouseDown={onMouseDown}
             onClick={onClick}
+            onTouchStart={onTouchStart}
             onContextMenu={onContextMenu}
             onMouseEnter={() => setHov(true)}
             onMouseLeave={() => setHov(false)}
@@ -406,7 +423,7 @@ function DIcon({
             style={{
                 left: `${x}px`,
                 top: `${y}px`,
-                width: 76,
+                width: 70,
                 background: selected ? 'rgba(233, 84, 32, 0.2)' : hov ? 'rgba(255,255,255,0.10)' : 'transparent',
                 outline: selected ? '1px solid #e95420' : 'none',
                 borderRadius: 0,
@@ -414,7 +431,7 @@ function DIcon({
             }}
         >
             <div
-                className="w-14 h-14 rounded-2xl flex items-center justify-center"
+                className="w-[52px] h-[52px] rounded-2xl flex items-center justify-center"
                 style={{
                     background: cfg.bg,
                     boxShadow: hov ? '0 6px 18px rgba(0,0,0,0.6)' : '0 2px 8px rgba(0,0,0,0.4)',
@@ -422,7 +439,7 @@ function DIcon({
                     border: '1px solid rgba(255,255,255,0.07)',
                 }}
             >
-                <cfg.Icon size={30} color={cfg.color} />
+                <cfg.Icon size={27} color={cfg.color} />
             </div>
             <span
                 className="text-[11px] text-white text-center leading-tight"

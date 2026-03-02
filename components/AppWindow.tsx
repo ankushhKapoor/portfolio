@@ -44,6 +44,24 @@ export default function AppWindow({ id, title, icon, children, onClose, onMinimi
     const [isRestoringFromMaxDrag, setIsRestoringFromMaxDrag] = useState(false);
     const [isSmoothToggleResize, setIsSmoothToggleResize] = useState(false);
 
+    useEffect(() => {
+        // Handle small screen initial sizing/positioning
+        const vw = window.innerWidth;
+        const vh = window.innerHeight;
+
+        if (vw < 950 || vh < 550) {
+            const topH = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--topbar-height') || '28');
+            setSize(prev => ({
+                w: Math.min(prev.w, vw - 20),
+                h: Math.min(prev.h, vh - topH - 20)
+            }));
+            setPos(prev => ({
+                x: Math.min(prev.x, vw - (Math.min(defaultW, vw - 20)) - 10),
+                y: Math.max(topH + 4, Math.min(prev.y, vh - 60))
+            }));
+        }
+    }, []);
+
     const dragging = useRef(false);
     const offset = useRef({ x: 0, y: 0 });
     const startPos = useRef({ x: 0, y: 0 });
@@ -53,6 +71,23 @@ export default function AppWindow({ id, title, icon, children, onClose, onMinimi
     const minimizeTimer = useRef<number | null>(null);
     const restoreTimer = useRef<number | null>(null);
     const toggleResizeTimer = useRef<number | null>(null);
+    const clampRectToViewport = (rect: { x: number; y: number; w: number; h: number }) => {
+        const topH = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--topbar-height') || '28');
+        const vw = window.innerWidth;
+        const vh = window.innerHeight;
+
+        const w = Math.min(rect.w, Math.max(320, vw - 12));
+        const h = Math.min(rect.h, Math.max(220, vh - topH - 12));
+        const maxX = Math.max(6, vw - w - 6);
+        const maxY = Math.max(topH + 4, vh - h - 6);
+
+        return {
+            x: Math.min(maxX, Math.max(6, rect.x)),
+            y: Math.min(maxY, Math.max(topH + 4, rect.y)),
+            w,
+            h,
+        };
+    };
 
     const clearTimers = () => {
         if (enterTimer.current) window.clearTimeout(enterTimer.current);
@@ -77,40 +112,39 @@ export default function AppWindow({ id, title, icon, children, onClose, onMinimi
     const toggleMaximize = () => {
         if (isClosing || isMinimizing || isRestoringFromMaxDrag || isSmoothToggleResize) return;
         startSmoothToggleResize();
+
+        const topBarH = typeof window !== 'undefined' ?
+            parseInt(getComputedStyle(document.documentElement).getPropertyValue('--topbar-height') || '28') : 28;
+
         if (!maximized) {
             setPreMaxRect({ x: pos.x, y: pos.y, w: size.w, h: size.h });
             const vw = window.innerWidth;
             const vh = window.innerHeight;
-            setPos({ x: 0, y: 28 });
-            setSize({ w: vw, h: vh - 28 });
+            setPos({ x: 0, y: topBarH });
+            setSize({ w: vw, h: vh - topBarH });
             setMaximized(true);
         } else {
-            const normalX = startX ?? 100;
-            const normalY = startY ?? 100;
-            setPos({ x: normalX, y: normalY });
-            setSize({ w: defaultW, h: defaultH });
+            const restored = clampRectToViewport(preMaxRect);
+            setPos({ x: restored.x, y: restored.y });
+            setSize({ w: restored.w, h: restored.h });
             setMaximized(false);
         }
     };
 
-     const restoreFromMaxByDoubleClick = (clickX: number) => {
+    const restoreFromMaxByDoubleClick = (clickX: number) => {
         if (!maximized) {
             toggleMaximize();
             return;
         }
         startSmoothToggleResize();
 
-        const normalY = startY ?? 100;
+        const restored = clampRectToViewport(preMaxRect);
         const viewportW = window.innerWidth;
-        const leftRestoreX = startX ?? 100;
-        const rightRestoreX = Math.min(
-            viewportW - defaultW - 24,
-            Math.max(leftRestoreX + 140, Math.floor(viewportW / 2) - Math.floor(defaultW * 0.32))
-        );
-        const useRightRestore = clickX > viewportW / 2;
-
-        setPos({ x: useRightRestore ? rightRestoreX : leftRestoreX, y: normalY });
-        setSize({ w: defaultW, h: defaultH });
+        const anchorRatio = Math.min(1, Math.max(0, clickX / viewportW));
+        const anchorX = clickX - restored.w * anchorRatio;
+        const anchored = clampRectToViewport({ ...restored, x: anchorX });
+        setPos({ x: anchored.x, y: anchored.y });
+        setSize({ w: anchored.w, h: anchored.h });
         setMaximized(false);
     };
 
@@ -125,8 +159,36 @@ export default function AppWindow({ id, title, icon, children, onClose, onMinimi
     }, [minimized]);
 
     useEffect(() => {
-        onRectChange({ x: pos.x, y: pos.y, w: size.w, h: size.h, maximized });
-    }, [pos, size, maximized, onRectChange]);
+        const onResize = () => {
+            if (maximized) {
+                const topH = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--topbar-height') || '28');
+                setPos({ x: 0, y: topH });
+                setSize({ w: window.innerWidth, h: window.innerHeight - topH });
+                return;
+            }
+
+            setPos((prev) => {
+                const clamped = clampRectToViewport({ x: prev.x, y: prev.y, w: size.w, h: size.h });
+                return { x: clamped.x, y: clamped.y };
+            });
+            setSize((prev) => {
+                const clamped = clampRectToViewport({ x: pos.x, y: pos.y, w: prev.w, h: prev.h });
+                return { w: clamped.w, h: clamped.h };
+            });
+        };
+
+        window.addEventListener('resize', onResize);
+        return () => window.removeEventListener('resize', onResize);
+    }, [maximized, pos.x, pos.y, size.h, size.w]);
+
+    const onRectChangeRef = useRef(onRectChange);
+    useEffect(() => {
+        onRectChangeRef.current = onRectChange;
+    }, [onRectChange]);
+
+    useEffect(() => {
+        onRectChangeRef.current({ x: pos.x, y: pos.y, w: size.w, h: size.h, maximized });
+    }, [pos, size, maximized]);
 
     useEffect(() => {
         const mm = (e: MouseEvent) => {
@@ -135,10 +197,11 @@ export default function AppWindow({ id, title, icon, children, onClose, onMinimi
                     // Threshold to start dragging out of maximized state
                     const dist = Math.sqrt(Math.pow(e.clientX - startPos.current.x, 2) + Math.pow(e.clientY - startPos.current.y, 2));
                     if (dist > 15) {
+                        const topH = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--topbar-height') || '28');
                         const ratio = e.clientX / window.innerWidth;
                         const newW = preMaxRect.w;
                         const newX = e.clientX - (newW * ratio);
-                        const newY = 48; // Clear snap zone
+                        const newY = topH + 20; // Clear snap zone
                         setPos({ x: newX, y: newY });
                         setSize({ w: newW, h: preMaxRect.h });
                         setMaximized(false);
@@ -155,11 +218,12 @@ export default function AppWindow({ id, title, icon, children, onClose, onMinimi
                 }
 
                 const newX = e.clientX - offset.current.x;
-                const newY = Math.max(28, e.clientY - offset.current.y);
+                const topH = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--topbar-height') || '28');
+                const newY = Math.max(topH, e.clientY - offset.current.y);
                 setPos({ x: newX, y: newY });
 
                 // Snap-to-top preview based on window position (near top bar)
-                if (newY <= 32) {
+                if (newY <= topH + 4) {
                     setMaxPreview(true);
                 } else {
                     setMaxPreview(false);
@@ -168,15 +232,16 @@ export default function AppWindow({ id, title, icon, children, onClose, onMinimi
         };
         const mu = (e: MouseEvent) => {
             if (dragging.current) {
-                const finalY = Math.max(28, e.clientY - offset.current.y);
-                if (e.clientY < 5 || finalY <= 32) {
+                const topH = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--topbar-height') || '28');
+                const finalY = Math.max(topH, e.clientY - offset.current.y);
+                if (e.clientY < topH + 4 || finalY <= topH + 4) {
                     // Perform snap maximize
                     const finalX = e.clientX - offset.current.x;
                     setPreMaxRect({ x: finalX, y: finalY, w: size.w, h: size.h });
                     const vw = window.innerWidth;
                     const vh = window.innerHeight;
-                    setPos({ x: 0, y: 28 });
-                    setSize({ w: vw, h: vh - 28 });
+                    setPos({ x: 0, y: topH });
+                    setSize({ w: vw, h: vh - topH });
                     setMaximized(true);
                 }
             }

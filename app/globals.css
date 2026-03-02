@@ -248,6 +248,7 @@ input[type=range]::-webkit-slider-runnable-track {
     opacity: 0;
     transform: translateY(12px) scale(0.97);
   }
+
   to {
     opacity: 1;
     transform: translateY(0) scale(1);
@@ -259,6 +260,7 @@ input[type=range]::-webkit-slider-runnable-track {
     opacity: 1;
     transform: translateY(0) scale(1);
   }
+
   to {
     opacity: 0;
     transform: translateY(14px) scale(0.965);
@@ -270,6 +272,7 @@ input[type=range]::-webkit-slider-runnable-track {
     opacity: 1;
     transform: translateY(0) scale(1);
   }
+
   to {
     opacity: 0;
     transform: translateY(34px) scale(0.92);
@@ -354,4 +357,154 @@ input[type=range]::-webkit-slider-runnable-track {
 
 .is-maximized .app-window-content span[style*="font-size: 11"] {
   font-size: 13px !important;
+}
+
+
+:root {
+  --dock-icon-size: 56px;
+}
+
+#app-root-container {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Specific scaling for smaller screens */
+@media (max-width: 950px) and (orientation: landscape),
+(max-width: 650px) {
+  :root {
+    --dock-size: 48px;
+    --dock-icon-size: 42px;
+    --topbar-height: 24px;
+  }
+
+  .dock-icon-img,
+  .dock-icon-wrapper svg {
+    width: 20px !important;
+    height: 20px !important;
+  }
+
+  /* Shrink Dock padding and gap */
+  .fixed.bottom-3.left-1\/2 {
+    bottom: 8px !important;
+    padding: 4px 12px !important;
+    gap: 4px !important;
+    border-radius: 14px !important;
+  }
+
+  [data-icon-id] {
+    width: 62px !important;
+  }
+
+  [data-icon-id] > div:first-child {
+    width: 48px !important;
+    height: 48px !important;
+  }
+
+  [data-icon-id] > div:first-child svg {
+    width: 24px !important;
+    height: 24px !important;
+  }
+
+  .app-window.is-entering {
+    animation: windowEnterMobile 0.22s cubic-bezier(0.2, 0.9, 0.2, 1) forwards;
+  }
+
+  .app-window.is-closing {
+    animation: windowCloseMobile 0.2s cubic-bezier(0.4, 0, 1, 1) forwards;
+  }
+
+  .app-window.is-minimizing {
+    animation: windowMinimizeMobile 0.2s cubic-bezier(0.4, 0, 1, 1) forwards;
+  }
+
+  .app-window-content {
+    font-size: 10px !important;
+  }
+
+  .is-maximized .app-window-content {
+    font-size: 12px !important;
+  }
+
+  .top-bar-container {
+    height: var(--topbar-height) !important;
+  }
+
+  .top-bar-container * {
+    font-size: 10px !important;
+  }
+
+  /* Search Overlay Adjustments for Mobile */
+  .SearchOverlay_container {
+    padding-top: 2vh !important;
+  }
+
+  .SearchOverlay_input_container {
+    max-width: 85% !important;
+    padding: 6px 10px !important;
+  }
+
+  .SearchOverlay_grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+    gap: 12px !important;
+  }
+
+  .SearchOverlay_grid button div {
+    /* shrink app icons in search */
+    width: 48px !important;
+    height: 48px !important;
+  }
+
+  .SearchOverlay_header {
+    font-size: 14px !important;
+    margin-top: 16px !important;
+  }
+}
+
+@keyframes windowEnterMobile {
+  from {
+    opacity: 0;
+    transform: scale(0.96) translateY(8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes windowCloseMobile {
+  from {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+
+  to {
+    opacity: 0;
+    transform: scale(0.96) translateY(10px);
+  }
+}
+
+@keyframes windowMinimizeMobile {
+  from {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+
+  to {
+    opacity: 0;
+    transform: scale(0.92) translateY(16px);
+  }
+}
+
+@media (max-height: 550px) {
+  :root {
+    --topbar-height: 24px;
+  }
+
+  .top-bar-container {
+    height: var(--topbar-height) !important;
+  }
 }

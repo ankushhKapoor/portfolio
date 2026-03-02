@@ -1,6 +1,6 @@
 'use client';
 import React, { useState, useCallback, useRef, useEffect, useMemo } from 'react';
-import { Search, Download, Menu, FileText, X, ChevronDown, ChevronUp } from 'lucide-react';
+import { Search, Download, Menu, FileText, X } from 'lucide-react';
 
 interface TextViewerAppProps {
     src?: string;
@@ -18,9 +18,9 @@ interface OpenFile {
     loading: boolean;
 }
 
-const TextViewerApp: React.FC<TextViewerAppProps> = ({ src, fileName, path, onOpenProperties }) => {
-    const [openFiles, setOpenFiles] = useState<OpenFile[]>([]);
-    const [activeFileId, setActiveFileId] = useState<string>('');
+const TextViewerApp: React.FC<TextViewerAppProps> = ({ src: initialSrc, fileName: initialFileName, path: initialPath, onOpenProperties }) => {
+    const [files, setFiles] = useState<OpenFile[]>([]);
+    const [activeId, setActiveId] = useState<string | null>(null);
     const [showSearch, setShowSearch] = useState(false);
     const [searchText, setSearchText] = useState('');
     const [showMenu, setShowMenu] = useState(false);
@@ -37,60 +37,57 @@ const TextViewerApp: React.FC<TextViewerAppProps> = ({ src, fileName, path, onOp
                 return res.text();
             })
             .then(data => {
-                setOpenFiles(prev => prev.map(f => f.id === fileId ? { ...f, content: data, loading: false } : f));
+                setFiles(prev => prev.map(f => f.id === fileId ? { ...f, content: data, loading: false } : f));
             })
             .catch(err => {
                 console.error('Failed to load file:', err);
-                setOpenFiles(prev => prev.map(f => f.id === fileId ? { ...f, content: `Error: Unable to load file.\n\n${err.message}`, loading: false } : f));
+                setFiles(prev => prev.map(f => f.id === fileId ? { ...f, content: `Error: Unable to load file.\n\n${err.message}`, loading: false } : f));
             });
     }, []);
 
-    const openNewFile = useCallback((fileSrc: string, name: string, filePath: string) => {
-        const existing = openFiles.find(f => f.src === fileSrc);
-        if (existing) {
-            setActiveFileId(existing.id);
-            return;
-        }
-
+    const openNewFile = useCallback((name: string, fileSrc: string, filePath: string) => {
         const fileId = `${name}-${Date.now()}`;
-        const newFile: OpenFile = {
-            id: fileId,
-            fileName: name,
-            src: fileSrc,
-            path: filePath,
-            content: '',
-            loading: true,
-        };
 
-        setOpenFiles(prev => [...prev, newFile]);
-        setActiveFileId(fileId);
+        setFiles(prev => {
+            const existing = prev.find(f => f.src === fileSrc);
+            if (existing) {
+                setActiveId(existing.id);
+                return prev;
+            }
 
-        // Trigger load
-        loadFileContent(fileId, fileSrc);
-    }, [openFiles, loadFileContent]);
+            const newFile: OpenFile = {
+                id: fileId,
+                fileName: name,
+                src: fileSrc,
+                path: filePath,
+                content: '',
+                loading: true,
+            };
+            setActiveId(fileId);
+            loadFileContent(fileId, fileSrc);
+            return [...prev, newFile];
+        });
+    }, [loadFileContent]);
 
     // Handle initial file from props
     useEffect(() => {
-        if (!hasInitialized.current && src && fileName) {
-            openNewFile(src, fileName, path || '');
+        if (initialFileName && !hasInitialized.current) {
+            openNewFile(initialFileName, initialSrc || '', initialPath || '');
             hasInitialized.current = true;
         }
-    }, [src, fileName, path, openNewFile]);
+    }, [initialFileName, initialSrc, initialPath, openNewFile]);
 
-    // Listen for external file open events
+    // Listen for global 'editor-open-file' events
     useEffect(() => {
-        const handleOpenFile = (event: any) => {
-            const { src: newSrc, fileName: newFileName, path: newPath } = event.detail;
-            if (newSrc && newFileName) {
-                openNewFile(newSrc, newFileName, newPath || '');
-            }
+        const handleGlobalOpenFile = (e: any) => {
+            const { src, fileName, path } = e.detail;
+            if (fileName) openNewFile(fileName, src || '', path || '');
         };
-
-        window.addEventListener('editor-open-file', handleOpenFile);
-        return () => window.removeEventListener('editor-open-file', handleOpenFile);
+        window.addEventListener('editor-open-file', handleGlobalOpenFile);
+        return () => window.removeEventListener('editor-open-file', handleGlobalOpenFile);
     }, [openNewFile]);
 
-    const activeFile = useMemo(() => openFiles.find(f => f.id === activeFileId), [openFiles, activeFileId]);
+    const activeFile = useMemo(() => files.find(f => f.id === activeId), [files, activeId]);
 
     const handleDownload = useCallback(() => {
         if (!activeFile?.src) return;
@@ -121,11 +118,13 @@ const TextViewerApp: React.FC<TextViewerAppProps> = ({ src, fileName, path, onOp
     const toggleMenu = () => setShowMenu(!showMenu);
 
     const closeTab = (fileId: string) => {
-        const nextFiles = openFiles.filter(f => f.id !== fileId);
-        setOpenFiles(nextFiles);
-        if (activeFileId === fileId) {
-            setActiveFileId(nextFiles[nextFiles.length - 1]?.id || '');
-        }
+        setFiles(prev => {
+            const nextFiles = prev.filter(f => f.id !== fileId);
+            if (activeId === fileId) {
+                setActiveId(nextFiles[nextFiles.length - 1]?.id || null);
+            }
+            return nextFiles;
+        });
     };
 
     useEffect(() => {
@@ -156,7 +155,7 @@ const TextViewerApp: React.FC<TextViewerAppProps> = ({ src, fileName, path, onOp
         }
     }, [activeFile?.content, searchText, showSearch]);
 
-    if (openFiles.length === 0) {
+    if (files.length === 0) {
         return (
             <div className="flex flex-col h-full bg-[#3d3d3d] text-white font-sans overflow-hidden select-none items-center justify-center">
                 <FileText size={64} className="opacity-50 mb-4" />
@@ -170,27 +169,27 @@ const TextViewerApp: React.FC<TextViewerAppProps> = ({ src, fileName, path, onOp
             {/* Tabs Bar */}
             <div className="flex items-center bg-[#333333] border-b border-[#2d2d2d] flex-nowrap z-[60] shadow-sm h-10">
                 <div className="flex items-center overflow-x-auto custom-scrollbar-horizontal flex-1 h-full">
-                    {openFiles.map(file => (
+                    {files.map(file => (
                         <div
                             key={file.id}
-                            onClick={() => setActiveFileId(file.id)}
-                            className={`flex items-center gap-2 pl-4 pr-6 h-full cursor-pointer transition-all whitespace-nowrap flex-shrink-0 min-w-[140px] max-w-[220px] border-r border-[#2d2d2d] group relative ${activeFileId === file.id
+                            onClick={() => setActiveId(file.id)}
+                            className={`flex items-center gap-2 pl-4 pr-6 h-full cursor-pointer transition-all whitespace-nowrap flex-shrink-0 min-w-[140px] max-w-[220px] border-r border-[#2d2d2d] group relative ${activeId === file.id
                                 ? 'bg-[#454545] text-white'
                                 : 'bg-[#333333] text-[#aaa] hover:bg-[#3d3d3d] hover:text-[#ccc]'
                                 }`}
                         >
-                            <FileText size={14} className={activeFileId === file.id ? 'text-[#e95420]' : 'text-gray-500'} />
+                            <FileText size={14} className={activeId === file.id ? 'text-[#e95420]' : 'text-gray-500'} />
                             <span className="text-xs font-medium truncate flex-1">{file.fileName}</span>
                             <button
                                 onClick={(e) => {
                                     e.stopPropagation();
                                     closeTab(file.id);
                                 }}
-                                className={`rounded p-0.5 transition-colors mr-1 ${activeFileId === file.id ? 'hover:bg-[#555] text-white' : 'opacity-0 group-hover:opacity-100 hover:bg-[#444] text-[#888]'}`}
+                                className={`rounded p-0.5 transition-colors mr-1 ${activeId === file.id ? 'hover:bg-[#555] text-white' : 'opacity-0 group-hover:opacity-100 hover:bg-[#444] text-[#888]'}`}
                             >
                                 <X size={12} />
                             </button>
-                            {activeFileId === file.id && (
+                            {activeId === file.id && (
                                 <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-[#e95420]" />
                             )}
                         </div>
@@ -262,7 +261,7 @@ const TextViewerApp: React.FC<TextViewerAppProps> = ({ src, fileName, path, onOp
             {/* Content Area */}
             <div
                 className="flex-1 bg-[#2d2d2d] overflow-auto custom-scrollbar relative selection:bg-[#e95420] selection:text-white"
-                onMouseDown={(e) => e.stopPropagation()} // Ensure selection isn't cleared
+                onMouseDown={(e) => e.stopPropagation()}
             >
                 {activeFile?.loading ? (
                     <div className="flex items-center justify-center h-full">

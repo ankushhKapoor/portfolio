@@ -9,7 +9,10 @@ interface PdfViewerAppProps {
     onOpenProperties?: (name: string, kind: 'file' | 'folder', path: string) => void;
 }
 
-const PdfViewerApp: React.FC<PdfViewerAppProps> = ({ src, fileName, path, onOpenProperties }) => {
+const PdfViewerApp: React.FC<PdfViewerAppProps> = ({ src: initialSrc, fileName: initialFileName, path: initialPath, onOpenProperties }) => {
+    const [src, setSrc] = useState(initialSrc);
+    const [fileName, setFileName] = useState(initialFileName);
+    const [path, setPath] = useState(initialPath);
     const [zoom, setZoom] = useState(100);
     const [showMenu, setShowMenu] = useState(false);
     const menuRef = useRef<HTMLDivElement>(null);
@@ -40,13 +43,32 @@ const PdfViewerApp: React.FC<PdfViewerAppProps> = ({ src, fileName, path, onOpen
     const toggleMenu = () => setShowMenu(!showMenu);
 
     useEffect(() => {
+        setSrc(initialSrc);
+        setFileName(initialFileName);
+        setPath(initialPath);
+    }, [initialSrc, initialFileName, initialPath]);
+
+    useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
             if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
                 setShowMenu(false);
             }
         };
+        const handleOpenFile = (event: any) => {
+            const { src: newSrc, fileName: newFileName, path: newPath } = event.detail;
+            if (newSrc) {
+                setSrc(newSrc);
+                setFileName(newFileName);
+                setPath(newPath);
+            }
+        };
+
+        window.addEventListener('pdf-open-file', handleOpenFile);
         document.addEventListener('mousedown', handleClickOutside);
-        return () => document.removeEventListener('mousedown', handleClickOutside);
+        return () => {
+            window.removeEventListener('pdf-open-file', handleOpenFile);
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
     }, []);
 
     // PDF URL with zoom parameter

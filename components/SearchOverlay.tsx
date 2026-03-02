@@ -76,7 +76,7 @@ export default function SearchOverlay({ onClose, onOpenApp, onFocusApp, windows,
 
     return (
         <div
-            className={`fixed inset-0 z-[6000] flex flex-col items-center pb-[5vh] ${isClosing ? 'animate-fade-out-scale' : 'animate-fade-in-scale'}`}
+            className={`fixed inset-0 z-[6000] flex flex-col items-center pb-[5vh] SearchOverlay_container ${isClosing ? 'animate-fade-out-scale' : 'animate-fade-in-scale'}`}
             style={{
                 background: 'rgba(0,0,0,0.5)',
                 backdropFilter: 'blur(45px)',
@@ -90,7 +90,7 @@ export default function SearchOverlay({ onClose, onOpenApp, onFocusApp, windows,
             {mode === 'apps' && (
                 <div className="w-full flex justify-center flex-shrink-0" onClick={e => e.stopPropagation()}>
                     <div
-                        className="w-full max-w-[600px] flex items-center gap-3 px-4 py-3 rounded-xl"
+                        className="w-full max-w-[600px] flex items-center gap-3 px-4 py-3 rounded-xl SearchOverlay_input_container"
                         style={{ background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.18)', boxShadow: '0 8px 32px rgba(0,0,0,0.5)' }}
                     >
                         <SearchIcon size={20} color="rgba(255,255,255,0.6)" />
@@ -109,13 +109,13 @@ export default function SearchOverlay({ onClose, onOpenApp, onFocusApp, windows,
 
             {/* Mode-Specific Content */}
             <div
-                className="w-full max-w-[1000px] flex-1 overflow-y-auto px-10 scrollbar-hide flex flex-col items-center"
+                className="w-full max-w-[1000px] flex-1 overflow-y-auto px-10 scrollbar-hide flex flex-col items-center SearchOverlay_grid_container"
                 onClick={(e) => e.stopPropagation()}
             >
                 {mode === 'activities' ? (
                     /* Activities Mode - focus on running apps */
                     <>
-                        <h1 className="text-white/40 text-lg font-bold uppercase tracking-[0.2em] mt-8" style={{ fontFamily: "'Ubuntu Mono', monospace" }}>
+                        <h1 className="text-white/40 text-lg font-bold uppercase tracking-[0.2em] mt-8 SearchOverlay_header" style={{ fontFamily: "'Ubuntu Mono', monospace" }}>
                             Running Applications
                         </h1>
 
@@ -181,7 +181,7 @@ export default function SearchOverlay({ onClose, onOpenApp, onFocusApp, windows,
                         {/* 10vh Gap for Apps mode */}
                         <div style={{ height: '10vh' }} className="flex-shrink-0" />
 
-                        <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-x-8 gap-y-12 w-full">
+                        <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-x-8 gap-y-12 w-full SearchOverlay_grid">
                             {filteredApps.map(app => {
                                 const Icon = ICONS[app.id] ?? TerminalIcon;
                                 return (
