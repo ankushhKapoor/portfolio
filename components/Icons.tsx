@@ -40,7 +40,7 @@ export {
     LayoutGrid as GridIcon,
 } from 'lucide-react';
 
-export function UbuntuIcon({ size = 24 }: { size?: number; color?: string }) {
+export function KapoorOSIcon({ size = 24 }: { size?: number; color?: string }) {
     return (
         <svg
             width={size}

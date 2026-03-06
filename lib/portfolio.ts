@@ -63,6 +63,7 @@ export const DESKTOP_ICONS = [
   { id: 'projects', icon: '💼', label: 'Projects' },
   { id: 'terminal', icon: '🖥️', label: 'Terminal' },
   { id: 'files', icon: '📁', label: 'Files' },
+  { id: 'resume-pdf', icon: '📋', label: 'resume.pdf', kind: 'file', path: 'resume.pdf' }
 ];
 
 export const WIN_DEFAULTS: Record<string, { w: number; h: number; title: string }> = {
@@ -81,8 +82,17 @@ export const FILES: Record<string, { n: string; icon: string; dir?: boolean; src
   Home: [
     { n: 'Documents', icon: '📁', dir: true },
     { n: 'Downloads', icon: '📁', dir: true },
-    { n: 'Projects', icon: '📁', dir: true }
-  ]
+    { n: 'Projects', icon: '📁', dir: true },
+    { n: 'resume.pdf', icon: '📋', src: '/assets/os/resume.pdf' }
+  ],
+  Documents: [
+    { n: 'notes.txt', icon: '📄', src: '/assets/os/Documents/notes.txt' }
+  ],
+  Downloads: [
+    { n: 'test.txt', icon: '📄', src: '/assets/os/Downloads/test.txt' },
+    { n: 'trial.txt', icon: '📄', src: '/assets/os/Downloads/trial.txt' }
+  ],
+  Projects: []
 };
 
 export const SETTINGS_PANELS: Record<string, [string, string][]> = {

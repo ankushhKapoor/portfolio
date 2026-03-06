@@ -1,7 +1,7 @@
 'use client';
 import { useState } from 'react';
 import { DOCK_APPS } from '@/lib/portfolio';
-import { TerminalIcon, FolderIcon, UserIcon, FileTextIcon, BriefcaseIcon, CalendarIcon, SettingsIcon, GridIcon, UbuntuIcon } from '@/components/Icons';
+import { TerminalIcon, FolderIcon, UserIcon, FileTextIcon, BriefcaseIcon, CalendarIcon, SettingsIcon, GridIcon, KapoorOSIcon } from '@/components/Icons';
 
 const ICONS: Record<string, React.ComponentType<{ size?: number; color?: string }>> = {
     terminal: TerminalIcon,
@@ -11,7 +11,7 @@ const ICONS: Record<string, React.ComponentType<{ size?: number; color?: string 
     projects: BriefcaseIcon,
     calendar: CalendarIcon,
     settings: SettingsIcon,
-    all: UbuntuIcon,
+    all: KapoorOSIcon,
 };
 
 interface Props {
@@ -42,7 +42,7 @@ export default function Dock({ onOpen, onToggleSearch, openApps, minimizedApps, 
             />
 
             <div
-                className="fixed bottom-3 left-1/2 flex items-end pb-1.5 px-3.5 z-[5000] select-none transition-all duration-300 ease-in-out"
+                className="fixed bottom-3 left-1/2 flex items-center justify-center px-3.5 w-[500px] h-[70px] z-[5000] select-none transition-all duration-300 ease-in-out"
                 onMouseEnter={() => !isSelecting && setIsDockHovered(true)}
                 onMouseLeave={() => setIsDockHovered(false)}
                 onContextMenu={(e) => { e.preventDefault(); e.stopPropagation(); }}
@@ -62,7 +62,7 @@ export default function Dock({ onOpen, onToggleSearch, openApps, minimizedApps, 
                 <DockIcon
                     id="all"
                     label="Show Applications"
-                    Icon={UbuntuIcon}
+                    Icon={KapoorOSIcon}
                     active={false}
                     minimized={false}
                     onOpen={onToggleSearch}
@@ -99,7 +99,7 @@ function DockIcon({ id, label, Icon, active, minimized, onOpen, isSelecting }: {
     }[id] ?? 'linear-gradient(145deg, #2a2a2a, #383838)';
 
     return (
-        <div className="relative flex flex-col items-center pt-2" onMouseEnter={() => !isSelecting && setHov(true)} onMouseLeave={() => setHov(false)}>
+        <div className="relative flex flex-col gap-0.5 w-[59px] items-center  pt-[2px]" onMouseEnter={() => !isSelecting && setHov(true)} onMouseLeave={() => setHov(false)}>
             {/* Tooltip */}
             {hov && !isSelecting && (
                 <div className="absolute bottom-[62px] text-[12px] text-white px-2.5 py-1 rounded-lg whitespace-nowrap pointer-events-none animate-fade-in-scale"

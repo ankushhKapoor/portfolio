@@ -2,7 +2,7 @@
 import { useEffect, useState, ReactNode, useCallback, useRef, useMemo } from 'react';
 import { useOS } from '@/hooks/useOS';
 import { DESKTOP_ICONS, WIN_DEFAULTS, FILES } from '@/lib/portfolio';
-import { TerminalIcon, FolderIcon, UserIcon, FileTextIcon, BriefcaseIcon, CalendarIcon, SettingsIcon, UbuntuIcon } from '@/components/Icons';
+import { TerminalIcon, FolderIcon, UserIcon, FileTextIcon, BriefcaseIcon, CalendarIcon, SettingsIcon, KapoorOSIcon } from '@/components/Icons';
 
 import BootScreen from '@/components/BootScreen';
 import LockScreen from '@/components/LockScreen';
@@ -45,6 +45,7 @@ interface DesktopItem {
     label: string;
     kind: 'app' | 'folder' | 'file';
     appId?: string;
+    path?: string;
 }
 
 interface DesktopClipboard {
@@ -182,7 +183,7 @@ function ShutdownScreen({ mode, onPowerOn }: { mode: 'shutdown' | 'restart'; onP
                         boxShadow: '0 0 20px rgba(255, 255, 255, 0.08)'
                     }}>
                     <div style={{ filter: 'drop-shadow(0 0 6px rgba(255,255,255,0.4))' }}>
-                        <UbuntuIcon size={40} />
+                        <KapoorOSIcon size={40} />
                     </div>
                 </div>
                 <div style={{ color: '#444', fontFamily: "'Ubuntu Mono', monospace", fontSize: 13 }}>KapoorOS is powered off</div>
@@ -353,6 +354,19 @@ export default function Desktop() {
         const item = desktopItems.find((it) => it.id === id);
         if (!item) return;
         if (item.kind === 'folder') { openApp('files'); return; }
+        if (item.kind === 'file') {
+            // Handle file opening
+            if (item.path) {
+                const fileName = item.path.split('/').pop() || '';
+                const fileExt = fileName.split('.').pop()?.toLowerCase();
+                if (fileExt === 'pdf') {
+                    openApp('pdf-viewer', { src: `/assets/os/${item.path}`, fileName });
+                } else if (['txt', 'md'].includes(fileExt || '')) {
+                    openApp('text-viewer', { src: `/assets/os/${item.path}`, fileName });
+                }
+            }
+            return;
+        }
         if (item.appId) { openApp(item.appId); }
     }, [desktopItems, openApp]);
 

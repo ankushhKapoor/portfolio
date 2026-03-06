@@ -1,7 +1,7 @@
 'use client';
 import { useEffect, useState, useRef } from 'react';
 import { BOOT_LINES } from '@/lib/portfolio';
-import { UbuntuIcon } from '@/components/Icons';
+import { KapoorOSIcon } from '@/components/Icons';
 
 interface Props { onDone: () => void; }
 
@@ -22,7 +22,7 @@ export default function BootScreen({ onDone }: Props) {
                 setProgress(Math.round((count / BOOT_LINES.length) * 100));
             } else {
                 clearInterval(iv);
-                setTimeout(() => { if (active) setPhase('logo'); }, 200);
+                setTimeout(() => { if (active) setPhase('logo'); }, 100);
                 setTimeout(() => {
                     if (active && !called.current) {
                         called.current = true;
@@ -30,7 +30,7 @@ export default function BootScreen({ onDone }: Props) {
                     }
                 }, 800);
             }
-        }, 200);
+        }, 90);
         return () => { active = false; clearInterval(iv); };
     }, [onDone]);
 
@@ -52,7 +52,7 @@ export default function BootScreen({ onDone }: Props) {
                         }}
                     >
                         <div style={{ filter: 'drop-shadow(0 0 6px rgba(255,255,255,0.4))' }}>
-                            <UbuntuIcon size={40} />
+                            <KapoorOSIcon size={40} />
                         </div>
                     </div>
                     <div className="text-4xl font-bold tracking-widest" style={{ color: '#e95420', fontFamily: "'Ubuntu', sans-serif" }}>
@@ -76,7 +76,7 @@ export default function BootScreen({ onDone }: Props) {
                             }}
                         >
                             <div style={{ filter: 'drop-shadow(0 0 4px rgba(255,255,255,0.3))' }}>
-                                <UbuntuIcon size={28} />
+                                <KapoorOSIcon size={28} />
                             </div>
                         </div>
                         <div className="text-3xl font-bold tracking-widest" style={{ color: '#e95420', fontFamily: "'Ubuntu', sans-serif" }}>

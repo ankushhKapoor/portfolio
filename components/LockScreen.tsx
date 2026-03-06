@@ -1,7 +1,7 @@
 'use client';
 import { useEffect, useState, useRef } from 'react';
 import { PORTFOLIO } from '@/lib/portfolio';
-import { UbuntuIcon } from '@/components/Icons';
+import { KapoorOSIcon } from '@/components/Icons';
 
 interface Props { onUnlock: () => void; }
 
@@ -45,7 +45,7 @@ export default function LockScreen({ onUnlock }: Props) {
                     }}
                 >
                     <div style={{ filter: 'drop-shadow(0 0 6px rgba(255,255,255,0.4))' }}>
-                        <UbuntuIcon size={40} />
+                        <KapoorOSIcon size={40} />
                     </div>
                 </div>
 

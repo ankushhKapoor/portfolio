@@ -35,7 +35,9 @@ export default function AppWindow({ id, title, icon, children, onClose, onMinimi
     const [size, setSize] = useState({ w: defaultW, h: defaultH });
     const [maximized, setMaximized] = useState(false);
     const [isDragging, setIsDragging] = useState(false);
-    const [preMaxRect, setPreMaxRect] = useState({ x: 100, y: 100, w: defaultW, h: defaultH });
+    const [preMaxRect, setPreMaxRect] = useState({ x: startX ?? 100, y: startY ?? 100, w: defaultW, h: defaultH });
+    const [originalRect, setOriginalRect] = useState({ x: startX ?? 100, y: startY ?? 100, w: defaultW, h: defaultH });
+    const [hasBeenMaximized, setHasBeenMaximized] = useState(false);
     const [maxPreview, setMaxPreview] = useState(false);
     const [zIndex, setZIndex] = useState(() => zCounter++);
     const [isEntering, setIsEntering] = useState(true);
@@ -117,14 +119,21 @@ export default function AppWindow({ id, title, icon, children, onClose, onMinimi
             parseInt(getComputedStyle(document.documentElement).getPropertyValue('--topbar-height') || '28') : 28;
 
         if (!maximized) {
+            // Store current position/size before maximizing
             setPreMaxRect({ x: pos.x, y: pos.y, w: size.w, h: size.h });
+            if (!hasBeenMaximized) {
+                // Store original size on first maximization
+                setOriginalRect({ x: pos.x, y: pos.y, w: size.w, h: size.h });
+                setHasBeenMaximized(true);
+            }
             const vw = window.innerWidth;
             const vh = window.innerHeight;
             setPos({ x: 0, y: topBarH });
             setSize({ w: vw, h: vh - topBarH });
             setMaximized(true);
         } else {
-            const restored = clampRectToViewport(preMaxRect);
+            // Restore to original window size
+            const restored = clampRectToViewport(originalRect);
             setPos({ x: restored.x, y: restored.y });
             setSize({ w: restored.w, h: restored.h });
             setMaximized(false);
@@ -138,7 +147,7 @@ export default function AppWindow({ id, title, icon, children, onClose, onMinimi
         }
         startSmoothToggleResize();
 
-        const restored = clampRectToViewport(preMaxRect);
+        const restored = clampRectToViewport(originalRect);
         const viewportW = window.innerWidth;
         const anchorRatio = Math.min(1, Math.max(0, clickX / viewportW));
         const anchorX = clickX - restored.w * anchorRatio;
