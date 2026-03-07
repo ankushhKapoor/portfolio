@@ -1,37 +1,105 @@
 export const PORTFOLIO = {
   name: 'Ankush Kapoor',
-  title: 'Full-Stack Developer & UI Engineer',
-  email: 'ankush.kapoor@gmail.com',
-  github: 'github.com/ankushkapoor',
-  linkedin: 'linkedin.com/in/ankushkapoor',
-  education: { degree: 'B.Tech Computer Science', school: 'IIT Delhi', year: '2018' },
-  skills: ['React', 'TypeScript', 'Node.js', 'Python', 'Go', 'GraphQL', 'PostgreSQL', 'Redis', 'Docker', 'Kubernetes'],
+  title: 'Computer Engineering Student',
+  email: 'work.ankushkapoor1626@gmail.com',
+  github: 'github.com/ankushhKapoor',
+  linkedin: 'linkedin.com/in/ankushhKapoor',
+  twitter: 'x.com/ankushhKapoor',
+  website: 'ankushhkapoor.vercel.app',
+  education: {
+    degree: 'Bachelor of Technology in Computer Engineering',
+    school: 'Vidyalankar Institute of Technology',
+    location: 'Mumbai, India',
+    period: 'Sept 2024 – Present',
+    cgpa: '10.0 (First Year)',
+    sgpa: '10.0 (Sem 3)',
+    graduation: '2028',
+    courses: ['Object-Oriented Programming', 'Data Structures & Algorithms', 'Database Management Systems'],
+  },
+  skills: {
+    languages: ['C', 'Python', 'Assembly', 'Java'],
+    databases: ['MySQL'],
+    tools: ['Git', 'GitHub'],
+  },
   experience: [
     {
-      role: 'Senior Software Engineer', company: 'Google', period: '2022–Present',
-      desc: 'Led development of large-scale distributed systems, improving reliability by 40%. Mentored a team of 8 engineers across two continents.',
-    },
-    {
-      role: 'Software Engineer II', company: 'Flipkart', period: '2020–2022',
-      desc: 'Built high-performance React micro-frontends serving 200M+ users. Reduced initial load time by 60% via code-splitting and advanced caching.',
-    },
-    {
-      role: 'Frontend Engineer', company: 'Razorpay', period: '2018–2020',
-      desc: 'Designed and implemented the payment dashboard UI from scratch using React and TypeScript. Shipped 12 major product features.',
+      role: 'Open Source Contributor & Paid Contributor',
+      company: 'Open World Holidays Framework',
+      period: 'Jan 2025 – June 2025',
+      location: 'Remote',
+      link: 'github.com/commenthol/date-holidays',
+      summary: 'Climbed to rank 7 of 2300+ during Google Winter of Code, good enough to earn a paid sponsorship to extend the library. Added lunar calendar support for Mongolia, holiday logic for India and Nepal, and l10n translations (Hindi, Mongolian) across a library with 20M+ monthly PyPI downloads.',
+      bullets: [
+        'Ranked #7 out of 2300+ contributors in GWoC, leading to a paid sponsored task building Mongolian holiday logic from scratch.',
+        'Implemented a full lunar-calendar engine for Mongolia and extended date-system logic to cover 249 countries without breaking existing functionality.',
+        'Shipped Hindi and Mongolian l10n translations, making the library natively accessible to millions of regional users.',
+      ],
     },
   ],
   projects: [
     {
-      name: 'DistroWatch Clone', tech: 'React, TypeScript, Node.js',
-      desc: 'A full-stack Linux distribution tracker with real-time updates, community reviews, and package comparison tools.',
+      name: 'Transformer From Scratch',
+      subtitle: 'Neural Machine Translation',
+      tech: 'Python, PyTorch',
+      date: 'Dec 2025',
+      githubUrl: 'https://github.com/ankushhKapoor/transformer-from-scratch',
+      summary: 'Full implementation of the "Attention Is All You Need" Transformer architecture, built without wrapper libraries, with every layer hand-coded. Trains a bilingual sequence-to-sequence model with beam search and proper NLP metrics.',
+      bullets: [
+        'Built every component from scratch: scaled dot-product attention, multi-head attention, positional encoding, encoder-decoder stacks, and label smoothing.',
+        'Trained on the OPUS Books dataset (en to it), with learning-rate warmup, beam search decoding, and TensorBoard experiment tracking.',
+        'Evaluated with SacreBLEU, WER, and CER (standard MT benchmarks) and released pretrained checkpoints with an inference notebook.',
+      ],
     },
     {
-      name: 'PayFlow Dashboard', tech: 'React, D3.js, Python',
-      desc: 'Analytics dashboard for payment processing with real-time charts, anomaly detection, and automated alerting.',
+      name: 'BaseKernel',
+      subtitle: 'Custom 32-bit OS Kernel',
+      tech: 'C, NASM, QEMU',
+      date: 'Sep 2025',
+      githubUrl: 'https://github.com/ankushhKapoor/BaseKernel',
+      summary: 'A real 32-bit x86 protected-mode kernel, built without any OS, standard library, or runtime. Boots from a hand-written bootloader and implements core OS primitives from first principles.',
+      bullets: [
+        'Wrote a 16-bit bootloader that enables the A20 line, sets up the GDT, and jumps to 32-bit protected mode with no GRUB and no shortcuts.',
+        'Implemented full GDT and IDT with CPU exception handlers, hardware IRQ routing, and a VGA text-mode console for output.',
+        'Built a preemptive round-robin scheduler, basic virtual memory paging, and an ATA disk driver with a simple filesystem.',
+      ],
     },
     {
-      name: 'OpenGrid', tech: 'Go, Kubernetes, gRPC',
-      desc: 'Distributed task scheduler with fault tolerance and automatic failover, handling 10K+ jobs/minute at peak load.',
+      name: 'Alloc',
+      subtitle: 'Custom Memory Allocator in C',
+      tech: 'C, NASM',
+      date: 'Jun 2025',
+      githubUrl: 'https://github.com/ankushhKapoor/Alloc',
+      summary: 'A malloc/free replacement written from scratch over a 1 GB virtual heap. Built to deeply understand how allocators track, coalesce, and reclaim memory at the byte level.',
+      bullets: [
+        'Designed a word-aligned heap with packed headers that encode block size and allocation state in a single 32-bit int.',
+        'Implemented alloc(), destroy() (with memory-zeroing for security), and a show() debugger for heap inspection.',
+        'Added KB/MB/GB convenience macros and ensured destroy() zeroes freed memory to prevent data-leakage between allocations.',
+      ],
+    },
+  ],
+  extracurricular: [
+    {
+      name: 'Our Tech Community (OTC)',
+      link: 'ourtech.community',
+      role: 'Co-Organiser',
+      period: 'Jul 2025 – Present',
+      summary: 'Helping grow and run a 600+ member open tech community in Mumbai focused on weekly learning sessions, technical talks, and building a space where anyone (hobbyist or professional) is welcome.',
+      bullets: [
+        'Plan and execute flagship programs including weekly catchups, technical talks, and community events.',
+        'Handle technical setup and infra for events, documentation, and community tooling.',
+      ],
+    },
+    {
+      name: 'Rotary Divyang Center',
+      link: '',
+      role: 'Social Service Intern',
+      period: 'Feb 2026 – Present',
+      summary: 'Volunteering at a rehabilitation center that provides artificial limbs to people with physical disabilities. Supporting patients through the process and handling administrative work alongside building a website for the center.',
+      bullets: [
+        'Assist patients with administrative procedures, paperwork, and day-to-day coordination at the center.',
+        'Engage directly with patients who come in for artificial limb attachment, offering support and guidance.',
+        'Building a website for the center (in progress) to improve outreach and information accessibility.',
+      ],
     },
   ],
 };
@@ -63,7 +131,8 @@ export const DESKTOP_ICONS = [
   { id: 'projects', icon: '💼', label: 'Projects' },
   { id: 'terminal', icon: '🖥️', label: 'Terminal' },
   { id: 'files', icon: '📁', label: 'Files' },
-  { id: 'resume-pdf', icon: '📋', label: 'resume.pdf', kind: 'file', path: 'resume.pdf' }
+  { id: 'resume-pdf', icon: '📋', label: 'resume.pdf', kind: 'file', path: 'resume.pdf' },
+  { id: 'simple-mode', icon: '🌐', label: 'Simple Mode' },
 ];
 
 export const WIN_DEFAULTS: Record<string, { w: number; h: number; title: string }> = {

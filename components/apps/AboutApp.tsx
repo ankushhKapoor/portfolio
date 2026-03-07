@@ -21,12 +21,23 @@ export default function AboutApp() {
             </div>
 
             <Section title="Skills">
-                <div className="flex flex-wrap gap-2 mt-2">
-                    {PORTFOLIO.skills.map(s => (
-                        <span key={s} className="text-[12px] px-3 py-1 rounded-md"
-                            style={{ background: '#333', border: '1px solid #444', color: '#ccc', fontFamily: MONO }}>
-                            {s}
-                        </span>
+                <div className="flex flex-col gap-3 mt-2">
+                    {[
+                        { label: 'Languages', items: PORTFOLIO.skills.languages },
+                        { label: 'Databases', items: PORTFOLIO.skills.databases },
+                        { label: 'Tools', items: PORTFOLIO.skills.tools },
+                    ].map(({ label, items }) => (
+                        <div key={label} className="flex items-center gap-3">
+                            <span className="text-[10px] uppercase tracking-widest" style={{ color: '#e95420', minWidth: 70, fontFamily: MONO }}>{label}</span>
+                            <div className="flex flex-wrap gap-1.5">
+                                {items.map(s => (
+                                    <span key={s} className="text-[12px] px-2.5 py-0.5 rounded-md"
+                                        style={{ background: '#333', border: '1px solid #444', color: '#ccc', fontFamily: MONO }}>
+                                        {s}
+                                    </span>
+                                ))}
+                            </div>
+                        </div>
                     ))}
                 </div>
             </Section>
@@ -40,7 +51,33 @@ export default function AboutApp() {
                                 <span className="text-[11px] ml-4" style={{ color: '#555' }}>{e.period}</span>
                             </div>
                             <div className="text-[12px] mt-0.5" style={{ color: '#e95420' }}>{e.company}</div>
-                            <div className="text-[12px] mt-1.5 leading-relaxed" style={{ color: '#999' }}>{e.desc}</div>
+                            <div className="text-[12px] mt-1.5 leading-relaxed" style={{ color: '#999' }}>{e.summary}</div>
+                        </div>
+                    ))}
+                </div>
+            </Section>
+
+
+            <Section title="Community">
+                <div className="flex flex-col gap-4 mt-2">
+                    {PORTFOLIO.extracurricular.map((act, i) => (
+                        <div key={i} className="pl-4 py-0.5" style={{ borderLeft: '2px solid #e95420' }}>
+                            <div className="flex items-baseline justify-between">
+                                <span className="text-[14px] font-semibold text-white">{act.name}</span>
+                                <span className="text-[11px] ml-4" style={{ color: '#555' }}>{act.period}</span>
+                            </div>
+                            <div className="flex items-center justify-between mt-0.5">
+                                <span className="text-[12px]" style={{ color: '#e95420' }}>{act.role}</span>
+                                {act.link && (
+                                    <a href={`https://${act.link}`} target="_blank" rel="noopener noreferrer"
+                                        className="text-[11px]" style={{ color: '#555', textDecoration: 'none' }}
+                                        onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = '#e95420'; }}
+                                        onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = '#555'; }}>
+                                        {act.link}
+                                    </a>
+                                )}
+                            </div>
+                            <div className="text-[12px] mt-1.5 leading-relaxed" style={{ color: '#999' }}>{act.summary}</div>
                         </div>
                     ))}
                 </div>
@@ -49,7 +86,7 @@ export default function AboutApp() {
             <Section title="Education">
                 <div className="pl-4 mt-2" style={{ borderLeft: '2px solid #e95420' }}>
                     <div className="text-[14px] font-semibold text-white">{PORTFOLIO.education.degree}</div>
-                    <div className="text-[12px] mt-0.5" style={{ color: '#e95420' }}>{PORTFOLIO.education.school} · {PORTFOLIO.education.year}</div>
+                    <div className="text-[12px] mt-0.5" style={{ color: '#e95420' }}>{PORTFOLIO.education.school} · {PORTFOLIO.education.graduation}</div>
                 </div>
             </Section>
         </div>

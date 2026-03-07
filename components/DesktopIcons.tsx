@@ -1,7 +1,7 @@
 'use client';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { DOCK_APPS } from '@/lib/portfolio';
-import { TerminalIcon, FolderIcon, UserIcon, FileTextIcon, BriefcaseIcon} from '@/components/Icons';
+import { TerminalIcon, FolderIcon, UserIcon, FileTextIcon, BriefcaseIcon, Globe } from '@/components/Icons';
 
 const ICONS: Record<string, { Icon: React.ComponentType<{ size?: number; color?: string }>; color: string; bg: string }> = {
     about: { Icon: UserIcon, color: '#93c4e8', bg: 'linear-gradient(145deg,#1e2a3d,#2d3f5a)' },
@@ -10,6 +10,7 @@ const ICONS: Record<string, { Icon: React.ComponentType<{ size?: number; color?:
     terminal: { Icon: TerminalIcon, color: '#4ec9b0', bg: 'linear-gradient(145deg,#1a1a1a,#2c2c2c)' },
     files: { Icon: FolderIcon, color: '#e95420', bg: 'linear-gradient(145deg,#3d1e10,#5a2d14)' },
     'resume-pdf': { Icon: FileTextIcon, color: '#e0e0e0', bg: 'linear-gradient(145deg,#1a1e2d,#252b3d)' },
+    'simple-mode': { Icon: Globe, color: '#f5a623', bg: 'linear-gradient(145deg,#3d2800,#5a3d10)' },
 };
 
 const GRID = {
@@ -98,9 +99,14 @@ export default function DesktopIcons({ items, onOpen, selectedItems = new Set(),
 
     const defaultPositions = useCallback((size: { cols: number; rows: number }) => {
         const next: Record<string, GridPos> = {};
-        iconIds.forEach((id, idx) => {
+        const regularIds = iconIds.filter(id => id !== 'simple-mode');
+        regularIds.forEach((id, idx) => {
             next[id] = { col: Math.floor(idx / size.rows), row: idx % size.rows };
         });
+        // Pin simple-mode to top-left (max column, row 0)
+        if (iconIds.includes('simple-mode')) {
+            next['simple-mode'] = { col: size.cols - 1, row: 0 };
+        }
         return next;
     }, [iconIds]);
 
@@ -108,7 +114,16 @@ export default function DesktopIcons({ items, onOpen, selectedItems = new Set(),
         const next: Record<string, GridPos> = {};
         const used = new Set<string>();
 
+        // Always pin simple-mode to top-left first
+        if (iconIds.includes('simple-mode')) {
+            const col = size.cols - 1;
+            const row = 0;
+            next['simple-mode'] = { col, row };
+            used.add(`${col},${row}`);
+        }
+
         const place = (id: string, preferred?: GridPos) => {
+            if (id === 'simple-mode') return; // already placed
             if (preferred) {
                 const col = Math.min(size.cols - 1, Math.max(0, preferred.col));
                 const row = Math.min(size.rows - 1, Math.max(0, preferred.row));
@@ -143,9 +158,13 @@ export default function DesktopIcons({ items, onOpen, selectedItems = new Set(),
                 if (Object.keys(prev).length === 0) {
                     // Force re-calculation of default positions with correct size
                     const next: Record<string, GridPos> = {};
-                    iconIds.forEach((id, idx) => {
+                    const regularIds = iconIds.filter(id => id !== 'simple-mode');
+                    regularIds.forEach((id, idx) => {
                         next[id] = { col: Math.floor(idx / size.rows), row: idx % size.rows };
                     });
+                    if (iconIds.includes('simple-mode')) {
+                        next['simple-mode'] = { col: size.cols - 1, row: 0 };
+                    }
                     return next;
                 }
                 return normalizePositions(prev, size);

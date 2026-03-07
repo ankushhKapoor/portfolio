@@ -64,6 +64,7 @@ import FilesApp from '@/components/apps/FilesApp';
 import SettingsApp from '@/components/apps/SettingsApp';
 import TextViewerApp from '@/components/apps/TextViewerApp';
 import PdfViewerApp from '@/components/apps/PdfViewerApp';
+import SimplePortfolio from '@/components/SimplePortfolio';
 
 const APP_ICONS: Record<string, ReactNode> = {
     terminal: <TerminalIcon size={14} color="#4ec9b0" />,
@@ -309,6 +310,7 @@ export default function Desktop() {
     );
     const [layoutVersion, setLayoutVersion] = useState(0);
     const [keepAligned] = useState(true);
+    const [simpleModeOpen, setSimpleModeOpen] = useState(false);
     const [propertiesData, setPropertiesData] = useState<PropertiesData | null>(null);
     const [clipboard, setClipboard] = useState<DesktopClipboard | null>(null);
     const [cutItemIds, setCutItemIds] = useState<Set<string>>(new Set());
@@ -353,6 +355,7 @@ export default function Desktop() {
     const openDesktopItem = useCallback((id: string) => {
         const item = desktopItems.find((it) => it.id === id);
         if (!item) return;
+        if (id === 'simple-mode') { setSimpleModeOpen(true); return; }
         if (item.kind === 'folder') { openApp('files'); return; }
         if (item.kind === 'file') {
             // Handle file opening
@@ -1216,6 +1219,10 @@ export default function Desktop() {
             )}
 
             {propertiesData && <div className="z-[9999] relative"><PropertiesWindow data={propertiesData} onClose={() => setPropertiesData(null)} /></div>}
+
+            {simpleModeOpen && (
+                <SimplePortfolio onClose={() => setSimpleModeOpen(false)} />
+            )}
         </div>
     );
 }
