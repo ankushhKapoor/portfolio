@@ -1,13 +1,12 @@
 'use client';
 import { useState } from 'react';
 import { DOCK_APPS } from '@/lib/portfolio';
-import { TerminalIcon, FolderIcon, UserIcon, FileTextIcon, BriefcaseIcon, CalendarIcon, SettingsIcon, GridIcon, KapoorOSIcon } from '@/components/Icons';
+import { TerminalIcon, FolderIcon, UserIcon, BriefcaseIcon, CalendarIcon, SettingsIcon, GridIcon, KapoorOSIcon } from '@/components/Icons';
 
 const ICONS: Record<string, React.ComponentType<{ size?: number; color?: string }>> = {
     terminal: TerminalIcon,
     files: FolderIcon,
     about: UserIcon,
-    resume: FileTextIcon,
     projects: BriefcaseIcon,
     calendar: CalendarIcon,
     settings: SettingsIcon,
@@ -42,7 +41,7 @@ export default function Dock({ onOpen, onToggleSearch, openApps, minimizedApps, 
             />
 
             <div
-                className="fixed bottom-3 left-1/2 flex items-center justify-center px-3.5 w-[500px] h-[70px] z-[5000] select-none transition-all duration-300 ease-in-out"
+                className="fixed bottom-3 left-1/2 flex items-center justify-center px-3.5 w-[450px] h-[70px] z-[5000] select-none transition-all duration-300 ease-in-out"
                 onMouseEnter={() => !isSelecting && setIsDockHovered(true)}
                 onMouseLeave={() => setIsDockHovered(false)}
                 onContextMenu={(e) => { e.preventDefault(); e.stopPropagation(); }}
@@ -86,12 +85,19 @@ export default function Dock({ onOpen, onToggleSearch, openApps, minimizedApps, 
 function DockIcon({ id, label, Icon, active, minimized, onOpen, isSelecting }: { id: string; label: string; Icon: React.ComponentType<{ size?: number; color?: string }>; active: boolean; minimized: boolean; onOpen: () => void; isSelecting?: boolean }) {
     const [hov, setHov] = useState(false);
 
-    const iconColor = id === 'files' ? '#e95420' : id === 'terminal' ? '#4ec9b0' : '#e0e0e0';
+    const iconColor = {
+        terminal: '#4ec9b0',
+        files: '#e95420',
+        about: '#93c4e8',
+        projects: '#a8d98c',
+        calendar: '#f37222',
+        settings: '#ccc',
+        all: '#fff',
+    }[id] ?? '#e0e0e0';
     const iconBg = {
         terminal: 'linear-gradient(145deg, #1a1a1a, #2c2c2c)',
         files: 'linear-gradient(145deg, #3d1e10, #5a2d14)',
         about: 'linear-gradient(145deg, #1e2a3d, #2d3f5a)',
-        resume: 'linear-gradient(145deg, #1a1e2d, #252b3d)',
         projects: 'linear-gradient(145deg, #1d2a1a, #2b3d28)',
         calendar: 'linear-gradient(145deg, #2d1a1a, #3d2828)',
         settings: 'linear-gradient(145deg, #252525, #333)',

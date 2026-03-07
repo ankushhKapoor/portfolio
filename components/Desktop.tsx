@@ -43,9 +43,10 @@ interface DesktopItem {
     id: string;
     icon: string;
     label: string;
-    kind: 'app' | 'folder' | 'file';
+    kind: 'app' | 'folder' | 'file' | 'link';
     appId?: string;
     path?: string;
+    href?: string;
 }
 
 interface DesktopClipboard {
@@ -59,6 +60,8 @@ import TerminalApp from '@/components/apps/TerminalApp';
 import AboutApp from '@/components/apps/AboutApp';
 import ResumeApp from '@/components/apps/ResumeApp';
 import ProjectsApp from '@/components/apps/ProjectsApp';
+import ExtracurricularApp from '@/components/apps/ExtracurricularApp';
+import ExperienceApp from '@/components/apps/ExperienceApp';
 import CalendarApp from '@/components/apps/CalendarApp';
 import FilesApp from '@/components/apps/FilesApp';
 import SettingsApp from '@/components/apps/SettingsApp';
@@ -72,6 +75,8 @@ const APP_ICONS: Record<string, ReactNode> = {
     about: <UserIcon size={14} color="#93c4e8" />,
     resume: <FileTextIcon size={14} color="#ccc" />,
     projects: <BriefcaseIcon size={14} color="#a8d98c" />,
+    extracurricular: <UserIcon size={14} color="#19b6b6" />,
+    experience: <BriefcaseIcon size={14} color="#f37222" />,
     calendar: <CalendarIcon size={14} color="#f37222" />,
     settings: <SettingsIcon size={14} color="#ccc" />,
     'text-viewer': <FileTextIcon size={14} color="#f2f2f2" />,
@@ -300,13 +305,18 @@ function KapoorContextMenu({ x, y, items }: { x: number; y: number; items: MenuE
 }
 
 export default function Desktop() {
-    const { screen, setScreen, windows, openApp, closeApp, minimizeApp, focusApp, focusedAppId, showSearch, toggleSearch, searchMode, windowRects, updateWindowRect, doUnlock, doLock, doPowerOff, doRestart } = useOS();
+    const { screen, setScreen, windows, openApp, closeApp, minimizeApp, focusApp, focusedAppId, showSearch, toggleSearch, closeSearch, searchMode, windowRects, updateWindowRect, doUnlock, doLock, doPowerOff, doRestart } = useOS();
     const [selectionRect, setSelectionRect] = useState<SelectionRect | null>(null);
     const [isSelecting, setIsSelecting] = useState(false);
     const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set());
     const [contextMenu, setContextMenu] = useState<ContextMenuState | null>(null);
     const [desktopItems, setDesktopItems] = useState<DesktopItem[]>(() =>
-        DESKTOP_ICONS.map((item) => ({ ...item, kind: item.id === 'files' ? 'folder' : 'app', appId: item.id }))
+        DESKTOP_ICONS.map((item) => ({
+            ...item,
+            kind: item.id === 'files' ? 'folder' : (item as { kind?: string }).kind === 'file' ? 'file' : (item as { kind?: string }).kind === 'link' ? 'link' : 'app',
+            appId: item.id,
+            href: (item as { href?: string }).href,
+        }))
     );
     const [layoutVersion, setLayoutVersion] = useState(0);
     const [keepAligned] = useState(true);
@@ -354,8 +364,16 @@ export default function Desktop() {
 
     const openDesktopItem = useCallback((id: string) => {
         const item = desktopItems.find((it) => it.id === id);
-        if (!item) return;
+        if (!item) { openApp(id); return; }
         if (id === 'simple-mode') { setSimpleModeOpen(true); return; }
+        if (item.kind === 'link') {
+            if (id === 'email-link') {
+                window.location.href = 'mailto:work.ankushkapoor1626@gmail.com';
+            } else if (item.href) {
+                window.open(item.href, '_blank', 'noopener,noreferrer');
+            }
+            return;
+        }
         if (item.kind === 'folder') { openApp('files'); return; }
         if (item.kind === 'file') {
             // Handle file opening
@@ -1088,6 +1106,8 @@ export default function Desktop() {
             case 'about': return <AboutApp />;
             case 'resume': return <ResumeApp />;
             case 'projects': return <ProjectsApp />;
+            case 'extracurricular': return <ExtracurricularApp />;
+            case 'experience': return <ExperienceApp />;
             case 'calendar': return <CalendarApp />;
             case 'files': return (
                 <FilesApp
@@ -1196,8 +1216,8 @@ export default function Desktop() {
 
             {showSearch && (
                 <SearchOverlay
-                    onClose={toggleSearch}
-                    onOpenApp={openApp}
+                    onClose={closeSearch}
+                    onOpenApp={openDesktopItem}
                     onFocusApp={focusApp}
                     windows={windows}
                     windowRects={windowRects}

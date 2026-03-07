@@ -38,6 +38,13 @@ export {
     Search as SearchIcon,
     Camera as CameraIcon,
     LayoutGrid as GridIcon,
+    Users as UsersIcon,
+    Award as AwardIcon,
+    FileImage as FileImageIcon,
+    ExternalLink as ExternalLinkIcon,
+    Github as GithubIcon,
+    MapPin as MapPinIcon,
+    Link as LinkIcon,
 } from 'lucide-react';
 
 export function KapoorOSIcon({ size = 24 }: { size?: number; color?: string }) {

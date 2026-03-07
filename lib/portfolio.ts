@@ -125,7 +125,6 @@ export const DOCK_APPS = [
   { id: 'terminal', icon: '🖥️', label: 'Terminal' },
   { id: 'files', icon: '📁', label: 'Files' },
   { id: 'about', icon: '👤', label: 'About Me' },
-  { id: 'resume', icon: '📄', label: 'Resume' },
   { id: 'projects', icon: '💼', label: 'Projects' },
   { id: 'calendar', icon: '📅', label: 'Calendar' },
   { id: 'settings', icon: '⚙️', label: 'Settings' },
@@ -133,19 +132,26 @@ export const DOCK_APPS = [
 
 export const DESKTOP_ICONS = [
   { id: 'about', icon: '👤', label: 'About Me' },
-  { id: 'resume', icon: '📄', label: 'Resume' },
   { id: 'projects', icon: '💼', label: 'Projects' },
+  { id: 'extracurricular', icon: '🌱', label: 'Community' },
+  { id: 'experience', icon: '🏅', label: 'Experience' },
   { id: 'terminal', icon: '🖥️', label: 'Terminal' },
   { id: 'files', icon: '📁', label: 'Files' },
   { id: 'resume-pdf', icon: '📋', label: 'resume.pdf', kind: 'file', path: 'resume.pdf' },
+  { id: 'github-link', icon: '🐙', label: 'GitHub', kind: 'link', href: 'https://github.com/ankushhKapoor' },
+  { id: 'linkedin-link', icon: '💼', label: 'LinkedIn', kind: 'link', href: 'https://linkedin.com/in/ankushhKapoor' },
+  { id: 'twitter-link', icon: '🐦', label: 'Twitter / X', kind: 'link', href: 'https://x.com/ankushhKapoor' },
+  { id: 'email-link', icon: '✉️', label: 'Email', kind: 'link', href: 'mailto:work.ankushkapoor1626@gmail.com' },
   { id: 'simple-mode', icon: '🌐', label: 'Simple Mode' },
 ];
 
 export const WIN_DEFAULTS: Record<string, { w: number; h: number; title: string }> = {
   terminal: { w: 700, h: 480, title: 'Terminal — ankush@kapoorOS' },
-  about: { w: 700, h: 520, title: 'About Me — Ankush Kapoor' },
+  about: { w: 720, h: 560, title: 'About Me — Ankush Kapoor' },
   resume: { w: 680, h: 600, title: 'Resume — Ankush Kapoor' },
-  projects: { w: 640, h: 500, title: 'Projects — Ankush Kapoor' },
+  projects: { w: 700, h: 560, title: 'Projects — Ankush Kapoor' },
+  extracurricular: { w: 700, h: 560, title: 'Community — Ankush Kapoor' },
+  experience: { w: 700, h: 520, title: 'Experience — Ankush Kapoor' },
   calendar: { w: 420, h: 460, title: 'Calendar' },
   files: { w: 720, h: 500, title: 'Files' },
   settings: { w: 680, h: 480, title: 'Settings' },

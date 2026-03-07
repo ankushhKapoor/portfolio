@@ -57,6 +57,10 @@ export function useOS() {
         setShowPower(false);
     }, []);
 
+    const closeSearch = useCallback(() => {
+        setShowSearch(false);
+    }, []);
+
     const closeApp = useCallback((id: string) => {
         setWindows((w: WindowState[]) => w.filter(x => x.id !== id));
         if (focusedAppId === id) setFocusedAppId(null);
@@ -94,7 +98,7 @@ export function useOS() {
         screen, setScreen,
         windows, openApp, closeApp, minimizeApp, focusApp, focusedAppId,
         showPower, setShowPower,
-        showSearch, toggleSearch, searchMode,
+        showSearch, toggleSearch, closeSearch, searchMode,
         windowRects, updateWindowRect,
         doUnlock, doLock, doPowerOff, doRestart,
     };
