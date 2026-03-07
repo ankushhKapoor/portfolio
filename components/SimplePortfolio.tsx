@@ -319,7 +319,7 @@ export default function SimplePortfolio({ onClose }: Props) {
           .sp-nl-wrap { display: none !important; }
           .sp-body-wrap { padding: 0 16px 80px !important; }
           .sp-card-content { flex-direction: column !important; gap: 20px !important; align-items: stretch !important; }
-          .sp-card-art { width: 100% !important; max-width: 180px !important; height: auto !important; aspect-ratio: 220/130; margin: 0 auto; }
+          .sp-card-art { height: auto !important; margin: 0 auto !important; align-self: center !important; }
           .sp-grid-2 { grid-template-columns: 1fr !important; }
           .sp-holo { padding: 24px 16px !important; }
           .sp-hero-title { font-size: 42px !important; }
@@ -431,9 +431,9 @@ export default function SimplePortfolio({ onClose }: Props) {
                         <SH label="Experience" text={C.text} accent={C.accent} />
                         {PORTFOLIO.experience.map(exp => (
                             <div key={exp.company} className="sp-holo">
-                                <div className="sp-card-content" style={{ display: 'flex', gap: 32, alignItems: 'flex-start' }}>
-                                    <div className="sp-card-art" style={{ width: 220, height: 130, borderRadius: 12, background: C.artBg, border: `1px solid ${C.border}`, flexShrink: 0, overflow: 'hidden' }}>
-                                        <OWHArt dim={C.artDim} accent={C.accent} />
+                                <div className="sp-card-content" style={{ display: 'flex', gap: 32, alignItems: 'center' }}>
+                                    <div className="sp-card-art" style={{ display: 'inline-flex', alignSelf: 'flex-start', margin: 'auto 0', borderRadius: 12, background: C.artBg, border: `1px solid ${C.border}`, flexShrink: 0, overflow: 'hidden' }}>
+                                        <img src={'image' in exp ? (exp as any).image : ''} alt={exp.company} style={{ maxWidth: 220, maxHeight: 130, display: 'block', background: 'var(--sp-art-bg, rgba(0,0,0,0.2))' }} />
                                     </div>
                                     <div style={{ flex: 1, minWidth: 0 }}>
                                         <div style={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: 8 }}>
@@ -466,13 +466,12 @@ export default function SimplePortfolio({ onClose }: Props) {
                     {/* PROJECTS */}
                     <section id="sp-projects" style={{ padding: '56px 0' }}>
                         <SH label="Projects" text={C.text} accent={C.accent} />
-                        {PORTFOLIO.projects.map((proj, idx) => {
-                            const ArtComp = idx === 0 ? TransformerArt : idx === 1 ? KernelArt : AllocArt;
+                        {PORTFOLIO.projects.map((proj) => {
                             return (
                                 <div key={proj.name} className="sp-holo">
-                                    <div className="sp-card-content" style={{ display: 'flex', gap: 32, alignItems: 'flex-start' }}>
-                                        <div className="sp-card-art" style={{ width: 220, height: 130, borderRadius: 12, background: C.artBg, border: `1px solid ${C.border}`, flexShrink: 0, overflow: 'hidden' }}>
-                                            <ArtComp dim={C.artDim} accent={C.accent} />
+                                    <div className="sp-card-content" style={{ display: 'flex', gap: 32, alignItems: 'center' }}>
+                                        <div className="sp-card-art" style={{ display: 'inline-flex', alignSelf: 'flex-start', margin: 'auto 0', borderRadius: 12, background: C.artBg, border: `1px solid ${C.border}`, flexShrink: 0, overflow: 'hidden' }}>
+                                            <img src={'image' in proj ? (proj as any).image : ''} alt={proj.name} style={{ maxWidth: 220, maxHeight: 130, display: 'block', background: 'var(--sp-art-bg, rgba(0,0,0,0.2))' }} />
                                         </div>
                                         <div style={{ flex: 1, minWidth: 0 }}>
                                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 10 }}>
@@ -520,9 +519,9 @@ export default function SimplePortfolio({ onClose }: Props) {
                         <SH label="Community" text={C.text} accent={C.accent} />
                         {PORTFOLIO.extracurricular.map(act => (
                             <div key={act.name} className="sp-holo">
-                                <div className="sp-card-content" style={{ display: 'flex', gap: 32, alignItems: 'flex-start' }}>
-                                    <div className="sp-card-art" style={{ width: 220, height: 130, borderRadius: 12, background: C.artBg, border: `1px solid ${C.border}`, flexShrink: 0, overflow: 'hidden' }}>
-                                        <OTCArt dim={C.artDim} accent={C.accent} />
+                                <div className="sp-card-content" style={{ display: 'flex', gap: 32, alignItems: 'center' }}>
+                                    <div className="sp-card-art" style={{ display: 'inline-flex', alignSelf: 'flex-start', margin: 'auto 0', borderRadius: 12, background: C.artBg, border: `1px solid ${C.border}`, flexShrink: 0, overflow: 'hidden' }}>
+                                        <img src={'image' in act ? (act as any).image : ''} alt={act.name} style={{ maxWidth: 220, maxHeight: 130, display: 'block', background: 'var(--sp-art-bg, rgba(0,0,0,0.2))' }} />
                                     </div>
                                     <div style={{ flex: 1, minWidth: 0 }}>
                                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', flexWrap: 'wrap', gap: 8 }}>

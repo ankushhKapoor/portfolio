@@ -28,6 +28,7 @@ export const PORTFOLIO = {
       period: 'Jan 2025 – June 2025',
       location: 'Remote',
       link: 'github.com/commenthol/date-holidays',
+      image: '/experience/owhf.png',
       summary: 'Climbed to rank 7 of 2300+ during Google Winter of Code, good enough to earn a paid sponsorship to extend the library. Added lunar calendar support for Mongolia, holiday logic for India and Nepal, and l10n translations (Hindi, Mongolian) across a library with 20M+ monthly PyPI downloads.',
       bullets: [
         'Ranked #7 out of 2300+ contributors in GWoC, leading to a paid sponsored task building Mongolian holiday logic from scratch.',
@@ -43,6 +44,7 @@ export const PORTFOLIO = {
       tech: 'Python, PyTorch',
       date: 'Dec 2025',
       githubUrl: 'https://github.com/ankushhKapoor/transformer-from-scratch',
+      image: '/projects/transformer.jpg',
       summary: 'Full implementation of the "Attention Is All You Need" Transformer architecture, built without wrapper libraries, with every layer hand-coded. Trains a bilingual sequence-to-sequence model with beam search and proper NLP metrics.',
       bullets: [
         'Built every component from scratch: scaled dot-product attention, multi-head attention, positional encoding, encoder-decoder stacks, and label smoothing.',
@@ -56,6 +58,7 @@ export const PORTFOLIO = {
       tech: 'C, NASM, QEMU',
       date: 'Sep 2025',
       githubUrl: 'https://github.com/ankushhKapoor/BaseKernel',
+      image: '/projects/kernel.jpg',
       summary: 'A real 32-bit x86 protected-mode kernel, built without any OS, standard library, or runtime. Boots from a hand-written bootloader and implements core OS primitives from first principles.',
       bullets: [
         'Wrote a 16-bit bootloader that enables the A20 line, sets up the GDT, and jumps to 32-bit protected mode with no GRUB and no shortcuts.',
@@ -69,6 +72,7 @@ export const PORTFOLIO = {
       tech: 'C, NASM',
       date: 'Jun 2025',
       githubUrl: 'https://github.com/ankushhKapoor/Alloc',
+      image: '/projects/alloc.jpg',
       summary: 'A malloc/free replacement written from scratch over a 1 GB virtual heap. Built to deeply understand how allocators track, coalesce, and reclaim memory at the byte level.',
       bullets: [
         'Designed a word-aligned heap with packed headers that encode block size and allocation state in a single 32-bit int.',
@@ -83,6 +87,7 @@ export const PORTFOLIO = {
       link: 'ourtech.community',
       role: 'Co-Organiser',
       period: 'Jul 2025 – Present',
+      image: '/extracurricular/otc.jpg',
       summary: 'Helping grow and run a 600+ member open tech community in Mumbai focused on weekly learning sessions, technical talks, and building a space where anyone (hobbyist or professional) is welcome.',
       bullets: [
         'Plan and execute flagship programs including weekly catchups, technical talks, and community events.',
@@ -94,6 +99,7 @@ export const PORTFOLIO = {
       link: '',
       role: 'Social Service Intern',
       period: 'Feb 2026 – Present',
+      image: '/extracurricular/rotary.jpg',
       summary: 'Volunteering at a rehabilitation center that provides artificial limbs to people with physical disabilities. Supporting patients through the process and handling administrative work alongside building a website for the center.',
       bullets: [
         'Assist patients with administrative procedures, paperwork, and day-to-day coordination at the center.',
