@@ -19,7 +19,7 @@ export default function ResumeApp() {
                                 <span className="text-[13px] font-bold">{e.role} — {e.company}</span>
                                 <span className="text-[11px] text-gray-400 ml-4">{e.period}</span>
                             </div>
-                            <div className="text-[12px] text-gray-500 mt-1 leading-relaxed">{e.desc}</div>
+                            <div className="text-[12px] text-gray-500 mt-1 leading-relaxed">{e.summary}</div>
                         </div>
                     ))}
                 </RSection>
@@ -28,16 +28,16 @@ export default function ResumeApp() {
                         <div key={i} className="mb-3">
                             <span className="text-[13px] font-bold">{p.name}</span>
                             <span className="text-[12px] text-gray-400"> — {p.tech}</span>
-                            <div className="text-[12px] text-gray-500 mt-0.5">{p.desc}</div>
+                            <div className="text-[12px] text-gray-500 mt-0.5">{p.summary}</div>
                         </div>
                     ))}
                 </RSection>
                 <RSection title="Skills">
-                    <div className="text-[12px] text-gray-500 leading-loose">{PORTFOLIO.skills.join('  ·  ')}</div>
+                    <div className="text-[12px] text-gray-500 leading-loose">{Object.values(PORTFOLIO.skills).flat().join('  ·  ')}</div>
                 </RSection>
                 <RSection title="Education">
                     <div className="text-[13px] font-bold">{PORTFOLIO.education.degree}</div>
-                    <div className="text-[12px] text-gray-500">{PORTFOLIO.education.school} · {PORTFOLIO.education.year}</div>
+                    <div className="text-[12px] text-gray-500">{PORTFOLIO.education.school} · {PORTFOLIO.education.graduation}</div>
                 </RSection>
             </div>
         </div>

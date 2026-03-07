@@ -13,7 +13,7 @@ export default function ProjectsApp() {
     );
 }
 
-function ProjectCard({ p, index }: { p: { name: string; tech: string; desc: string }; index: number }) {
+function ProjectCard({ p, index }: { p: { name: string; tech: string; summary: string }; index: number }) {
     const [hov, setHov] = useState(false);
     const DOTS = ['#e74c3c', '#f1c40f', '#2ecc71'];
     return (
@@ -43,7 +43,7 @@ function ProjectCard({ p, index }: { p: { name: string; tech: string; desc: stri
                         </span>
                     ))}
                 </div>
-                <p className="text-[12px] leading-relaxed" style={{ color: '#888' }}>{p.desc}</p>
+                <p className="text-[12px] leading-relaxed" style={{ color: '#888' }}>{p.summary}</p>
             </div>
         </div>
     );

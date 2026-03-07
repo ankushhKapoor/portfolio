@@ -312,10 +312,22 @@ export default function SimplePortfolio({ onClose }: Props) {
         /* ── Back/theme buttons ── */
         .sp-btn-sm { transition: background .2s, border-color .2s, transform .2s; }
         .sp-btn-sm:hover { background: ${C.acA} !important; border-color: ${C.borderAc} !important; transform: translateY(-1px); }
+
+        /* ── Responsive ── */
+        @media (max-width: 768px) {
+          .sp-nav-wrap { padding: 0 16px !important; }
+          .sp-nl-wrap { display: none !important; }
+          .sp-body-wrap { padding: 0 16px 80px !important; }
+          .sp-card-content { flex-direction: column !important; gap: 20px !important; align-items: stretch !important; }
+          .sp-card-art { width: 100% !important; max-width: 180px !important; height: auto !important; aspect-ratio: 220/130; margin: 0 auto; }
+          .sp-grid-2 { grid-template-columns: 1fr !important; }
+          .sp-holo { padding: 24px 16px !important; }
+          .sp-hero-title { font-size: 42px !important; }
+        }
       `}</style>
 
             {/* ── NAV ── */}
-            <nav style={{
+            <nav className="sp-nav-wrap" style={{
                 position: 'sticky', top: 0, zIndex: 10,
                 background: C.navBg, backdropFilter: 'blur(20px)',
                 borderBottom: `1px solid ${C.border}`,
@@ -337,7 +349,7 @@ export default function SimplePortfolio({ onClose }: Props) {
                     KapoorOS
                 </button>
 
-                <div style={{ display: 'flex', alignItems: 'center' }}>
+                <div className="sp-nl-wrap" style={{ display: 'flex', alignItems: 'center' }}>
                     {SECTIONS.map(s => (
                         <button key={s} className="sp-nl" onClick={() => scrollTo(s)}
                             style={{ fontWeight: active === s ? 600 : 400, color: active === s ? C.accent : C.muted, position: 'relative', textTransform: 'capitalize' }}>
@@ -361,7 +373,7 @@ export default function SimplePortfolio({ onClose }: Props) {
 
             {/* ── CONTENT ── */}
             <div ref={contentRef} className="sp-scroll" style={{ flex: 1, overflowY: 'auto', overflowX: 'hidden' }}>
-                <div style={{ maxWidth: 820, margin: '0 auto', padding: '0 36px 100px' }}>
+                <div className="sp-body-wrap" style={{ maxWidth: 820, margin: '0 auto', padding: '0 36px 100px' }}>
 
                     {/* ABOUT / HERO */}
                     <section id="sp-about" style={{ padding: '80px 0 52px' }}>
@@ -369,7 +381,7 @@ export default function SimplePortfolio({ onClose }: Props) {
                             <span style={{ width: 7, height: 7, borderRadius: '50%', background: '#22c55e', display: 'inline-block', boxShadow: '0 0 8px #22c55e' }} />
                             <span style={{ fontFamily: "'Ubuntu Mono',monospace", fontSize: 11, color: C.muted, letterSpacing: '.1em', textTransform: 'uppercase' }}>available for opportunities</span>
                         </div>
-                        <h1 style={{ fontFamily: "'DM Serif Display',serif", fontSize: 'clamp(48px,7vw,74px)', fontWeight: 400, color: C.text, lineHeight: 1.04, letterSpacing: '-.025em', marginBottom: 14, transition: 'color .3s' }}>
+                        <h1 className="sp-hero-title" style={{ fontFamily: "'DM Serif Display',serif", fontSize: 'clamp(48px,7vw,74px)', fontWeight: 400, color: C.text, lineHeight: 1.04, letterSpacing: '-.025em', marginBottom: 14, transition: 'color .3s' }}>
                             {PORTFOLIO.name}
                         </h1>
                         <p style={{ fontFamily: "'DM Sans',sans-serif", fontSize: 18, color: C.muted, fontWeight: 400, lineHeight: 1.65, maxWidth: 520, marginBottom: 28, transition: 'color .3s' }}>
@@ -419,8 +431,8 @@ export default function SimplePortfolio({ onClose }: Props) {
                         <SH label="Experience" text={C.text} accent={C.accent} />
                         {PORTFOLIO.experience.map(exp => (
                             <div key={exp.company} className="sp-holo">
-                                <div style={{ display: 'flex', gap: 32, alignItems: 'flex-start' }}>
-                                    <div style={{ width: 220, height: 130, borderRadius: 12, background: C.artBg, border: `1px solid ${C.border}`, flexShrink: 0, overflow: 'hidden' }}>
+                                <div className="sp-card-content" style={{ display: 'flex', gap: 32, alignItems: 'flex-start' }}>
+                                    <div className="sp-card-art" style={{ width: 220, height: 130, borderRadius: 12, background: C.artBg, border: `1px solid ${C.border}`, flexShrink: 0, overflow: 'hidden' }}>
                                         <OWHArt dim={C.artDim} accent={C.accent} />
                                     </div>
                                     <div style={{ flex: 1, minWidth: 0 }}>
@@ -458,8 +470,8 @@ export default function SimplePortfolio({ onClose }: Props) {
                             const ArtComp = idx === 0 ? TransformerArt : idx === 1 ? KernelArt : AllocArt;
                             return (
                                 <div key={proj.name} className="sp-holo">
-                                    <div style={{ display: 'flex', gap: 32, alignItems: 'flex-start' }}>
-                                        <div style={{ width: 220, height: 130, borderRadius: 12, background: C.artBg, border: `1px solid ${C.border}`, flexShrink: 0, overflow: 'hidden' }}>
+                                    <div className="sp-card-content" style={{ display: 'flex', gap: 32, alignItems: 'flex-start' }}>
+                                        <div className="sp-card-art" style={{ width: 220, height: 130, borderRadius: 12, background: C.artBg, border: `1px solid ${C.border}`, flexShrink: 0, overflow: 'hidden' }}>
                                             <ArtComp dim={C.artDim} accent={C.accent} />
                                         </div>
                                         <div style={{ flex: 1, minWidth: 0 }}>
@@ -508,8 +520,8 @@ export default function SimplePortfolio({ onClose }: Props) {
                         <SH label="Community" text={C.text} accent={C.accent} />
                         {PORTFOLIO.extracurricular.map(act => (
                             <div key={act.name} className="sp-holo">
-                                <div style={{ display: 'flex', gap: 32, alignItems: 'flex-start' }}>
-                                    <div style={{ width: 220, height: 130, borderRadius: 12, background: C.artBg, border: `1px solid ${C.border}`, flexShrink: 0, overflow: 'hidden' }}>
+                                <div className="sp-card-content" style={{ display: 'flex', gap: 32, alignItems: 'flex-start' }}>
+                                    <div className="sp-card-art" style={{ width: 220, height: 130, borderRadius: 12, background: C.artBg, border: `1px solid ${C.border}`, flexShrink: 0, overflow: 'hidden' }}>
                                         <OTCArt dim={C.artDim} accent={C.accent} />
                                     </div>
                                     <div style={{ flex: 1, minWidth: 0 }}>
@@ -569,7 +581,7 @@ export default function SimplePortfolio({ onClose }: Props) {
                         </div>
 
                         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                            <div className="sp-grid-2" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
                                 <div>
                                     <Label text="Your Name" color={C.muted} />
                                     <input placeholder="Your Name" value={form.name} required

@@ -1,0 +1,5 @@
+components/apps/ProjectsApp.tsx(11,68): error TS2741: Property 'desc' is missing in type '{ name: string; subtitle: string; tech: string; date: string; githubUrl: string; summary: string; bullets: string[]; }' but required in type '{ name: string; tech: string; desc: string; }'.
+components/apps/ResumeApp.tsx(22,96): error TS2339: Property 'desc' does not exist on type '{ role: string; company: string; period: string; location: string; link: string; summary: string; bullets: string[]; }'.
+components/apps/ResumeApp.tsx(31,82): error TS2339: Property 'desc' does not exist on type '{ name: string; subtitle: string; tech: string; date: string; githubUrl: string; summary: string; bullets: string[]; }'.
+components/apps/ResumeApp.tsx(36,96): error TS2339: Property 'join' does not exist on type '{ languages: string[]; databases: string[]; tools: string[]; }'.
+components/apps/ResumeApp.tsx(40,116): error TS2339: Property 'year' does not exist on type '{ degree: string; school: string; location: string; period: string; cgpa: string; sgpa: string; graduation: string; courses: string[]; }'.
