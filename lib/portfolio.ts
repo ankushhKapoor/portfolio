@@ -31,7 +31,7 @@ export const PORTFOLIO = {
       image: '/experience/owhf.png',
       summary: 'Climbed to rank 7 of 2300+ during Google Winter of Code, good enough to earn a paid sponsorship to extend the library. Added lunar calendar support for Mongolia, holiday logic for India and Nepal, and l10n translations (Hindi, Mongolian) across a library with 20M+ monthly PyPI downloads.',
       bullets: [
-        'Ranked #7 out of 2300+ contributors in GWoC, leading to a paid sponsored task building Mongolian holiday logic from scratch.',
+        'Ranked #7 out of 2300+ contributors in GWoC '25, leading to a paid sponsored task building Mongolian holiday logic from scratch.',
         'Implemented a full lunar-calendar engine for Mongolia and extended date-system logic to cover 249 countries without breaking existing functionality.',
         'Shipped Hindi and Mongolian l10n translations, making the library natively accessible to millions of regional users.',
       ],
