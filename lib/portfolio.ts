@@ -94,19 +94,19 @@ export const PORTFOLIO = {
         'Handle technical setup and infra for events, documentation, and community tooling.',
       ],
     },
-    {
-      name: 'Rotary Divyang Center',
-      link: '',
-      role: 'Social Service Intern',
-      period: 'Feb 2026 – Present',
-      image: '/extracurricular/rotary.jpg',
-      summary: 'Volunteering at a rehabilitation center that provides artificial limbs to people with physical disabilities. Supporting patients through the process and handling administrative work alongside building a website for the center.',
-      bullets: [
-        'Assist patients with administrative procedures, paperwork, and day-to-day coordination at the center.',
-        'Engage directly with patients who come in for artificial limb attachment, offering support and guidance.',
-        'Building a website for the center (in progress) to improve outreach and information accessibility.',
-      ],
-    },
+    // {
+    //   name: 'Rotary Divyang Center',
+    //   link: '',
+    //   role: 'Social Service Intern',
+    //   period: 'Feb 2026 – Present',
+    //   image: '/extracurricular/rotary.jpg',
+    //   summary: 'Volunteering at a rehabilitation center that provides artificial limbs to people with physical disabilities. Supporting patients through the process and handling administrative work alongside building a website for the center.',
+    //   bullets: [
+    //     'Assist patients with administrative procedures, paperwork, and day-to-day coordination at the center.',
+    //     'Engage directly with patients who come in for artificial limb attachment, offering support and guidance.',
+    //     'Building a website for the center (in progress) to improve outreach and information accessibility.',
+    //   ],
+    // },
   ],
 };
 
