@@ -46,6 +46,22 @@ body {
   font-family: 'Ubuntu Mono', 'Courier New', monospace;
 }
 
+button,
+input,
+textarea,
+select {
+  line-height: 1.2;
+}
+
+.dialog-surface-safe {
+  padding: clamp(18px, 2.2vw, 26px);
+}
+
+.dialog-actions-safe {
+  padding-right: 8px;
+  padding-bottom: 2px;
+}
+
 /* Scrollbar */
 ::-webkit-scrollbar {
   width: 6px;

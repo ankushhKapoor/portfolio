@@ -217,6 +217,87 @@ function ShutdownScreen({ mode, onPowerOn }: { mode: 'shutdown' | 'restart'; onP
 
 import { WindowRect, WindowState } from '@/hooks/useOS';
 
+function NoConnectionDialog({
+    open,
+    onClose,
+    onEnableWifi,
+}: {
+    open: boolean;
+    onClose: () => void;
+    onEnableWifi: () => void;
+}) {
+    if (!open) return null;
+
+    return (
+        <div className="fixed inset-0 z-[9800] flex items-center justify-center pointer-events-auto" onMouseDown={onClose}>
+            <div
+                className="absolute inset-0"
+                style={{ background: 'rgba(0,0,0,0.45)', backdropFilter: 'blur(5px)', WebkitBackdropFilter: 'blur(5px)' }}
+            />
+            <div
+                onMouseDown={(e) => e.stopPropagation()}
+                className="dialog-surface-safe relative w-[min(500px,96vw)] rounded-2xl animate-fade-in-scale"
+                style={{
+                    background: 'linear-gradient(180deg, rgba(36,36,36,0.98), rgba(28,28,28,0.98))',
+                    border: '1px solid rgba(255,255,255,0.12)',
+                    boxShadow: '0 24px 60px rgba(0,0,0,0.55)',
+                    fontFamily: "'Ubuntu', sans-serif",
+                    color: '#ececec'
+                }}
+            >
+                <div className="flex items-center gap-3.5 mb-2.5 pr-2">
+                    <div
+                        className="w-10 h-10 rounded-full flex items-center justify-center shrink-0"
+                        style={{ background: 'rgba(233,84,32,0.16)', border: '1px solid rgba(233,84,32,0.4)' }}
+                    >
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                            <circle cx="12" cy="12" r="8" stroke="#e95420" strokeWidth="1.8" />
+                            <path d="M8.4 15.6L15.6 8.4" stroke="#e95420" strokeWidth="1.8" strokeLinecap="round" />
+                            <path d="M7 18.5h10" stroke="#e95420" strokeWidth="1.6" strokeLinecap="round" opacity="0.65" />
+                        </svg>
+                    </div>
+                    <div className="text-[15px] font-semibold" style={{ fontFamily: "'Ubuntu Mono', monospace" }}>
+                        No connection
+                    </div>
+                </div>
+                <div className="text-[13px] leading-relaxed mb-5 pr-3" style={{ color: '#b8b8b8' }}>
+                    Please turn on Wi-Fi to open this link.
+                </div>
+                <div className="dialog-actions-safe flex items-center justify-end gap-3 mt-1">
+                    <button
+                        onClick={onClose}
+                        className="px-3.5 py-1.5 rounded-lg border-0 cursor-pointer transition-colors whitespace-nowrap"
+                        style={{
+                            background: 'rgba(255,255,255,0.08)',
+                            color: '#d6d6d6',
+                            fontFamily: "'Ubuntu Mono', monospace",
+                            fontSize: 12,
+                            lineHeight: 1.2,
+                            padding: '7px 14px',
+                        }}
+                    >
+                        Close
+                    </button>
+                    <button
+                        onClick={onEnableWifi}
+                        className="px-3.5 py-1.5 rounded-lg border-0 cursor-pointer transition-colors whitespace-nowrap"
+                        style={{
+                            background: '#e95420',
+                            color: '#fff',
+                            fontFamily: "'Ubuntu Mono', monospace",
+                            fontSize: 12,
+                            lineHeight: 1.2,
+                            padding: '7px 14px',
+                        }}
+                    >
+                        Turn On Wi-Fi
+                    </button>
+                </div>
+            </div>
+        </div>
+    );
+}
+
 function SelectionRectangle({ rect }: { rect: SelectionRect | null }) {
     if (!rect || rect.w === 0 || rect.h === 0) return null;
     return (
@@ -331,6 +412,29 @@ export default function Desktop() {
     const startPos = useRef<{ x: number; y: number } | null>(null);
     const desktopItemsRef = useRef<Map<string, DOMRect>>(new Map());
     const [initialLoadDone, setInitialLoadDone] = useState(false);
+    const [wifiEnabled, setWifiEnabled] = useState(true);
+    const [showNoConnection, setShowNoConnection] = useState(false);
+
+    const openExternalLink = useCallback((href: string) => {
+        const lowerHref = href.toLowerCase();
+        const isExternal = lowerHref.startsWith('http://') || lowerHref.startsWith('https://') || lowerHref.startsWith('mailto:');
+        if (!isExternal) {
+            window.open(href, '_blank', 'noopener,noreferrer');
+            return true;
+        }
+
+        if (!wifiEnabled) {
+            setShowNoConnection(true);
+            return false;
+        }
+
+        if (lowerHref.startsWith('mailto:')) {
+            window.location.href = href;
+        } else {
+            window.open(href, '_blank', 'noopener,noreferrer');
+        }
+        return true;
+    }, [wifiEnabled]);
 
     useEffect(() => {
         if (initialLoadDone) return;
@@ -367,11 +471,7 @@ export default function Desktop() {
         if (!item) { openApp(id); return; }
         if (id === 'simple-mode') { setSimpleModeOpen(true); return; }
         if (item.kind === 'link') {
-            if (id === 'email-link') {
-                window.location.href = 'mailto:work.ankushkapoor1626@gmail.com';
-            } else if (item.href) {
-                window.open(item.href, '_blank', 'noopener,noreferrer');
-            }
+            if (item.href) openExternalLink(item.href);
             return;
         }
         if (item.kind === 'folder') { openApp('files'); return; }
@@ -389,7 +489,7 @@ export default function Desktop() {
             return;
         }
         if (item.appId) { openApp(item.appId); }
-    }, [desktopItems, openApp]);
+    }, [desktopItems, openApp, openExternalLink]);
 
     const makeUniqueLabel = useCallback((base: string, items: DesktopItem[]) => {
         const names = new Set(items.map((i) => i.label));
@@ -810,10 +910,10 @@ export default function Desktop() {
                 }
                 setTimeout(() => focusApp('pdf-viewer'), 0);
             } else if (item?.src) {
-                window.open(item.src, '_blank');
+                openExternalLink(item.src);
             }
         }
-    }, [fsData, openApp, windows, focusApp]);
+    }, [fsData, openApp, windows, focusApp, openExternalLink]);
 
     const desktopMenuItems: MenuEntry[] = [
         {
@@ -983,6 +1083,11 @@ export default function Desktop() {
 
     useEffect(() => {
         const handler = (e: KeyboardEvent) => {
+            if (showNoConnection && e.key === 'Escape') {
+                setShowNoConnection(false);
+                return;
+            }
+
             const key = e.key.toLowerCase();
 
             // Terminal Shortcut: Ctrl+Alt+T or Ctrl+Alt+C
@@ -1065,7 +1170,7 @@ export default function Desktop() {
         };
         window.addEventListener('keydown', handler);
         return () => window.removeEventListener('keydown', handler);
-    }, [openApp, requestToggleSearch, focusedAppId, selectedItems, desktopItems, clipboard, pasteFromClipboard, fsSelectedName, fsData, fsPath, fsClipboard, handleFsPaste, handleFsNewFolder]);
+    }, [openApp, requestToggleSearch, focusedAppId, selectedItems, desktopItems, clipboard, pasteFromClipboard, fsSelectedName, fsData, fsPath, fsClipboard, handleFsPaste, handleFsNewFolder, showNoConnection]);
 
     useEffect(() => {
         if (!isSelecting) return;
@@ -1103,11 +1208,11 @@ export default function Desktop() {
     const renderAppContent = (id: string, winProps: Record<string, unknown> | undefined, closeApp: (id: string) => void, onOpenProperties?: (name: string, kind: 'file' | 'folder', path: string) => void) => {
         switch (id) {
             case 'terminal': return <TerminalApp onClose={() => closeApp('terminal')} />;
-            case 'about': return <AboutApp />;
+            case 'about': return <AboutApp onOpenExternalLink={openExternalLink} />;
             case 'resume': return <ResumeApp />;
-            case 'projects': return <ProjectsApp />;
-            case 'extracurricular': return <ExtracurricularApp />;
-            case 'experience': return <ExperienceApp />;
+            case 'projects': return <ProjectsApp onOpenExternalLink={openExternalLink} />;
+            case 'extracurricular': return <ExtracurricularApp onOpenExternalLink={openExternalLink} />;
+            case 'experience': return <ExperienceApp onOpenExternalLink={openExternalLink} />;
             case 'calendar': return <CalendarApp />;
             case 'files': return (
                 <FilesApp
@@ -1177,6 +1282,8 @@ export default function Desktop() {
                 onOpenSettings={() => openApp('settings')}
                 onToggleSearch={() => requestToggleSearch('activities')}
                 isSelecting={isSelecting}
+                wifi={wifiEnabled}
+                setWifi={setWifiEnabled}
             />
             <DesktopIcons
                 items={desktopItems}
@@ -1240,8 +1347,17 @@ export default function Desktop() {
 
             {propertiesData && <div className="z-[9999] relative"><PropertiesWindow data={propertiesData} onClose={() => setPropertiesData(null)} /></div>}
 
+            <NoConnectionDialog
+                open={showNoConnection}
+                onClose={() => setShowNoConnection(false)}
+                onEnableWifi={() => {
+                    setWifiEnabled(true);
+                    setShowNoConnection(false);
+                }}
+            />
+
             {simpleModeOpen && (
-                <SimplePortfolio onClose={() => setSimpleModeOpen(false)} />
+                <SimplePortfolio onClose={() => setSimpleModeOpen(false)} onOpenExternalLink={openExternalLink} />
             )}
         </div>
     );

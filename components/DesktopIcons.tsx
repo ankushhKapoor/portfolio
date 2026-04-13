@@ -186,6 +186,13 @@ export default function DesktopIcons({ items, onOpen, selectedItems = new Set(),
 
     const LEFT_PINNED = ['simple-mode', 'github-link', 'linkedin-link', 'twitter-link', 'email-link'];
 
+    const getMaxAvailableRow = useCallback((screenHeight: number) => {
+        // Calculate the last row that won't overlap with the taskbar
+        const taskbarTop = screenHeight - DOCK_BOTTOM - DOCK_HEIGHT;
+        const maxRow = Math.floor((taskbarTop - GRID.top - ICON_H) / GRID.cellH);
+        return Math.max(2, maxRow); // ensure at least row 2 for gap from Simple Mode at row 0
+    }, []);
+
     const defaultPositions = useCallback((size: { cols: number; rows: number }) => {
         const next: Record<string, GridPos> = {};
         // RIGHT side icons: col=0 upward from right edge
@@ -194,17 +201,24 @@ export default function DesktopIcons({ items, onOpen, selectedItems = new Set(),
             next[id] = { col: Math.floor(idx / size.rows), row: idx % size.rows };
         });
         // LEFT side icons: single column (col=-1)
-        // Simple Mode at row 0, then social icons start at row 3 (gap between them)
+        // Simple Mode at row 0, then social icons positioned at bottom left (responsive to screen size)
         const leftIds = LEFT_PINNED.filter(id => iconIds.includes(id));
+        const screenHeight = typeof window !== 'undefined' ? window.innerHeight : 1080;
+        const maxRow = getMaxAvailableRow(screenHeight);
+        
         leftIds.forEach((id, idx) => {
             if (idx === 0) {
-                next[id] = { col: -1, row: 0 }; // Simple Mode
+                next[id] = { col: -1, row: 0 }; // Simple Mode at top
             } else {
-                next[id] = { col: -1, row: idx + 2 }; // Social icons start at row 3
+                // Social icons positioned at bottom, just above taskbar
+                // Calculate how many rows of social icons (4 social links)
+                const socialIdx = idx - 1; // 0-3 for the 4 social links
+                const row = maxRow - socialIdx; // position from bottom going up
+                next[id] = { col: -1, row };
             }
         });
         return next;
-    }, [iconIds]);
+    }, [iconIds, getMaxAvailableRow]);
 
     const normalizePositions = useCallback((current: Record<string, GridPos>, size: { cols: number; rows: number }) => {
         const next: Record<string, GridPos> = {};
@@ -212,7 +226,7 @@ export default function DesktopIcons({ items, onOpen, selectedItems = new Set(),
 
         const place = (id: string, preferred?: GridPos) => {
             if (preferred) {
-                // Preserve negative cols as-is (left-anchored icons)
+                // Preserve negative cols as-is (left-anchored icons that user may have moved)
                 if (preferred.col < 0) {
                     const key = `${preferred.col},${preferred.row}`;
                     if (!used.has(key)) {

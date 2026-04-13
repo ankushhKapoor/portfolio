@@ -124,11 +124,6 @@ export default function SearchOverlay({ onClose, onOpenApp, onFocusApp, windows,
 
     const handleWindowClick = (id: string) => { onFocusApp(id); handleClose(); };
     const handleAppLaunch = (id: string) => {
-        if (id === 'email-link') {
-            window.location.href = 'mailto:work.ankushkapoor1626@gmail.com';
-            handleClose();
-            return;
-        }
         onOpenApp(id); handleClose();
     };
 

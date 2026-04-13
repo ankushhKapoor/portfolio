@@ -42,7 +42,7 @@ export default function ClockCalendar({ onClose }: { onClose: () => void }) {
 
     return (
         <div ref={ref}
-            className="fixed top-9 left-1/2 -translate-x-1/2 z-[7000] rounded-2xl p-5 animate-slide-down"
+            className="dialog-surface-safe fixed top-9 left-1/2 -translate-x-1/2 z-[7000] rounded-2xl animate-slide-down"
             style={{
                 width: 300,
                 background: 'rgba(28,28,28,0.97)',

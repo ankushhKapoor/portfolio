@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef, FormEvent } from 'react';
 import { PORTFOLIO } from '@/lib/portfolio';
 
-interface Props { onClose: () => void; }
+interface Props { onClose: () => void; onOpenExternalLink?: (href: string) => boolean; }
 type Theme = 'dark' | 'light';
 const SECTIONS = ['about', 'experience', 'projects', 'community', 'contact'];
 
@@ -118,7 +118,7 @@ function OWHArt({ dim, accent }: { dim: string; accent: string }) {
     );
 }
 
-export default function SimplePortfolio({ onClose }: Props) {
+export default function SimplePortfolio({ onClose, onOpenExternalLink }: Props) {
     const [theme, setTheme] = useState<Theme>('dark');
     const [active, setActive] = useState('about');
     const [mounted, setMounted] = useState(false);
@@ -395,6 +395,11 @@ export default function SimplePortfolio({ onClose }: Props) {
                                 { icon: Svg.twitter, text: '@ankushhKapoor', href: `https://${PORTFOLIO.twitter}` },
                             ].map(({ icon, text: t, href }) => (
                                 <a key={t} href={href} target="_blank" rel="noopener noreferrer"
+                                    onClick={e => {
+                                        if (!onOpenExternalLink) return;
+                                        e.preventDefault();
+                                        onOpenExternalLink(href);
+                                    }}
                                     style={{ display: 'flex', alignItems: 'center', gap: 7, color: C.muted, textDecoration: 'none', fontSize: 14, fontFamily: "'DM Sans',sans-serif", transition: 'color .18s' }}
                                     onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = C.accent; }}
                                     onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = C.muted; }}>
@@ -487,7 +492,12 @@ export default function SimplePortfolio({ onClose }: Props) {
                                                 <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 7, flexShrink: 0 }}>
                                                     <span style={{ fontFamily: "'Ubuntu Mono',monospace", fontSize: 13, color: C.muted }}>{proj.date}</span>
                                                     {'githubUrl' in proj && (
-                                                        <a href={(proj as { githubUrl?: string }).githubUrl} target="_blank" rel="noopener noreferrer"
+                                                         <a href={(proj as { githubUrl?: string }).githubUrl} target="_blank" rel="noopener noreferrer"
+                                                            onClick={e => {
+                                                                if (!onOpenExternalLink || !(proj as { githubUrl?: string }).githubUrl) return;
+                                                                e.preventDefault();
+                                                                onOpenExternalLink((proj as { githubUrl?: string }).githubUrl!);
+                                                            }}
                                                             style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 13, color: C.accent, textDecoration: 'none', fontWeight: 500, transition: 'opacity .15s' }}
                                                             onMouseEnter={e => { (e.currentTarget as HTMLElement).style.opacity = '.55'; }}
                                                             onMouseLeave={e => { (e.currentTarget as HTMLElement).style.opacity = '1'; }}>
@@ -532,6 +542,11 @@ export default function SimplePortfolio({ onClose }: Props) {
                                             <span style={{ fontFamily: "'DM Sans',sans-serif", fontSize: 14, color: C.accent, fontWeight: 500 }}>{act.role}</span>
                                             {act.link && (
                                                 <a href={`https://${act.link}`} target="_blank" rel="noopener noreferrer"
+                                                    onClick={e => {
+                                                        if (!onOpenExternalLink) return;
+                                                        e.preventDefault();
+                                                        onOpenExternalLink(`https://${act.link}`);
+                                                    }}
                                                     style={{ fontFamily: "'DM Sans',sans-serif", fontSize: 13, color: C.muted, textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 4, transition: 'color .18s' }}
                                                     onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = C.accent; }}
                                                     onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = C.muted; }}>
@@ -571,6 +586,11 @@ export default function SimplePortfolio({ onClose }: Props) {
                                 { icon: Svg.linkedin, label: 'LinkedIn', href: `https://${PORTFOLIO.linkedin}` },
                             ].map(({ icon, label, href }) => (
                                 <a key={label} href={href} target="_blank" rel="noopener noreferrer" className="sp-cl"
+                                    onClick={e => {
+                                        if (!onOpenExternalLink) return;
+                                        e.preventDefault();
+                                        onOpenExternalLink(href);
+                                    }}
                                     style={{ color: C.text, padding: '9px 15px', border: `1px solid ${C.border}`, background: 'transparent' }}>
                                     {icon(C.accent)}
                                     <span style={{ fontFamily: "'DM Sans',sans-serif", fontSize: 13 }}>{label}</span>

@@ -121,10 +121,9 @@ export default function QuickSettings({
 
     return (
         <div ref={ref}
-            className="fixed top-10 right-2 z-[7000] animate-slide-down flex flex-col gap-2.5"
+            className="dialog-surface-safe fixed top-10 right-2 z-[7000] animate-slide-down flex flex-col gap-2.5"
             style={{
                 width: 360,
-                padding: '18px',
                 borderRadius: '24px',
                 background: 'rgba(28,28,28,0.96)',
                 backdropFilter: 'blur(40px)',

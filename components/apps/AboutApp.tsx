@@ -53,9 +53,9 @@ const SOCIALS = [
     },
 ];
 
-export default function AboutApp() {
+export default function AboutApp({ onOpenExternalLink }: { onOpenExternalLink?: (href: string) => boolean }) {
     return (
-        <div className="flex-1 overflow-y-auto px-6 py-6" style={{ background: '#1e1e1e', fontFamily: SANS }}>
+        <div className="flex-1 overflow-y-auto px-8 py-8" style={{ background: '#1e1e1e', fontFamily: SANS }}>
 
             {/* ── Header ── */}
             <div className="flex gap-5 items-start mb-8">
@@ -68,12 +68,24 @@ export default function AboutApp() {
                     <div className="text-[13px] mt-1" style={{ color: '#e95420' }}>{PORTFOLIO.title}</div>
 
                     {/* Social links */}
-                    <div className="flex flex-wrap gap-2 mt-3">
+                    <div className="flex flex-wrap gap-3 mt-4 justify-center">
                         {SOCIALS.map(s => (
                             <a key={s.label} href={s.href} target="_blank" rel="noopener noreferrer"
                                 title={s.label}
-                                className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[11px] transition-all select-none"
-                                style={{ background: s.bg, border: `1px solid ${s.color}22`, color: s.color, textDecoration: 'none' }}
+                                className="flex items-center justify-center gap-2 px-3.5 py-2.5 rounded-xl text-[12px] leading-[1.2] transition-all select-none"
+                                style={{
+                                    background: s.bg,
+                                    border: `1px solid ${s.color}22`,
+                                    color: s.color,
+                                    textDecoration: 'none',
+                                    minHeight: 25,
+                                    minWidth: 108,
+                                }}
+                                onClick={(e) => {
+                                    if (!onOpenExternalLink) return;
+                                    e.preventDefault();
+                                    onOpenExternalLink(s.href);
+                                }}
                                 onMouseEnter={e => { const el = e.currentTarget as HTMLElement; el.style.background = s.color + '22'; el.style.borderColor = s.color + '66'; el.style.transform = 'translateY(-1px)'; }}
                                 onMouseLeave={e => { const el = e.currentTarget as HTMLElement; el.style.background = s.bg; el.style.borderColor = s.color + '22'; el.style.transform = 'none'; }}>
                                 <span style={{ color: s.color, display: 'flex' }}>{s.icon}</span>
@@ -89,31 +101,31 @@ export default function AboutApp() {
 
             {/* ── Bio ── */}
             <div className="mb-8">
-                <div className="text-[15px] font-semibold text-white mb-4" style={{ fontFamily: MONO }}>
+                <div className="text-[15px] font-semibold text-white mb-5" style={{ fontFamily: MONO }}>
                     Decoding Complexity, One Line at a Time
                 </div>
                 <div className="flex flex-col gap-3.5">
-                    <p className="text-[13px] leading-[1.7]" style={{ color: '#bbb' }}>
+                    <p className="text-[13px] leading-[1.8]" style={{ color: '#bbb' }}>
                         I am Ankush Kapoor, a Second Year Computer Engineering student who enjoys exploring how software and systems work at a deeper level. My interests lie in low level programming, system design, and understanding the logic that powers modern computing. I like breaking complex problems into smaller parts and building solutions step by step.
                     </p>
-                    <p className="text-[13px] leading-[1.7]" style={{ color: '#bbb' }}>
+                    <p className="text-[13px] leading-[1.8]" style={{ color: '#bbb' }}>
                         I spend a lot of time working with technologies such as C, Python, Linux environments, and modern tools. For me, programming is not only about writing code but about thinking critically, experimenting with ideas, and continuously learning how systems operate behind the scenes.
                     </p>
-                    <p className="text-[13px] leading-[1.7]" style={{ color: '#bbb' }}>
+                    <p className="text-[13px] leading-[1.8]" style={{ color: '#bbb' }}>
                         Beyond technology, I value curiosity, consistency, and a mindset focused on growth. I believe in pushing beyond comfort zones, appreciating the learning process, and helping others whenever possible. I try to approach both technology and life with patience, discipline, and a desire to keep improving.
                     </p>
                 </div>
 
                 {/* Quotes */}
-                <div className="flex flex-col gap-2.5 mt-6">
+                <div className="flex flex-col gap-3 mt-6">
                     {[
                         'Expect nothing, appreciate everything.',
                         'Help is love made visible.',
                         'Push past your limits.',
                     ].map((q, i) => (
-                        <div key={i} className="px-4 py-2.5 rounded-lg"
+                        <div key={i} className="px-4.5 py-3 rounded-lg"
                             style={{ background: 'rgba(233,84,32,0.07)', borderLeft: '2px solid rgba(233,84,32,0.45)' }}>
-                            <p className="text-[13px] leading-snug" style={{ color: '#ccc', fontStyle: 'italic' }}>
+                            <p className="text-[13px] leading-[1.6]" style={{ color: '#ccc', fontStyle: 'italic' }}>
                                 &ldquo;{q}&rdquo;
                             </p>
                         </div>

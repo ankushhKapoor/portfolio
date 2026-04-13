@@ -11,18 +11,19 @@ interface Props {
     onOpenSettings: () => void;
     onToggleSearch: () => void;
     isSelecting?: boolean;
+    wifi: boolean;
+    setWifi: (v: boolean) => void;
 }
 
 const MONO = "'Ubuntu Mono', monospace";
 
-export default function TopBar({ onLock, onRestart, onPowerOff, onOpenSettings, onToggleSearch, isSelecting }: Props) {
+export default function TopBar({ onLock, onRestart, onPowerOff, onOpenSettings, onToggleSearch, isSelecting, wifi, setWifi }: Props) {
     const [timeStr, setTimeStr] = useState('--:--');
     const [dateStr, setDateStr] = useState('');
     const [showQS, setShowQS] = useState(false);   // Quick settings (tray icons)
     const [showCal, setShowCal] = useState(false);    // Clock → calendar popup
 
     // Persistent Quick Settings States
-    const [wifi, setWifi] = useState(true);
     const [silent, setSilent] = useState(false);
     const [volume, setVolume] = useState(100);
     const [brightness, setBrightness] = useState(100);
