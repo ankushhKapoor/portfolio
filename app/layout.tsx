@@ -4,7 +4,7 @@ import './globals.css';
 
 export const metadata: Metadata = {
   title: 'KapoorOS 24.04 LTS',
-  description: 'Ankush Kapoor — Full-Stack Developer & UI Engineer',
+  description: 'Ankush Kapoor - Low-Level Systems & AI Enthusiast',
 };
 
 export const viewport: Viewport = {
