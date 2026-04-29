@@ -480,10 +480,11 @@ export default function Desktop() {
             if (item.path) {
                 const fileName = item.path.split('/').pop() || '';
                 const fileExt = fileName.split('.').pop()?.toLowerCase();
+                const src = item.path.startsWith('http') ? item.path : `/assets/os/${item.path}`;
                 if (fileExt === 'pdf') {
-                    openApp('pdf-viewer', { src: `/assets/os/${item.path}`, fileName });
+                    openApp('pdf-viewer', { src, fileName, path: '/home/kapoor/Desktop' });
                 } else if (['txt', 'md'].includes(fileExt || '')) {
-                    openApp('text-viewer', { src: `/assets/os/${item.path}`, fileName });
+                    openApp('text-viewer', { src, fileName, path: '/home/kapoor/Desktop' });
                 }
             }
             return;
@@ -590,13 +591,16 @@ export default function Desktop() {
         }
 
         const info = getFileTypeInfo(item.label);
+        const fileUrl = (item as { path?: string }).path;
+        const isRemote = fileUrl?.startsWith('http');
+
         setPropertiesData({
             title: `${item.label} Properties`,
             name: item.label,
             kind: 'file',
             typeLabel: info.typeLabel,
             mime: info.mime,
-            sizeLabel: pseudoSizeFromName(item.label),
+            sizeLabel: isRemote ? 'Fetching...' : pseudoSizeFromName(item.label),
             parent: '/home/kapoor/Desktop',
             accessed: now,
             modified: now,
@@ -607,19 +611,40 @@ export default function Desktop() {
             openWith: info.openWith,
             icon: info.icon || '📄'
         });
+
+        // Fetch real file size if we have a URL
+        if (isRemote && fileUrl) {
+            fetch(fileUrl, { method: 'HEAD' })
+                .then((res) => {
+                    const contentLength = res.headers.get('content-length');
+                    if (!contentLength) return;
+                    const bytes = Number(contentLength);
+                    if (!Number.isFinite(bytes)) return;
+                    setPropertiesData((prev) => {
+                        if (!prev || prev.name !== item.label) return prev;
+                        return { ...prev, sizeLabel: formatBytes(bytes) };
+                    });
+                })
+                .catch(() => {
+                    setPropertiesData((prev) => {
+                        if (!prev || prev.name !== item.label) return prev;
+                        return { ...prev, sizeLabel: pseudoSizeFromName(item.label) };
+                    });
+                });
+        }
     }, []);
 
     const handleFileItemContextMenu = useCallback((name: string, kind: 'file' | 'folder', path: string, x: number, y: number) => {
         openContextMenu({ type: 'fileItem', fileData: { name, kind, path }, x, y });
     }, [openContextMenu]);
 
-    const handleFilesAppProperties = useCallback((name: string, kind: 'file' | 'folder', path: string) => {
+    const handleFilesAppProperties = useCallback((name: string, kind: 'file' | 'folder', path: string, srcOverride?: string) => {
         const info = getFileTypeInfo(name);
 
         // Lookup real metadata from fsData if available
         let sizeLabel = kind === 'folder' ? 'Calculating...' : pseudoSizeFromName(name);
         let modified = new Date().toLocaleString();
-        let sourceSrc: string | undefined;
+        let sourceSrc: string | undefined = srcOverride;
 
         if (fsData) {
             const dirKey = path.split('/').pop() || 'Home';
@@ -631,7 +656,7 @@ export default function Desktop() {
                 if (item.mtime) {
                     modified = new Date(item.mtime).toLocaleString();
                 }
-                sourceSrc = item.src;
+                sourceSrc = item.src ?? srcOverride;
             }
         }
 
@@ -641,11 +666,11 @@ export default function Desktop() {
             kind: kind === 'folder' ? 'folder' : 'file',
             typeLabel: kind === 'folder' ? 'Folder' : info.typeLabel,
             mime: kind === 'folder' ? 'inode/directory' : info.mime,
-            sizeLabel: sizeLabel,
+            sizeLabel: kind === 'file' && sourceSrc ? 'Fetching...' : sizeLabel,
             parent: path,
-            accessed: modified, // Use same for simplicity
+            accessed: modified,
             modified: modified,
-            created: modified, // Use same for simplicity
+            created: modified,
             permissions: kind === 'folder' ? 'Read and write' : 'Read only',
             owner: 'kapoor',
             group: 'kapoor',
@@ -653,12 +678,10 @@ export default function Desktop() {
             icon: kind === 'folder' ? '📁' : (info.icon || '📄')
         });
 
-        // Fetch actual file size if not already in fsData
-        if (kind === 'file' && sizeLabel === pseudoSizeFromName(name)) {
-            // Try to use sourceSrc from fsData, or construct from path
+        // Fetch actual file size
+        if (kind === 'file') {
             let fileUrl = sourceSrc;
             if (!fileUrl && path.includes('Documents')) {
-                // Construct URL for files in Documents folder (assets)
                 fileUrl = `/assets/os/Documents/${name}`;
             }
 
@@ -675,7 +698,10 @@ export default function Desktop() {
                         });
                     })
                     .catch(() => {
-                        // keep current label if HEAD fails
+                        setPropertiesData((prev) => {
+                            if (!prev || prev.name !== name) return prev;
+                            return { ...prev, sizeLabel: sizeLabel };
+                        });
                     });
             }
         }
@@ -1205,7 +1231,7 @@ export default function Desktop() {
         };
     }, [isSelecting, checkIntersection]);
 
-    const renderAppContent = (id: string, winProps: Record<string, unknown> | undefined, closeApp: (id: string) => void, onOpenProperties?: (name: string, kind: 'file' | 'folder', path: string) => void) => {
+    const renderAppContent = (id: string, winProps: Record<string, unknown> | undefined, closeApp: (id: string) => void, onOpenProperties?: (name: string, kind: 'file' | 'folder', path: string, srcOverride?: string) => void) => {
         switch (id) {
             case 'terminal': return <TerminalApp onClose={() => closeApp('terminal')} />;
             case 'about': return <AboutApp onOpenExternalLink={openExternalLink} />;

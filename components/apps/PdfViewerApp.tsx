@@ -6,7 +6,7 @@ interface PdfViewerAppProps {
     src?: string;
     fileName?: string;
     path?: string;
-    onOpenProperties?: (name: string, kind: 'file' | 'folder', path: string) => void;
+    onOpenProperties?: (name: string, kind: 'file' | 'folder', path: string, srcOverride?: string) => void;
 }
 
 const PdfViewerApp: React.FC<PdfViewerAppProps> = ({ src: initialSrc, fileName: initialFileName, path: initialPath, onOpenProperties }) => {
@@ -34,11 +34,11 @@ const PdfViewerApp: React.FC<PdfViewerAppProps> = ({ src: initialSrc, fileName: 
     }, [src, fileName]);
 
     const handleProperties = useCallback(() => {
-        if (onOpenProperties && fileName && path) {
-            onOpenProperties(fileName, 'file', path);
+        if (onOpenProperties && fileName) {
+            onOpenProperties(fileName, 'file', path || '/home/kapoor', src);
             setShowMenu(false);
         }
-    }, [onOpenProperties, fileName, path]);
+    }, [onOpenProperties, fileName, path, src]);
 
     const toggleMenu = () => setShowMenu(!showMenu);
 
@@ -71,8 +71,16 @@ const PdfViewerApp: React.FC<PdfViewerAppProps> = ({ src: initialSrc, fileName: 
         };
     }, []);
 
-    // PDF URL with zoom parameter
-    const pdfUrl = src ? `${src}#page=1&zoom=${zoom}&toolbar=0&navpanes=0&scrollbar=0` : '';
+    // Route GitHub resume through local proxy so native PDF viewer renders it
+    // with zoom support. Other external URLs fall back to Google Docs Viewer.
+    const RESUME_RAW = 'https://raw.githubusercontent.com/ankushhKapoor/resume/main/Ankush_Kapoor_Resume.pdf';
+    const resolvedSrc = src === RESUME_RAW ? '/api/resume' : src;
+    const isExternal = resolvedSrc?.startsWith('http');
+    const pdfUrl = resolvedSrc
+        ? isExternal
+            ? `https://docs.google.com/viewer?url=${encodeURIComponent(resolvedSrc)}&embedded=true`
+            : `${resolvedSrc}#page=1&zoom=${zoom}&toolbar=0&navpanes=0&scrollbar=0`
+        : '';
 
     return (
         <div className="flex flex-col h-full bg-[#3d3d3d] text-white font-sans overflow-hidden select-none">

@@ -105,14 +105,11 @@ function DockIcon({ id, label, Icon, active, minimized, onOpen, isSelecting }: {
     }[id] ?? 'linear-gradient(145deg, #2a2a2a, #383838)';
 
     return (
-        <div className="relative flex flex-col gap-0.5 w-[59px] items-center  pt-[2px]" onMouseEnter={() => !isSelecting && setHov(true)} onMouseLeave={() => setHov(false)}>
-            {/* Tooltip */}
-            {hov && !isSelecting && (
-                <div className="absolute bottom-[62px] text-[12px] text-white px-2.5 py-1 rounded-lg whitespace-nowrap pointer-events-none animate-fade-in-scale"
-                    style={{ background: 'rgba(0,0,0,0.88)', border: '1px solid rgba(255,255,255,0.12)', fontFamily: "'Ubuntu Mono', monospace" }}>
-                    {label}
-                </div>
-            )}
+        <div
+            className="relative flex flex-col gap-0.5 w-[59px] items-center pt-[2px]"
+            onMouseEnter={() => !isSelecting && setHov(true)}
+            onMouseLeave={() => setHov(false)}
+        >
             <button
                 onClick={onOpen}
                 className={`flex items-center justify-center border-0 cursor-pointer transition-all duration-300 ${id === 'all' ? 'rounded-full scale-105' : 'rounded-[14px]'}`}
@@ -142,6 +139,19 @@ function DockIcon({ id, label, Icon, active, minimized, onOpen, isSelecting }: {
                     opacity: minimized ? 0.9 : 1,
                 }}
             />
+            {/* Tooltip — after button so it paints on top of scaled icon */}
+            {hov && !isSelecting && (
+                <div
+                    className="absolute bottom-[72px] left-1/2 -translate-x-1/2 text-[12px] text-white px-2.5 py-1 rounded-lg whitespace-nowrap pointer-events-none animate-fade-in-scale z-10"
+                    style={{
+                        background: 'rgba(0,0,0,0.88)',
+                        border: '1px solid rgba(255,255,255,0.12)',
+                        fontFamily: "'Ubuntu Mono', monospace",
+                    }}
+                >
+                    {label}
+                </div>
+            )}
         </div>
     );
 }

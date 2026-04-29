@@ -137,7 +137,7 @@ export const DESKTOP_ICONS = [
   { id: 'experience', icon: '🏅', label: 'Experience' },
   { id: 'terminal', icon: '🖥️', label: 'Terminal' },
   { id: 'files', icon: '📁', label: 'Files' },
-  { id: 'resume-pdf', icon: '📋', label: 'resume.pdf', kind: 'file', path: 'resume.pdf' },
+  { id: 'resume-pdf', icon: '📋', label: 'resume.pdf', kind: 'file', path: 'https://raw.githubusercontent.com/ankushhKapoor/resume/main/Ankush_Kapoor_Resume.pdf' },
   { id: 'github-link', icon: '🐙', label: 'GitHub', kind: 'link', href: 'https://github.com/ankushhKapoor' },
   { id: 'linkedin-link', icon: '💼', label: 'LinkedIn', kind: 'link', href: 'https://linkedin.com/in/ankushhKapoor' },
   { id: 'twitter-link', icon: '🐦', label: 'Twitter / X', kind: 'link', href: 'https://x.com/ankushhKapoor' },
@@ -164,7 +164,7 @@ export const FILES: Record<string, { n: string; icon: string; dir?: boolean; src
     { n: 'Documents', icon: '📁', dir: true },
     { n: 'Downloads', icon: '📁', dir: true },
     { n: 'Projects', icon: '📁', dir: true },
-    { n: 'resume.pdf', icon: '📋', src: '/assets/os/resume.pdf' }
+    { n: 'resume.pdf', icon: '📋', src: '/api/resume' }
   ],
   Documents: [
     { n: 'notes.txt', icon: '📄', src: '/assets/os/Documents/notes.txt' }

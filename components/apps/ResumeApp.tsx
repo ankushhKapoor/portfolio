@@ -1,57 +1,39 @@
 'use client';
-import { PORTFOLIO } from '@/lib/portfolio';
 
-const MONO = "'Ubuntu Mono', monospace";
+const RESUME_PROXY = '/api/resume';
+const RESUME_DOWNLOAD_URL = 'https://raw.githubusercontent.com/ankushhKapoor/resume/main/Ankush_Kapoor_Resume.pdf';
 
 export default function ResumeApp() {
     return (
-        <div className="flex-1 overflow-y-auto" style={{ background: '#f0f0f0' }}>
-            <div className="max-w-xl mx-auto bg-white min-h-full px-10 py-10 text-[#1a1a1a]" style={{ fontFamily: MONO }}>
-                <div className="mb-7">
-                    <div className="text-[28px] font-bold">{PORTFOLIO.name}</div>
-                    <div className="text-[13px] mt-1" style={{ color: '#e95420' }}>{PORTFOLIO.title}</div>
-                    <div className="text-[12px] mt-2 text-gray-500">{PORTFOLIO.email} · {PORTFOLIO.github} · {PORTFOLIO.linkedin}</div>
-                </div>
-                <RSection title="Experience">
-                    {PORTFOLIO.experience.map((e, i) => (
-                        <div key={i} className="mb-4 pl-3" style={{ borderLeft: '2px solid #e95420' }}>
-                            <div className="flex items-baseline justify-between">
-                                <span className="text-[13px] font-bold">{e.role} — {e.company}</span>
-                                <span className="text-[11px] text-gray-400 ml-4">{e.period}</span>
-                            </div>
-                            <div className="text-[12px] text-gray-500 mt-1 leading-relaxed">{e.summary}</div>
-                        </div>
-                    ))}
-                </RSection>
-                <RSection title="Projects">
-                    {PORTFOLIO.projects.map((p, i) => (
-                        <div key={i} className="mb-3">
-                            <span className="text-[13px] font-bold">{p.name}</span>
-                            <span className="text-[12px] text-gray-400"> — {p.tech}</span>
-                            <div className="text-[12px] text-gray-500 mt-0.5">{p.summary}</div>
-                        </div>
-                    ))}
-                </RSection>
-                <RSection title="Skills">
-                    <div className="text-[12px] text-gray-500 leading-loose">{Object.values(PORTFOLIO.skills).flat().join('  ·  ')}</div>
-                </RSection>
-                <RSection title="Education">
-                    <div className="text-[13px] font-bold">{PORTFOLIO.education.degree}</div>
-                    <div className="text-[12px] text-gray-500">{PORTFOLIO.education.school} · {PORTFOLIO.education.graduation}</div>
-                </RSection>
+        <div className="flex flex-col" style={{ height: '100%', background: '#1a1a1a' }}>
+            {/* Toolbar */}
+            <div className="flex items-center justify-between px-4 py-2 shrink-0" style={{ background: '#252525', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
+                <span className="text-[12px] text-white/50" style={{ fontFamily: "'Ubuntu Mono', monospace" }}>
+                    Ankush_Kapoor_Resume.pdf
+                </span>
+                <a
+                    href={RESUME_DOWNLOAD_URL}
+                    download="Ankush_Kapoor_Resume.pdf"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-1.5 text-[12px] px-3 py-1 rounded-md transition-all duration-150"
+                    style={{
+                        background: '#e95420',
+                        color: '#fff',
+                        fontFamily: "'Ubuntu Mono', monospace",
+                        textDecoration: 'none',
+                    }}
+                >
+                    ↓ Download
+                </a>
             </div>
-        </div>
-    );
-}
 
-function RSection({ title, children }: { title: string; children: React.ReactNode }) {
-    return (
-        <div className="mb-6">
-            <div className="text-[11px] font-bold uppercase tracking-[3px] border-b border-gray-200 pb-1 mb-3"
-                style={{ color: '#e95420', fontFamily: "'Ubuntu Mono', monospace" }}>
-                {title}
-            </div>
-            {children}
+            {/* PDF via local proxy — native browser viewer, no Google Docs */}
+            <iframe
+                src={`${RESUME_PROXY}#toolbar=0&navpanes=0`}
+                className="flex-1 w-full border-0"
+                title="Resume — Ankush Kapoor"
+            />
         </div>
     );
 }
