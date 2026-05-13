@@ -203,6 +203,8 @@ export default function SimplePortfolio({ onClose, onOpenExternalLink }: Props) 
             position: 'fixed', inset: 0, zIndex: 8000,
             background: C.bg, display: 'flex', flexDirection: 'column',
             fontFamily: "'DM Sans', sans-serif",
+            userSelect: 'text',
+            WebkitUserSelect: 'text',
             animation: closing ? 'spOut 0.42s ease forwards' : mounted ? 'spIn 0.46s cubic-bezier(0.16,1,0.3,1) forwards' : 'none',
             opacity: mounted ? undefined : 0,
             transition: 'background 0.3s',
@@ -547,10 +549,10 @@ export default function SimplePortfolio({ onClose, onOpenExternalLink }: Props) 
                                                         e.preventDefault();
                                                         onOpenExternalLink(`https://${act.link}`);
                                                     }}
-                                                    style={{ fontFamily: "'DM Sans',sans-serif", fontSize: 13, color: C.muted, textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 4, transition: 'color .18s' }}
-                                                    onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = C.accent; }}
-                                                    onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = C.muted; }}>
-                                                    {Svg.globe(C.muted)} {act.link}
+                                                    style={{ fontFamily: "'DM Sans',sans-serif", fontSize: 13, color: C.accent, textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 4, fontWeight: 500, transition: 'opacity .15s' }}
+                                                    onMouseEnter={e => { (e.currentTarget as HTMLElement).style.opacity = '.55'; }}
+                                                    onMouseLeave={e => { (e.currentTarget as HTMLElement).style.opacity = '1'; }}>
+                                                    {Svg.globe(C.accent)} {act.link}
                                                 </a>
                                             )}
                                         </div>

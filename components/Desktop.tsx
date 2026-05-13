@@ -1123,8 +1123,11 @@ export default function Desktop() {
                 return;
             }
 
-            // Search/Activities: Meta/OS key
-            if (key === 'meta' || key === 'os') {
+            // Search/Activities: Ctrl + Shift (supports either key order)
+            const isCtrlShiftCombo =
+                (!e.repeat && e.ctrlKey && key === 'shift') ||
+                (!e.repeat && e.shiftKey && key === 'control');
+            if (isCtrlShiftCombo) {
                 e.preventDefault();
                 requestToggleSearch('apps');
                 return;
