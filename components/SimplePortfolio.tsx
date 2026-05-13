@@ -196,6 +196,7 @@ export default function SimplePortfolio({ onClose, onOpenExternalLink }: Props) 
         fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: C.text,
         outline: 'none', transition: 'border-color 0.2s, box-shadow 0.2s',
         resize: 'none' as const, boxSizing: 'border-box',
+        cursor: "url('/cursors/textcursor.svg') 16 16, text",
     };
 
     return (
@@ -203,8 +204,8 @@ export default function SimplePortfolio({ onClose, onOpenExternalLink }: Props) 
             position: 'fixed', inset: 0, zIndex: 8000,
             background: C.bg, display: 'flex', flexDirection: 'column',
             fontFamily: "'DM Sans', sans-serif",
-            userSelect: 'text',
-            WebkitUserSelect: 'text',
+            userSelect: 'none',
+            WebkitUserSelect: 'none',
             animation: closing ? 'spOut 0.42s ease forwards' : mounted ? 'spIn 0.46s cubic-bezier(0.16,1,0.3,1) forwards' : 'none',
             opacity: mounted ? undefined : 0,
             transition: 'background 0.3s',

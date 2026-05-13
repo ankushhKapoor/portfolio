@@ -2,6 +2,75 @@
 @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap');
 @import "tailwindcss";
 
+/* =============================================
+   Custom SVG Cursors
+   ============================================= */
+
+/* Default arrow cursor on the root. All children inherit unless overridden. */
+html {
+  cursor: url('/cursors/cursor.svg') 8 4, default;
+}
+
+/* Every element inherits cursor from parent by default —
+   this means children inside cards/buttons/links automatically
+   show the same cursor as their parent. */
+*,
+*::before,
+*::after {
+  cursor: inherit;
+}
+
+/* Pointer / clickable elements — children inherit this automatically */
+a,
+button,
+[role="button"],
+[tabindex]:not([tabindex="-1"]),
+label[for],
+select,
+input[type="checkbox"],
+input[type="radio"],
+input[type="submit"],
+input[type="button"],
+input[type="reset"],
+input[type="file"],
+input[type="range"],
+summary,
+[class*="cursor-pointer"],
+[style*="cursor: pointer"],
+[style*="cursor:pointer"] {
+  cursor: url('/cursors/pointinghand.svg') 13 9, pointer !important;
+}
+
+/* Text inputs — I-beam */
+input:not([type="checkbox"]):not([type="radio"]):not([type="submit"]):not([type="button"]):not([type="reset"]):not([type="file"]):not([type="range"]),
+textarea,
+[contenteditable="true"],
+[class*="cursor-text"],
+[style*="cursor: text"],
+[style*="cursor:text"] {
+  cursor: url('/cursors/textcursor.svg') 16 16, text !important;
+}
+
+/* Open hand — grab / draggable */
+[class*="cursor-grab"],
+[draggable="true"] {
+  cursor: url('/cursors/openhand.svg') 16 10, grab !important;
+}
+
+/* Move cursor — during window drags */
+[class*="cursor-move"],
+.is-dragging {
+  cursor: url('/cursors/move.svg') 9 9, move !important;
+}
+
+/* Restore default arrow explicitly */
+[class*="cursor-default"],
+[style*="cursor: default"],
+[style*="cursor:default"] {
+  cursor: url('/cursors/cursor.svg') 8 4, default !important;
+}
+
+
 :root {
   --accent: #e95420;
   --accent-hover: #f37222;
@@ -89,7 +158,6 @@ input[type=range] {
   background: #555;
   border-radius: 2px;
   outline: none;
-  cursor: pointer;
 }
 
 input[type=range]::-webkit-slider-thumb {

@@ -325,7 +325,7 @@ export default function AppWindow({ id, title, icon, children, onClose, onMinimi
             >
                 {/* Title Bar */}
                 <div
-                    style={{ height: 38, background: maximized ? '#2d2d2d' : '#3a3a3a', display: 'flex', alignItems: 'center', padding: '0 12px', gap: 8, userSelect: 'none', cursor: 'default', flexShrink: 0, borderBottom: '1px solid rgba(0,0,0,0.3)' }}
+                    style={{ height: 38, background: maximized ? '#2d2d2d' : '#3a3a3a', display: 'flex', alignItems: 'center', padding: '0 12px', gap: 8, userSelect: 'none', cursor: isDragging ? "url('/cursors/move.svg') 9 9, move" : "url('/cursors/openhand.svg') 16 10, grab", flexShrink: 0, borderBottom: '1px solid rgba(0,0,0,0.3)' }}
                     onMouseDown={onBarDown}
                 >
                     <div className="flex items-center gap-1.5">
