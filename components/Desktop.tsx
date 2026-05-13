@@ -1,7 +1,7 @@
 'use client';
 import { useEffect, useState, ReactNode, useCallback, useRef, useMemo } from 'react';
 import { useOS } from '@/hooks/useOS';
-import { DESKTOP_ICONS, WIN_DEFAULTS, FILES } from '@/lib/portfolio';
+import { DESKTOP_ICONS, WIN_DEFAULTS } from '@/lib/portfolio';
 import { TerminalIcon, FolderIcon, UserIcon, FileTextIcon, BriefcaseIcon, CalendarIcon, SettingsIcon, KapoorOSIcon } from '@/components/Icons';
 
 import BootScreen from '@/components/BootScreen';
@@ -12,22 +12,15 @@ import Dock from '@/components/Dock';
 import DesktopIcons from '@/components/DesktopIcons';
 import SearchOverlay from '@/components/SearchOverlay';
 import PropertiesWindow, { PropertiesData } from '@/components/PropertiesWindow';
+import { useFileManager } from '@/hooks/useFileManager';
+import KapoorContextMenu from '@/components/context/KapoorContextMenu';
+import type { MenuEntry } from '@/components/context/types';
 
 interface SelectionRect {
     x: number;
     y: number;
     w: number;
     h: number;
-}
-
-interface MenuEntry {
-    label: string;
-    action?: () => void;
-    danger?: boolean;
-    disabled?: boolean;
-    separator?: boolean;
-    shortcut?: string;
-    checked?: boolean;
 }
 
 interface ContextMenuState {
@@ -326,65 +319,6 @@ function SelectionRectangle({ rect }: { rect: SelectionRect | null }) {
     );
 }
 
-function KapoorContextMenu({ x, y, items }: { x: number; y: number; items: MenuEntry[] }) {
-    const estimatedHeight = items.reduce((h, item) => h + (item.separator ? 8 : 30), 14);
-    const vw = typeof window !== 'undefined' ? window.innerWidth : 1280;
-    const vh = typeof window !== 'undefined' ? window.innerHeight : 800;
-    const clampedX = Math.max(8, Math.min(x, vw - 248));
-    const clampedY = Math.max(8, Math.min(y, vh - estimatedHeight - 8));
-
-    return (
-        <div
-            data-kapoor-context-menu="true"
-            className="fixed z-[9100] min-w-[280px] py-1 animate-fade-in-scale"
-            onMouseDown={(e) => e.stopPropagation()}
-            onClick={(e) => e.stopPropagation()}
-            onContextMenu={(e) => e.preventDefault()}
-            style={{
-                left: `${clampedX}px`,
-                top: `${clampedY}px`,
-                background: '#2e2e2e',
-                border: '1px solid rgba(255,255,255,0.14)',
-                borderRadius: 0,
-                boxShadow: '0 10px 26px rgba(0,0,0,0.55)',
-                fontFamily: "'Ubuntu', sans-serif",
-            }}
-        >
-            {items.map((item, idx) => {
-                if (item.separator) {
-                    return <div key={`sep-${idx}`} className="my-1 h-px bg-white/15" />;
-                }
-
-                return (
-                    <button
-                        key={`${item.label}-${idx}`}
-                        disabled={item.disabled}
-                        onClick={item.action}
-                        className="w-full flex items-center justify-between text-left px-3 py-1.5 text-[13px] border-0 bg-transparent transition-colors"
-                        style={{
-                            color: item.disabled ? '#7a7a7a' : item.danger ? '#ff8c8c' : '#ebebeb',
-                            cursor: item.disabled ? 'default' : 'pointer',
-                        }}
-                        onMouseEnter={(e) => {
-                            if (item.disabled) return;
-                            e.currentTarget.style.background = 'rgba(255,255,255,0.08)';
-                        }}
-                        onMouseLeave={(e) => {
-                            e.currentTarget.style.background = 'transparent';
-                        }}
-                    >
-                        <span className="flex items-center gap-2">
-                            {item.checked ? <span style={{ width: 11, color: '#d9d9d9' }}>✓</span> : <span style={{ width: 11 }} />}
-                            <span>{item.label}</span>
-                        </span>
-                        <span style={{ color: item.disabled ? '#6f6f6f' : '#9f9f9f' }}>{item.shortcut ?? ''}</span>
-                    </button>
-                );
-            })}
-        </div>
-    );
-}
-
 export default function Desktop() {
     const { screen, setScreen, windows, openApp, closeApp, minimizeApp, focusApp, focusedAppId, showSearch, toggleSearch, closeSearch, searchMode, windowRects, updateWindowRect, doUnlock, doLock, doPowerOff, doRestart } = useOS();
     const [selectionRect, setSelectionRect] = useState<SelectionRect | null>(null);
@@ -405,15 +339,11 @@ export default function Desktop() {
     const [propertiesData, setPropertiesData] = useState<PropertiesData | null>(null);
     const [clipboard, setClipboard] = useState<DesktopClipboard | null>(null);
     const [cutItemIds, setCutItemIds] = useState<Set<string>>(new Set());
-    const [fsData, setFsData] = useState<Record<string, { n: string; icon: string; dir?: boolean; src?: string; size?: number; mtime?: string }[]>>(FILES);
-    const [fsClipboard, setFsClipboard] = useState<{ mode: 'copy' | 'cut', item: { n: string; icon: string; dir?: boolean; src?: string }, sourcePath: string } | null>(null);
-    const [fsPath, setFsPath] = useState<string>('Home');
-    const [fsSelectedName, setFsSelectedName] = useState<string | null>(null);
     const startPos = useRef<{ x: number; y: number } | null>(null);
     const desktopItemsRef = useRef<Map<string, DOMRect>>(new Map());
-    const [initialLoadDone, setInitialLoadDone] = useState(false);
     const [wifiEnabled, setWifiEnabled] = useState(true);
     const [showNoConnection, setShowNoConnection] = useState(false);
+    const hadFilesWindowRef = useRef(false);
 
     const openExternalLink = useCallback((href: string) => {
         const lowerHref = href.toLowerCase();
@@ -436,29 +366,28 @@ export default function Desktop() {
         return true;
     }, [wifiEnabled]);
 
-    useEffect(() => {
-        if (initialLoadDone) return;
-        fetch('/api/fs')
-            .then(res => res.json())
-            .then(data => {
-                if (data && !data.error) {
-                    setFsData(() => {
-                        // Merge with any existing hardcoded files that aren't in assets
-                        const next = { ...data };
-                        if (!next['Home']) next['Home'] = [];
-                        if (!next['Home'].some((f: { n: string }) => f.n === '.bashrc')) {
-                            next['Home'].push({ n: '.bashrc', icon: '📄' });
-                        }
-                        return next;
-                    });
-                }
-                setInitialLoadDone(true);
-            })
-            .catch(err => {
-                console.error('FS Fetch Error:', err);
-                setInitialLoadDone(true);
-            });
-    }, [initialLoadDone]);
+    const {
+        fsData,
+        fsClipboard,
+        setFsClipboard,
+        fsPath,
+        setFsPath,
+        fsSelectedName,
+        setFsSelectedName,
+        handleFsRename,
+        handleFsDelete,
+        handleFsNewFolder,
+        handleFsPaste,
+        handleFsSortByName,
+        handleFsOpen,
+    } = useFileManager({
+        desktopItems,
+        windows,
+        openApp,
+        focusApp,
+        openExternalLink,
+        setSimpleModeOpen,
+    });
 
     const closeContextMenu = useCallback(() => setContextMenu(null), []);
 
@@ -847,100 +776,6 @@ export default function Desktop() {
         setContextMenu({ type: 'filesEmpty', folderPath: path, x, y });
     };
 
-    const handleFsRename = useCallback((oldName: string, kind: 'file' | 'folder', path: string) => {
-        const next = window.prompt(`Rename ${kind}`, oldName);
-        if (!next || !next.trim() || next === oldName) return;
-        const newName = next.trim();
-        const pathParts = path.split('/');
-        const dirKey = pathParts[pathParts.length - 1];
-
-        setFsData((prev) => {
-            const currentItems = prev[dirKey] || [];
-            if (currentItems.some(i => i.n === newName)) {
-                alert("Name already exists");
-                return prev;
-            }
-            const updatedItems = currentItems.map(i => i.n === oldName ? { ...i, n: newName } : i);
-            return { ...prev, [dirKey]: updatedItems };
-        });
-    }, []);
-
-    const handleFsDelete = useCallback((name: string, path: string) => {
-        const pathParts = path.split('/');
-        const dirKey = pathParts[pathParts.length - 1];
-        setFsData((prev) => {
-            const currentItems = prev[dirKey] || [];
-            return { ...prev, [dirKey]: currentItems.filter(i => i.n !== name) };
-        });
-    }, []);
-
-    const handleFsNewFolder = useCallback((path: string) => {
-        const pathParts = path.split('/');
-        const dirKey = pathParts[pathParts.length - 1];
-        setFsData((prev) => {
-            const currentItems = prev[dirKey] || [];
-            const existing = currentItems.filter(i => i.dir && i.n.startsWith('New Folder')).length;
-            const name = existing === 0 ? 'New Folder' : `New Folder ${existing + 1}`;
-            return { ...prev, [dirKey]: [...currentItems, { n: name, icon: '📁', dir: true }], [name]: [] };
-        });
-    }, []);
-
-    const handleFsPaste = useCallback((targetPath: string) => {
-        if (!fsClipboard) return;
-        const pathParts = targetPath.split('/');
-        const targetDirKey = pathParts[pathParts.length - 1];
-
-        setFsData((prev) => {
-            const targetItems = prev[targetDirKey] || [];
-            if (targetItems.some(i => i.n === fsClipboard.item.n)) {
-                alert("Item already exists in target folder");
-                return prev;
-            }
-            const nextItems = [...targetItems, fsClipboard.item];
-            const nextData = { ...prev, [targetDirKey]: nextItems };
-
-            if (fsClipboard.mode === 'cut') {
-                const sourceDirKey = fsClipboard.sourcePath.split('/').pop() || "";
-                if (nextData[sourceDirKey]) {
-                    nextData[sourceDirKey] = nextData[sourceDirKey].filter(i => i.n !== fsClipboard.item.n);
-                }
-            }
-            return nextData;
-        });
-        if (fsClipboard.mode === 'cut') setFsClipboard(null);
-    }, [fsClipboard]);
-
-    const handleFsOpen = useCallback((name: string, kind: 'file' | 'folder', path: string) => {
-        if (kind === 'file') {
-            const dirKey = path.split('/').pop() || "";
-            const item = fsData[dirKey]?.find(i => i.n === name);
-
-            if (name.endsWith('.txt') || name.endsWith('.md') || name.startsWith('.') || name.endsWith('.bashrc')) {
-                const viewerWindow = windows.find(w => w.id === 'text-viewer');
-                if (viewerWindow) {
-                    window.dispatchEvent(new CustomEvent('editor-open-file', {
-                        detail: { src: item?.src, fileName: name, path }
-                    }));
-                } else {
-                    openApp('text-viewer', { src: item?.src, fileName: name, path });
-                }
-                setTimeout(() => focusApp('text-viewer'), 0);
-            } else if (name.endsWith('.pdf')) {
-                const viewerWindow = windows.find(w => w.id === 'pdf-viewer');
-                if (viewerWindow) {
-                    window.dispatchEvent(new CustomEvent('pdf-open-file', {
-                        detail: { src: item?.src, fileName: name, path }
-                    }));
-                } else {
-                    openApp('pdf-viewer', { src: item?.src, fileName: name, path });
-                }
-                setTimeout(() => focusApp('pdf-viewer'), 0);
-            } else if (item?.src) {
-                openExternalLink(item.src);
-            }
-        }
-    }, [fsData, openApp, windows, focusApp, openExternalLink]);
-
     const desktopMenuItems: MenuEntry[] = [
         {
             label: 'New Folder', shortcut: 'Shift+Ctrl+N', action: () => {
@@ -975,6 +810,14 @@ export default function Desktop() {
             { label: 'New Folder', action: () => { handleFsNewFolder(path); closeContextMenu(); } },
             { label: 'New Document', action: () => closeContextMenu() },
             { separator: true, label: 'sep-1' },
+            {
+                label: 'Sort',
+                submenu: [
+                    { label: 'By Name A -> Z', action: () => { handleFsSortByName(path, 'asc'); closeContextMenu(); } },
+                    { label: 'By Name Z -> A', action: () => { handleFsSortByName(path, 'desc'); closeContextMenu(); } },
+                ]
+            },
+            { separator: true, label: 'sep-sort' },
             { label: 'Paste', disabled: !fsClipboard, action: () => { handleFsPaste(path); closeContextMenu(); } },
             { separator: true, label: 'sep-2' },
             { label: 'Select All', action: () => closeContextMenu() },
@@ -985,7 +828,7 @@ export default function Desktop() {
                 }
             },
         ];
-    }, [contextMenu?.type, contextMenu?.folderPath, closeContextMenu, fsClipboard, handleFsNewFolder, handleFsPaste]);
+    }, [contextMenu?.type, contextMenu?.folderPath, closeContextMenu, fsClipboard, handleFsNewFolder, handleFsPaste, handleFsSortByName]);
 
     const iconMenuItems = useCallback((iconId: string): MenuEntry[] => {
         const item = desktopItems.find((it) => it.id === iconId);
@@ -1097,7 +940,7 @@ export default function Desktop() {
                 }
             },
         ];
-    }, [closeContextMenu, handleFsOpen, handleFsRename, handleFsDelete, fsData, handleFilesAppProperties]);
+    }, [closeContextMenu, handleFsOpen, handleFsRename, handleFsDelete, fsData, handleFilesAppProperties, setFsClipboard]);
 
     useEffect(() => {
         const handleGlobalContextMenu = (e: MouseEvent) => {
@@ -1123,11 +966,11 @@ export default function Desktop() {
                 return;
             }
 
-            // Search/Activities: Ctrl + Shift (supports either key order)
-            const isCtrlShiftCombo =
-                (!e.repeat && e.ctrlKey && key === 'shift') ||
-                (!e.repeat && e.shiftKey && key === 'control');
-            if (isCtrlShiftCombo) {
+            // Search/Applications: Ctrl + Windows/Meta (supports either key order)
+            const isCtrlMetaCombo =
+                (!e.repeat && e.ctrlKey && key === 'meta') ||
+                (!e.repeat && e.metaKey && key === 'control');
+            if (isCtrlMetaCombo) {
                 e.preventDefault();
                 requestToggleSearch('apps');
                 return;
@@ -1182,8 +1025,17 @@ export default function Desktop() {
                 }
             }
 
-            // New Folder: Ctrl+Shift+N
-            if (e.ctrlKey && e.shiftKey && key === 'n') {
+            // New Folder shortcuts (use physical key codes for reliability):
+            // - Ctrl+Alt+N
+            // - Alt+Shift+N
+            // - Ctrl+Shift+F
+            // (includes fallbacks for browser/OS-reserved combos)
+            const code = e.code;
+            const isNewFolderShortcut =
+                (e.ctrlKey && e.altKey && code === 'KeyN') ||
+                (e.altKey && e.shiftKey && code === 'KeyN') ||
+                (e.ctrlKey && e.shiftKey && code === 'KeyF');
+            if (isNewFolderShortcut) {
                 if (!focusedAppId) {
                     e.preventDefault();
                     const existing = desktopItems.filter((i) => i.kind === 'folder' && i.label.startsWith('New Folder')).length;
@@ -1199,7 +1051,7 @@ export default function Desktop() {
         };
         window.addEventListener('keydown', handler);
         return () => window.removeEventListener('keydown', handler);
-    }, [openApp, requestToggleSearch, focusedAppId, selectedItems, desktopItems, clipboard, pasteFromClipboard, fsSelectedName, fsData, fsPath, fsClipboard, handleFsPaste, handleFsNewFolder, showNoConnection]);
+    }, [openApp, requestToggleSearch, focusedAppId, selectedItems, desktopItems, clipboard, pasteFromClipboard, fsSelectedName, fsData, fsPath, fsClipboard, handleFsPaste, handleFsNewFolder, setFsClipboard, showNoConnection]);
 
     useEffect(() => {
         if (!isSelecting) return;
@@ -1233,6 +1085,15 @@ export default function Desktop() {
             document.removeEventListener('mouseup', handleDocumentMouseUp);
         };
     }, [isSelecting, checkIntersection]);
+
+    useEffect(() => {
+        const hasFilesWindow = windows.some((w) => w.id === 'files');
+        if (hasFilesWindow && !hadFilesWindowRef.current) {
+            setFsPath('Home');
+            setFsSelectedName(null);
+        }
+        hadFilesWindowRef.current = hasFilesWindow;
+    }, [windows, setFsPath, setFsSelectedName]);
 
     const renderAppContent = (id: string, winProps: Record<string, unknown> | undefined, closeApp: (id: string) => void, onOpenProperties?: (name: string, kind: 'file' | 'folder', path: string, srcOverride?: string) => void) => {
         switch (id) {

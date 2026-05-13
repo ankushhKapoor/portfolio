@@ -100,6 +100,28 @@ const ICONS: Record<string, { renderIcon?: () => React.ReactNode; Icon?: React.C
     'email-link': { renderIcon: () => <EmailIcon size={24} />, color: '#e95420', bg: 'linear-gradient(145deg,#2a1208,#3d1c0a)' },
 };
 
+export function DesktopVisualIcon({ id, size = 52 }: { id: string; size?: number }) {
+    const cfg = ICONS[id] ?? { Icon: FolderIcon, color: '#fff', bg: '#333' };
+    const innerSize = Math.max(18, Math.round(size * 0.52));
+    return (
+        <div
+            style={{
+                width: size,
+                height: size,
+                borderRadius: 16,
+                background: cfg.bg,
+                boxShadow: '0 2px 8px rgba(0,0,0,0.4)',
+                border: '1px solid rgba(255,255,255,0.07)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+            }}
+        >
+            {cfg.renderIcon ? cfg.renderIcon() : cfg.Icon ? <cfg.Icon size={innerSize} color={cfg.color} /> : null}
+        </div>
+    );
+}
+
 const GRID = {
     top: 48,
     left: 6,

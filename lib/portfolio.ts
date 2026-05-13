@@ -161,11 +161,13 @@ export const WIN_DEFAULTS: Record<string, { w: number; h: number; title: string 
 
 export const FILES: Record<string, { n: string; icon: string; dir?: boolean; src?: string }[]> = {
   Home: [
+    { n: 'Desktop', icon: '📁', dir: true },
     { n: 'Documents', icon: '📁', dir: true },
     { n: 'Downloads', icon: '📁', dir: true },
     { n: 'Projects', icon: '📁', dir: true },
     { n: 'resume.pdf', icon: '📋', src: '/api/resume' }
   ],
+  Desktop: [],
   Documents: [
     { n: 'notes.txt', icon: '📄', src: '/os/Documents/notes.txt' }
   ],

@@ -3,10 +3,12 @@
 import { useState } from 'react';
 import { FILES } from '@/lib/portfolio';
 import { HomeIcon, FileTextIcon, DownloadIcon, BriefcaseIcon, FolderIcon, FileIcon } from '@/components/Icons';
+import { DesktopVisualIcon } from '@/components/DesktopIcons';
 
 type PathKey = keyof typeof FILES;
 const SIDEBAR: { key: PathKey; label: string; Icon: React.ComponentType<{ size?: number; color?: string }> }[] = [
     { key: 'Home', label: 'Home', Icon: HomeIcon },
+    { key: 'Desktop', label: 'Desktop', Icon: FolderIcon },
     { key: 'Documents', label: 'Documents', Icon: FileTextIcon },
     { key: 'Downloads', label: 'Downloads', Icon: DownloadIcon },
     { key: 'Projects', label: 'Projects', Icon: BriefcaseIcon },
@@ -15,7 +17,7 @@ const SIDEBAR: { key: PathKey; label: string; Icon: React.ComponentType<{ size?:
 const MONO = "'Ubuntu Mono', monospace";
 
 interface FilesAppProps {
-    files: Record<string, { n: string; icon: string; dir?: boolean }[]>;
+    files: Record<string, { n: string; icon: string; dir?: boolean; src?: string; desktopId?: string }[]>;
     path: string;
     onPathChange: (path: string) => void;
     selectedName: string | null;
@@ -96,7 +98,13 @@ export default function FilesApp({ files, path, onPathChange, selectedName, onSe
                 </div>
 
                 {/* File grid */}
-                <div className="flex-1 overflow-y-auto p-4 flex flex-wrap gap-1 content-start">
+                <div
+                    className="flex-1 overflow-y-auto flex flex-wrap content-start"
+                    style={{
+                        padding: path === 'Desktop' ? '20px 24px 24px' : '16px',
+                        gap: path === 'Desktop' ? '10px 16px' : '4px',
+                    }}
+                >
                     {items.map((f, i) => {
                         const IconComp = f.dir ? FolderIcon : FileIcon;
                         const iconColor = f.dir ? '#e95420' : '#888';
@@ -107,6 +115,8 @@ export default function FilesApp({ files, path, onPathChange, selectedName, onSe
                                 name={f.n}
                                 IconComp={IconComp}
                                 iconColor={iconColor}
+                                displayIcon={path === 'Desktop' ? f.icon : undefined}
+                                desktopId={path === 'Desktop' ? f.desktopId : undefined}
                                 isSelected={isSelected}
                                 onClick={(e) => handleItemClick(e, f.n)}
                                 onContextMenu={(e) => handleItemContextMenu(e, f.n, f.dir ? 'folder' : 'file')}
@@ -131,14 +141,17 @@ interface FileItemProps {
     name: string;
     IconComp: React.ComponentType<{ size?: number; color?: string }>;
     iconColor: string;
+    displayIcon?: string;
+    desktopId?: string;
     isSelected: boolean;
     onOpen: () => void;
     onClick: (e: React.MouseEvent) => void;
     onContextMenu: (e: React.MouseEvent) => void;
 }
 
-function FileItem({ name, IconComp, iconColor, isSelected, onOpen, onClick, onContextMenu }: FileItemProps) {
+function FileItem({ name, IconComp, iconColor, displayIcon, desktopId, isSelected, onOpen, onClick, onContextMenu }: FileItemProps) {
     const [hov, setHov] = useState(false);
+    const isDesktopStyled = Boolean(desktopId);
 
     return (
         <div
@@ -147,21 +160,41 @@ function FileItem({ name, IconComp, iconColor, isSelected, onOpen, onClick, onCo
             onContextMenu={onContextMenu}
             onMouseEnter={() => setHov(true)}
             onMouseLeave={() => setHov(false)}
-            className="flex flex-col items-center gap-1.5 px-2 py-3 rounded cursor-default select-none transition-all"
+            className="flex flex-col items-center gap-1.5 cursor-default select-none transition-all"
             style={{
                 width: 90,
-                background: isSelected ? 'rgba(233, 84, 32, 0.3)' : hov ? 'rgba(255,255,255,0.07)' : 'transparent',
-                outline: isSelected ? '1px solid rgba(233, 84, 32, 0.5)' : 'none',
+                padding: '12px 8px',
+                borderRadius: 0,
+                background: isDesktopStyled
+                    ? (isSelected ? 'rgba(233, 84, 32, 0.2)' : hov ? 'rgba(255,255,255,0.10)' : 'transparent')
+                    : (isSelected ? 'rgba(233, 84, 32, 0.3)' : hov ? 'rgba(255,255,255,0.07)' : 'transparent'),
+                outline: isSelected
+                    ? (isDesktopStyled ? '1px solid #e95420' : '1px solid rgba(233, 84, 32, 0.5)')
+                    : 'none',
             }}
         >
-            <div className="w-12 h-12 flex items-center justify-center flex-shrink-0">
-                <IconComp size={38} color={iconColor} />
+            <div
+                className="flex items-center justify-center flex-shrink-0"
+                style={{ width: 48, height: 48 }}
+            >
+                {displayIcon ? (
+                    desktopId ? (
+                        <DesktopVisualIcon id={desktopId} size={48} />
+                    ) : (
+                        <span style={{ fontSize: 34, lineHeight: 1 }}>{displayIcon}</span>
+                    )
+                ) : (
+                    <IconComp size={38} color={iconColor} />
+                )}
             </div>
             <span
-                className="text-[11px] text-center w-full break-all leading-tight line-clamp-2 px-1 rounded"
+                className="text-[11px] text-center w-full leading-tight line-clamp-2 px-1"
                 style={{
-                    color: isSelected ? '#fff' : '#ccc',
-                    fontFamily: "'Ubuntu', sans-serif",
+                    color: isDesktopStyled ? '#fff' : (isSelected ? '#fff' : '#ccc'),
+                    fontFamily: isDesktopStyled ? "'Ubuntu Mono', monospace" : "'Ubuntu', sans-serif",
+                    textShadow: isDesktopStyled ? '0 1px 6px rgba(0,0,0,0.95)' : 'none',
+                    wordBreak: isDesktopStyled ? 'normal' : 'break-word',
+                    overflowWrap: isDesktopStyled ? 'normal' : 'anywhere',
                 }}
             >
                 {name}
