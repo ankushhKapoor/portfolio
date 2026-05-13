@@ -196,7 +196,7 @@ export default function SimplePortfolio({ onClose, onOpenExternalLink }: Props) 
         fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: C.text,
         outline: 'none', transition: 'border-color 0.2s, box-shadow 0.2s',
         resize: 'none' as const, boxSizing: 'border-box',
-        cursor: "url('/cursors/textcursor.svg') 16 16, text",
+        cursor: "url('/assets/cursors/textcursor.svg') 16 16, text",
     };
 
     return (

@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 
-const ASSETS_DIR = path.join(process.cwd(), 'public', 'assets', 'os');
+const ASSETS_DIR = path.join(process.cwd(), 'public', 'os');
 const OUTPUT_FILE = path.join(process.cwd(), 'lib', 'fs-initial.json');
 
 function getIcon(filename, isDir) {
@@ -34,7 +34,7 @@ function scanDir(dirPath, virtualPath = 'Home') {
         // Normalize paths for comparison
         const normalizedItemPath = itemPath.split(path.sep).join('/');
         const normalizedAssetsDir = ASSETS_DIR.split(path.sep).join('/');
-        const relativeSrc = '/assets/os' + normalizedItemPath.replace(normalizedAssetsDir, '');
+        const relativeSrc = '/os' + normalizedItemPath.replace(normalizedAssetsDir, '');
 
         const entry = {
             n: item.name,

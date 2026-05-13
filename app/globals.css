@@ -8,7 +8,7 @@
 
 /* Default arrow cursor on the root. All children inherit unless overridden. */
 html {
-  cursor: url('/cursors/cursor.svg') 8 4, default;
+  cursor: url('/assets/cursors/cursor.svg') 8 4, default;
 }
 
 /* Every element inherits cursor from parent by default —
@@ -38,7 +38,7 @@ summary,
 [class*="cursor-pointer"],
 [style*="cursor: pointer"],
 [style*="cursor:pointer"] {
-  cursor: url('/cursors/pointinghand.svg') 13 9, pointer !important;
+  cursor: url('/assets/cursors/pointinghand.svg') 13 9, pointer !important;
 }
 
 /* Text inputs — I-beam */
@@ -48,26 +48,26 @@ textarea,
 [class*="cursor-text"],
 [style*="cursor: text"],
 [style*="cursor:text"] {
-  cursor: url('/cursors/textcursor.svg') 16 16, text !important;
+  cursor: url('/assets/cursors/textcursor.svg') 16 16, text !important;
 }
 
 /* Open hand — grab / draggable */
 [class*="cursor-grab"],
 [draggable="true"] {
-  cursor: url('/cursors/openhand.svg') 16 10, grab !important;
+  cursor: url('/assets/cursors/openhand.svg') 16 10, grab !important;
 }
 
 /* Move cursor — during window drags */
 [class*="cursor-move"],
 .is-dragging {
-  cursor: url('/cursors/move.svg') 9 9, move !important;
+  cursor: url('/assets/cursors/move.svg') 9 9, move !important;
 }
 
 /* Restore default arrow explicitly */
 [class*="cursor-default"],
 [style*="cursor: default"],
 [style*="cursor:default"] {
-  cursor: url('/cursors/cursor.svg') 8 4, default !important;
+  cursor: url('/assets/cursors/cursor.svg') 8 4, default !important;
 }
 
 

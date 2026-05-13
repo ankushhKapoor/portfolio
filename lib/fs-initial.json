@@ -3,14 +3,14 @@
     {
       "n": "notes.txt",
       "icon": "📄",
-      "src": "/assets/os/Documents/notes.txt"
+      "src": "/os/Documents/notes.txt"
     }
   ],
   "Downloads": [
     {
       "n": "test.txt",
       "icon": "📄",
-      "src": "/assets/os/Downloads/test.txt"
+      "src": "/os/Downloads/test.txt"
     }
   ],
   "Projects": [],
@@ -18,7 +18,7 @@
     {
       "n": ".bashrc",
       "icon": "📄",
-      "src": "/assets/os/.bashrc"
+      "src": "/os/.bashrc"
     },
     {
       "n": "Documents",
@@ -33,7 +33,7 @@
     {
       "n": "portfolio.pdf",
       "icon": "📋",
-      "src": "/assets/os/portfolio.pdf"
+      "src": "/os/portfolio.pdf"
     },
     {
       "n": "Projects",
@@ -43,7 +43,7 @@
     {
       "n": "readme.txt",
       "icon": "📄",
-      "src": "/assets/os/readme.txt"
+      "src": "/os/readme.txt"
     }
   ]
 }

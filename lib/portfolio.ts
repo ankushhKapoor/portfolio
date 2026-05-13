@@ -28,7 +28,7 @@ export const PORTFOLIO = {
       period: 'Jan 2025 – June 2025',
       location: 'Remote',
       link: 'github.com/commenthol/date-holidays',
-      image: '/experience/owhf.png',
+      image: '/assets/experience/owhf.png',
       summary: 'Climbed to rank 7 of 2300+ during Google Winter of Code, good enough to earn a paid sponsorship to extend the library. Added lunar calendar support for Mongolia, holiday logic for India and Nepal, and l10n translations (Hindi, Mongolian) across a library with 20M+ monthly PyPI downloads.',
       bullets: [
         'Ranked #7 out of 2300+ contributors in GWoC \'25, leading to a paid sponsored task building Mongolian holiday logic from scratch.',
@@ -44,7 +44,7 @@ export const PORTFOLIO = {
       tech: 'Python, PyTorch',
       date: 'Dec 2025',
       githubUrl: 'https://github.com/ankushhKapoor/transformer-from-scratch',
-      image: '/projects/transformer.jpg',
+      image: '/assets/projects/transformer.jpg',
       summary: 'Full implementation of the "Attention Is All You Need" Transformer architecture, built without wrapper libraries, with every layer hand-coded. Trains a bilingual sequence-to-sequence model with beam search and proper NLP metrics.',
       bullets: [
         'Built every component from scratch: scaled dot-product attention, multi-head attention, positional encoding, encoder-decoder stacks, and label smoothing.',
@@ -58,7 +58,7 @@ export const PORTFOLIO = {
       tech: 'C, NASM, QEMU',
       date: 'Sep 2025',
       githubUrl: 'https://github.com/ankushhKapoor/BaseKernel',
-      image: '/projects/kernel.jpg',
+      image: '/assets/projects/kernel.jpg',
       summary: 'A real 32-bit x86 protected-mode kernel, built without any OS, standard library, or runtime. Boots from a hand-written bootloader and implements core OS primitives from first principles.',
       bullets: [
         'Wrote a 16-bit bootloader that enables the A20 line, sets up the GDT, and jumps to 32-bit protected mode with no GRUB and no shortcuts.',
@@ -72,7 +72,7 @@ export const PORTFOLIO = {
       tech: 'C, NASM',
       date: 'Jun 2025',
       githubUrl: 'https://github.com/ankushhKapoor/Alloc',
-      image: '/projects/alloc.jpg',
+      image: '/assets/projects/alloc.jpg',
       summary: 'A malloc/free replacement written from scratch over a 1 GB virtual heap. Built to deeply understand how allocators track, coalesce, and reclaim memory at the byte level.',
       bullets: [
         'Designed a word-aligned heap with packed headers that encode block size and allocation state in a single 32-bit int.',
@@ -87,7 +87,7 @@ export const PORTFOLIO = {
       link: 'ourtech.community',
       role: 'Co-Organiser',
       period: 'Jul 2025 – Present',
-      image: '/extracurricular/otc.jpg',
+      image: '/assets/extracurricular/otc.jpg',
       summary: 'Helping grow and run a 600+ member open tech community in Mumbai focused on weekly learning sessions, technical talks, and building a space where anyone (hobbyist or professional) is welcome.',
       bullets: [
         'Plan and execute flagship programs including weekly catchups, technical talks, and community events.',
@@ -99,7 +99,7 @@ export const PORTFOLIO = {
       link: 'rotarydivyangcenter.org',
       role: 'Social Service Intern',
       period: 'Feb 2026 – April 2026',
-      image: '/extracurricular/rotary.jpg',
+      image: '/assets/extracurricular/rotary.jpg',
       summary: 'Volunteered at a rehabilitation center that provides artificial limbs to people with physical disabilities. Supported patients through the process and handled administrative work alongside building a website for the center.',
       bullets: [
         'Assist patients with administrative procedures, paperwork, and day-to-day coordination at the center.',
@@ -167,11 +167,11 @@ export const FILES: Record<string, { n: string; icon: string; dir?: boolean; src
     { n: 'resume.pdf', icon: '📋', src: '/api/resume' }
   ],
   Documents: [
-    { n: 'notes.txt', icon: '📄', src: '/assets/os/Documents/notes.txt' }
+    { n: 'notes.txt', icon: '📄', src: '/os/Documents/notes.txt' }
   ],
   Downloads: [
-    { n: 'test.txt', icon: '📄', src: '/assets/os/Downloads/test.txt' },
-    { n: 'trial.txt', icon: '📄', src: '/assets/os/Downloads/trial.txt' }
+    { n: 'test.txt', icon: '📄', src: '/os/Downloads/test.txt' },
+    { n: 'trial.txt', icon: '📄', src: '/os/Downloads/trial.txt' }
   ],
   Projects: []
 };

@@ -11,17 +11,14 @@ export async function GET(request: Request) {
     }
 
     try {
-        // Construct the absolute path
-        // filePath is expected to be like '/assets/os/.bashrc'
-        const normalizedPath = filePath.startsWith('/assets/os/')
-            ? filePath.replace('/assets/os/', '')
-            : filePath;
+        const strippedPath = filePath
+            .replace(/^\/os\//, '');
 
-        const absolutePath = path.join(process.cwd(), 'public', 'assets', 'os', normalizedPath);
+        const osDir = path.join(process.cwd(), 'public', 'os');
+        const absolutePath = path.join(osDir, strippedPath);
 
-        // Security check: Ensure the path is within the assets directory
-        const assetsDir = path.join(process.cwd(), 'public', 'assets', 'os');
-        if (!absolutePath.startsWith(assetsDir)) {
+        // Security check: ensure final target stays inside public/os.
+        if (!absolutePath.startsWith(osDir)) {
             return NextResponse.json({ error: 'Access denied' }, { status: 403 });
         }
 

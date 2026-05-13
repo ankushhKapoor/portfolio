@@ -480,7 +480,7 @@ export default function Desktop() {
             if (item.path) {
                 const fileName = item.path.split('/').pop() || '';
                 const fileExt = fileName.split('.').pop()?.toLowerCase();
-                const src = item.path.startsWith('http') ? item.path : `/assets/os/${item.path}`;
+                const src = item.path.startsWith('http') ? item.path : `/os/${item.path}`;
                 if (fileExt === 'pdf') {
                     openApp('pdf-viewer', { src, fileName, path: '/home/kapoor/Desktop' });
                 } else if (['txt', 'md'].includes(fileExt || '')) {
@@ -682,7 +682,7 @@ export default function Desktop() {
         if (kind === 'file') {
             let fileUrl = sourceSrc;
             if (!fileUrl && path.includes('Documents')) {
-                fileUrl = `/assets/os/Documents/${name}`;
+                fileUrl = `/os/Documents/${name}`;
             }
 
             if (fileUrl) {

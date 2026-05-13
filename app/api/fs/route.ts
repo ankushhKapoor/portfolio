@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import fs from 'fs';
 import path from 'path';
 
-const ASSETS_DIR = path.join(process.cwd(), 'public', 'assets', 'os');
+const ASSETS_DIR = path.join(process.cwd(), 'public', 'os');
 
 function getIcon(filename: string, isDir: boolean): string {
     if (isDir) return '📁';
@@ -34,7 +34,7 @@ function scanDir(dirPath: string, virtualPath: string = 'Home'): Record<string, 
         // Normalize paths for comparison
         const normalizedItemPath = itemPath.split(path.sep).join('/');
         const normalizedAssetsDir = ASSETS_DIR.split(path.sep).join('/');
-        const relativeSrc = '/assets/os' + normalizedItemPath.replace(normalizedAssetsDir, '');
+        const relativeSrc = '/os' + normalizedItemPath.replace(normalizedAssetsDir, '');
 
         const stats = fs.statSync(itemPath);
         const entry: { n: string; icon: string; dir?: boolean; src?: string; size?: number; mtime?: string } = {
